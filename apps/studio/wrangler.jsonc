@@ -41,10 +41,10 @@
       ],
       "vars": {
         "ENVIRONMENT": "production",
-        "PROVIDER_MODE": "fixture",
+        "PROVIDER_MODE": "watsonx",
         "WATSONX_BASE_URL": "https://us-south.ml.cloud.ibm.com",
         "WATSONX_API_VERSION": "2024-10-08",
-        "WATSONX_MODEL_ID": "ibm/granite-4-h-small",
+        "WATSONX_MODEL_ID": "openai/gpt-oss-120b",
         "ALLOWED_ORIGINS": "https://ghost-audience.ginejneupane123.workers.dev",
         "RATE_LIMIT_WINDOW_SECONDS": "600",
         "RATE_LIMIT_MAX_REQUESTS": "30",
