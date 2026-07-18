@@ -93,7 +93,7 @@ export class AnalysisController {
       throw new Error("A completed analysis cannot be resumed.");
     }
     if (this.activeProjects.has(run.projectId)) {
-      throw new Error("This tab is already processing the project.");
+      return;
     }
 
     this.activeProjects.add(run.projectId);
@@ -219,7 +219,18 @@ export class AnalysisController {
           }
         },
       );
-      await this.runs.setStatus(runIdValue, "completed", new Date().toISOString());
+      const committedSteps = await this.database.runSteps
+        .where("runId")
+        .equals(runIdValue)
+        .toArray();
+      const completedWithWarnings = committedSteps.some(
+        (step) => step.rawValidatedResponse.warnings.length > 0,
+      );
+      await this.runs.setStatus(
+        runIdValue,
+        completedWithWarnings ? "completed_with_warnings" : "completed",
+        new Date().toISOString(),
+      );
     } catch (error: unknown) {
       if (error instanceof DOMException && error.name === "AbortError") {
         await this.runs.setStatus(runIdValue, "cancelled", new Date().toISOString());

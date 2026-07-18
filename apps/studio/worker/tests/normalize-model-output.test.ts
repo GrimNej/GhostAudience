@@ -2,6 +2,7 @@ import type { StepAnalysisInput } from "@ghost-audience/contracts";
 import { describe, expect, it } from "vitest";
 import { ApiError, asApiError } from "../errors";
 import { normalizeStepOutput } from "../validation/normalize-step-output";
+import { buildSafeFallbackStepOutput } from "../validation/safe-fallback-step-output";
 import { validateStepOutput } from "../validation/validate-step-output";
 
 const hash = "a".repeat(64);
@@ -73,6 +74,35 @@ function openQuestion(operationId: string) {
 }
 
 describe("normalizeStepOutput", () => {
+  it("builds a deterministic evidence-backed recovery for invalid provider output", () => {
+    const recovered = buildSafeFallbackStepOutput(input);
+    expect(validateStepOutput(input, recovered)).toEqual(recovered);
+    expect(recovered.factsAdded).toHaveLength(1);
+    expect(recovered.factsAdded[0]?.evidence[0]).toEqual({
+      segmentId: input.currentSegment.id,
+      startOffset: 0,
+      endOffset: input.currentSegment.text.length,
+      quote: input.currentSegment.text,
+    });
+    expect(recovered.warnings).toHaveLength(1);
+  });
+
+  it("keeps fallback evidence exact when the section starts with whitespace", () => {
+    const whitespaceInput = {
+      ...input,
+      currentSegment: {
+        ...input.currentSegment,
+        text: "\n\n  Mira stops. Later material follows.",
+      },
+    };
+    const recovered = buildSafeFallbackStepOutput(whitespaceInput);
+    expect(validateStepOutput(whitespaceInput, recovered)).toEqual(recovered);
+    expect(recovered.factsAdded[0]?.evidence[0]).toMatchObject({
+      startOffset: 4,
+      quote: "Mira stops.",
+    });
+  });
+
   it("strips extras and repairs uniquely matchable evidence offsets", () => {
     const normalized = normalizeStepOutput(input, {
       schemaVersion: "1.0",

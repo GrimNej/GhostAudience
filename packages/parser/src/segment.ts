@@ -30,6 +30,8 @@ export const DEFAULT_SEGMENTATION_OPTIONS: SegmentationOptions = {
   maximumUtf8Bytes: 9_000,
 };
 
+const progressivePlainTextThreshold = 360;
+
 interface SegmentDraft extends RawSection {
   readonly sha256: string;
 }
@@ -92,8 +94,19 @@ function splitSection(
   section: RawSection,
   options: SegmentationOptions,
 ): readonly RawSection[] {
-  if (fits(section.text, options.softMaximumWords, options.maximumUtf8Bytes))
+  const sectionWords = countWords(section.text);
+  const needsProgressivePlainTextRead =
+    section.heading === null && sectionWords > progressivePlainTextThreshold;
+  if (
+    !needsProgressivePlainTextRead &&
+    fits(section.text, options.softMaximumWords, options.maximumUtf8Bytes)
+  )
     return [section];
+
+  const targetWords =
+    needsProgressivePlainTextRead && sectionWords <= options.softMaximumWords
+      ? Math.ceil(sectionWords / 2)
+      : options.targetWords;
 
   const paragraphs = paragraphRanges(section.text);
   if (paragraphs.length === 0) return [];
@@ -113,7 +126,7 @@ function splitSection(
       if (!fits(candidate.text, options.softMaximumWords, options.maximumUtf8Bytes))
         break;
       bestEnd = endIndex;
-      if (countWords(candidate.text) >= options.targetWords) break;
+      if (countWords(candidate.text) >= targetWords) break;
       endIndex += 1;
     }
 

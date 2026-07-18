@@ -61,4 +61,24 @@ describe("immutable script versions", () => {
       ).toBe(segment.text);
     }
   });
+
+  it("splits medium plain prose so audience questions can evolve before the ending", async () => {
+    const paragraphs = Array.from(
+      { length: 8 },
+      (_, index) =>
+        `Paragraph ${index + 1} ${"carries the story forward with visible action and unresolved pressure ".repeat(8).trim()}.`,
+    );
+    const parsed = await parseScript({
+      title: "Progressive prose",
+      fileName: "story.txt",
+      text: paragraphs.join("\n\n"),
+      now: "2026-07-18T00:00:00.000Z",
+    });
+
+    expect(parsed.wordCount).toBeGreaterThan(360);
+    expect(parsed.wordCount).toBeLessThan(900);
+    expect(parsed.segments).toHaveLength(2);
+    expect(parsed.segments[0]?.text).not.toContain("Paragraph 8");
+    expect(parsed.segments[1]?.text).toContain("Paragraph 8");
+  });
 });

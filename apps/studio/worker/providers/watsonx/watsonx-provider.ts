@@ -15,6 +15,7 @@ import { stepSystemPrompt } from "../../prompts/step.system.v1";
 import { buildStepUserPrompt } from "../../prompts/step.user.v1";
 import { normalizeStepOutput } from "../../validation/normalize-step-output";
 import { parseJsonContent } from "../../validation/parse-json-content";
+import { buildSafeFallbackStepOutput } from "../../validation/safe-fallback-step-output";
 import { validateStepOutput } from "../../validation/validate-step-output";
 import type {
   ModelCapabilities,
@@ -39,6 +40,18 @@ function usageOf(result: {
 
 function validationMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown validation failure.";
+}
+
+function combinedUsage(
+  first: Parameters<typeof usageOf>[0],
+  second: Parameters<typeof usageOf>[0],
+): ProviderUsage {
+  const totalTokens = (first.totalTokens ?? 0) + (second.totalTokens ?? 0);
+  return {
+    promptTokens: (first.promptTokens ?? 0) + (second.promptTokens ?? 0),
+    completionTokens: (first.completionTokens ?? 0) + (second.completionTokens ?? 0),
+    totalTokens: totalTokens === 0 ? null : totalTokens,
+  };
 }
 
 function assertUsefulStepOutput(output: StepAnalysisOutput): void {
@@ -113,23 +126,15 @@ export class WatsonxProvider implements NarrativeModelProvider {
           normalizeStepOutput(input, parseJsonContent(repaired.content)),
         );
         assertUsefulStepOutput(output);
-        const totalTokens = (first.totalTokens ?? 0) + (repaired.totalTokens ?? 0);
         return {
           output,
-          usage: {
-            promptTokens: (first.promptTokens ?? 0) + (repaired.promptTokens ?? 0),
-            completionTokens:
-              (first.completionTokens ?? 0) + (repaired.completionTokens ?? 0),
-            totalTokens: totalTokens === 0 ? null : totalTokens,
-          },
+          usage: combinedUsage(first, repaired),
         };
       } catch {
-        throw new ApiError(
-          "MODEL_OUTPUT_INVALID",
-          502,
-          "The watsonx.ai response failed validation after one bounded repair attempt.",
-          false,
-        );
+        return {
+          output: buildSafeFallbackStepOutput(input),
+          usage: combinedUsage(first, repaired),
+        };
       }
     }
   }
