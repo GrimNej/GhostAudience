@@ -102,12 +102,12 @@ export function AnalysisPage(): JSX.Element {
                 void start("watsonx");
               }}
             >
-              Run live Granite
+              Run live watsonx.ai
             </button>
           </div>
           {!liveAvailable ? (
             <p className="field__hint">
-              Live Granite is unavailable, disabled, or inside the protected token
+              Live watsonx.ai is unavailable, disabled, or inside the protected token
               reserve. Fixture mode remains available.
             </p>
           ) : null}
@@ -148,7 +148,7 @@ export function AnalysisPage(): JSX.Element {
         providerLabel={
           run.providerMode === "fixture"
             ? "Fixture mode"
-            : `IBM Granite · ${run.modelId}`
+            : `IBM watsonx.ai · ${run.modelId}`
         }
         noFutureScenesSupplied
       />

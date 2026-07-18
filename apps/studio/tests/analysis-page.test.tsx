@@ -140,7 +140,7 @@ describe("AnalysisPage", () => {
       },
     };
     renderAnalysisPage();
-    fireEvent.click(screen.getByRole("button", { name: "Run live Granite" }));
+    fireEvent.click(screen.getByRole("button", { name: "Run live watsonx.ai" }));
     await waitFor(() => {
       expect(start).toHaveBeenCalledWith({
         projectId: "project_test",

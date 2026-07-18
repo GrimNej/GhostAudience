@@ -25,7 +25,7 @@ export function useReportData(projectId: string) {
         providerLabel:
           workspace.latestRun.providerMode === "fixture"
             ? "Validated fixture"
-            : "IBM watsonx.ai / Granite",
+            : "IBM watsonx.ai",
         modelId: workspace.latestRun.modelId,
         scriptHash: workspace.latestRun.scriptHash,
         questions,

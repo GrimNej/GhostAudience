@@ -10,8 +10,7 @@ import { ApiError } from "../../errors";
 import { finalizeSystemPrompt } from "../../prompts/finalize.system.v1";
 import { buildFinalizeUserPrompt } from "../../prompts/finalize.user.v1";
 import { promptManifest } from "../../prompts/manifest";
-import { repairSystemPrompt } from "../../prompts/repair.system.v1";
-import { buildRepairUserPrompt } from "../../prompts/repair.user.v1";
+import { buildStepRetryUserPrompt } from "../../prompts/step.retry.user.v1";
 import { stepSystemPrompt } from "../../prompts/step.system.v1";
 import { buildStepUserPrompt } from "../../prompts/step.user.v1";
 import { parseJsonContent } from "../../validation/parse-json-content";
@@ -73,13 +72,10 @@ export class WatsonxProvider implements NarrativeModelProvider {
         this.config,
         {
           messages: [
-            { role: "system", content: repairSystemPrompt },
+            { role: "system", content: stepSystemPrompt },
             {
               role: "user",
-              content: buildRepairUserPrompt(
-                first.content,
-                validationMessage(firstError),
-              ),
+              content: buildStepRetryUserPrompt(input, validationMessage(firstError)),
             },
           ],
           maxTokens: 3_500,
