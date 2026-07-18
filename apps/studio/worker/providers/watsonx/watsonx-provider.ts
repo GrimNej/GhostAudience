@@ -13,6 +13,7 @@ import { promptManifest } from "../../prompts/manifest";
 import { buildStepRetryUserPrompt } from "../../prompts/step.retry.user.v1";
 import { stepSystemPrompt } from "../../prompts/step.system.v1";
 import { buildStepUserPrompt } from "../../prompts/step.user.v1";
+import { normalizeStepOutput } from "../../validation/normalize-step-output";
 import { parseJsonContent } from "../../validation/parse-json-content";
 import { validateStepOutput } from "../../validation/validate-step-output";
 import type {
@@ -64,7 +65,10 @@ export class WatsonxProvider implements NarrativeModelProvider {
 
     try {
       return {
-        output: validateStepOutput(input, parseJsonContent(first.content)),
+        output: validateStepOutput(
+          input,
+          normalizeStepOutput(input, parseJsonContent(first.content)),
+        ),
         usage: usageOf(first),
       };
     } catch (firstError: unknown) {
@@ -85,7 +89,10 @@ export class WatsonxProvider implements NarrativeModelProvider {
         signal,
       );
       try {
-        const output = validateStepOutput(input, parseJsonContent(repaired.content));
+        const output = validateStepOutput(
+          input,
+          normalizeStepOutput(input, parseJsonContent(repaired.content)),
+        );
         const totalTokens = (first.totalTokens ?? 0) + (repaired.totalTokens ?? 0);
         return {
           output,
