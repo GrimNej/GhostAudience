@@ -24,7 +24,7 @@ export const WatsonxChatResponseSchema = z
             message: z
               .object({
                 role: z.string(),
-                content: z.string().min(1),
+                content: z.string().nullable().optional(),
               })
               .passthrough(),
             finish_reason: z.string().nullable().optional(),
