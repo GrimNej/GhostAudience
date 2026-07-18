@@ -48,8 +48,10 @@ Turn Ghost Audience into a clear three-step product:
 - [x] Live provider run using the owner's multi-section Iron Crag narrative
 - [x] Exact question evidence and detail view
 - [x] Refresh persistence
-- [ ] GitHub Actions verification after the final push
+- [x] GitHub Actions verification after the final push
 
 ## Verified Release Result
 
 The public application accepted the 504-word Iron Crag story without creator context, split it into two sections, completed both analysis requests with HTTP 200, and opened Results automatically. The report contained 6 evidence-backed questions, 4 clarity risks, and 2 clear signals. The browser had zero application errors and the report survived a full reload.
+
+GitHub Actions also passed the CI, Security, and full Submission Gate workflows for the release correction commit. The Submission Gate executed the same 16-test browser matrix on its hosted Ubuntu runner with local fixture bindings and no production credentials.

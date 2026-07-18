@@ -35,6 +35,8 @@
 - A fresh browser imported the owner's exact 504-word Iron Crag narrative, completed both live sections with HTTP 200 responses, and opened Results automatically.
 - The verified report contained 6 questions, 4 clarity risks, 2 clear signals, exact evidence, working question details, and refresh persistence.
 - The post-release browser console had no application errors. The only warning was the automation context declining persistent-storage permission.
+- GitHub Actions passed CI run `29654775644`, Security run `29654775634`, and Submission Gate run `29654775713` for release correction commit `beda893`.
+- The hosted Submission Gate reached the preview Worker without Cloudflare credentials and passed the complete browser matrix using local fixture bindings.
 
 ## Source Commits In This Release
 
@@ -43,3 +45,5 @@
 - `aeda4e0` - harden the rebuilt creator journey.
 - `cf80c00` - target the production Llama runtime.
 - `7f23c55` - deliver a resilient AI audience read.
+- `e4c74af` - record the verified production release.
+- `beda893` - keep the hosted browser gate on local bindings.

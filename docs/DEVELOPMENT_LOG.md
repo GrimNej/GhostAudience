@@ -31,6 +31,10 @@
 - Added a shared idempotent analysis controller and deterministic exact-quote fallback for model output that remains invalid after repair.
 - Passed repository checks, production build, coverage thresholds, and the 16-test Chromium, Firefox, WebKit, and mobile browser matrix.
 - Corrected the release command to target the production Wrangler environment and selected `meta-llama/llama-3-3-70b-instruct` for watsonx.ai.
+- Rebuilt the product around one input and one audience read, then verified the owner's Iron Crag narrative against the live custom domain.
+- Added a bounded Cloudflare Workers AI continuity path and evidence-backed fallback questions so provider delays or format drift cannot strand a report.
+- Kept Cloudflare Vite preview bindings local for fixture-mode browser tests, removing the CI requirement for production Cloudflare credentials.
+- Verified hosted CI, Security, and the 16-test Submission Gate as green for release correction commit `beda893`.
 
 ## 2026-07-18: Production Reliability And Product Contract
 
