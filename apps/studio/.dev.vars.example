@@ -1,0 +1,4 @@
+# Copy this file to .dev.vars for local Worker development only.
+# Generate fresh local-only values; never commit .dev.vars.
+RATE_LIMIT_SALT=replace-with-a-random-local-only-value-at-least-32-characters-long
+SESSION_SIGNING_SECRET=replace-with-a-random-local-only-value-at-least-32-characters-long
