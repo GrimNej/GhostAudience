@@ -3,6 +3,8 @@ name: Submission gate
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - "submission-*"
 
