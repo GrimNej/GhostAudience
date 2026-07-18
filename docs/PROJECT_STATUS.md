@@ -19,6 +19,7 @@ Fixture production deployment complete; live IBM watsonx.ai integration remains 
 - Pushed the complete `main` history to `https://github.com/GrimNej/GhostAudience`.
 - Applied the remote D1 migration and deployed the fixture-mode Worker at `https://ghost-audience-production.ginejneupane123.workers.dev`.
 - Verified deployed health, capabilities, CORS, security headers, and the browser demo's three-segment analysis flow.
+- Passed the GitHub CI, full Submission gate, and Security workflow after correcting the workspace-scoped Playwright install and local fixture setup.
 
 ## In progress
 

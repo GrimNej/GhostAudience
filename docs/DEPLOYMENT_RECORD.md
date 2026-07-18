@@ -22,7 +22,12 @@ Fresh production values for `RATE_LIMIT_SALT` and `SESSION_SIGNING_SECRET` were 
 - API responses included no-store cache control, `nosniff`, referrer, permissions, and cross-origin isolation headers.
 - A real-browser smoke flow created the demo project and completed all three sequential analysis segments without hindsight data or browser errors.
 
+## Continuous Integration Verification
+
+- Commit `1d7f704` passed [CI](https://github.com/GrimNej/GhostAudience/actions/runs/29643051405), including its Chromium browser-install and smoke-test job.
+- Commit `1d7f704` passed the [Submission gate](https://github.com/GrimNej/GhostAudience/actions/runs/29643051438), including the full browser matrix.
+- Commit `1d7f704` passed the [Security workflow](https://github.com/GrimNej/GhostAudience/actions/runs/29643051404).
+
 ## Follow-Up
 
-- Rerun the GitHub Actions **Submission gate** workflow after commit `90b5c9e`; it now installs the Studio-owned Playwright version and uses Node 24 action runtimes.
 - A live IBM watsonx.ai integration remains intentionally disabled until a watsonx.ai project and model are confirmed. See `docs/DEPLOYMENT.md`.
