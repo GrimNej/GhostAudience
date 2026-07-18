@@ -138,6 +138,9 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Configure local fixture secrets
+        run: cp apps/studio/.dev.vars.example apps/studio/.dev.vars
+
       - name: Install Studio Chromium
         run: >
           pnpm --filter @ghost-audience/studio exec playwright install
