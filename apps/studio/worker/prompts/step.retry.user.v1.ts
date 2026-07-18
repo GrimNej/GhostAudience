@@ -11,7 +11,7 @@ export function buildStepRetryUserPrompt(
         "Regenerate the entire response from the supplied input. The previous response was rejected; do not repair it or refer to it.",
       previousValidationError: validationError.slice(0, 4_000),
       priority:
-        "A small fully valid response is better than an invalid detailed response. Use empty arrays and a warning when exact evidence cannot be supplied.",
+        "A small fully valid, useful response is better than an invalid detailed response. For an eventful segment, return at least one explicit fact with one distinctive exact quote; use empty arrays only when no concrete fact can be supported.",
     },
     null,
     2,

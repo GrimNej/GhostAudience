@@ -26,6 +26,8 @@ export function buildStepUserPrompt(input: StepAnalysisInput): string {
         warnings: [],
       },
       responseContract: {
+        usefulness:
+          "For a segment with concrete events or dialogue, add one to three explicit facts. Open a question only for a genuine unresolved uncertainty. Do not return every array empty unless the segment has no concrete fact and no meaningful uncertainty.",
         ids: "Every id and operationId is 8-128 characters using only letters, digits, underscores, or hyphens.",
         evidence: {
           requiredFor: ["factsAdded", "assumptionsAdded", "questionOperations"],
@@ -35,7 +37,7 @@ export function buildStepUserPrompt(input: StepAnalysisInput): string {
             endOffset: "exclusive integer",
             quote: "exact character-for-character substring of currentSegment.text",
           },
-          rule: "Set startOffset and endOffset so currentSegment.text.slice(startOffset, endOffset) equals quote exactly.",
+          rule: "Prefer a distinctive quote occurring exactly once in currentSegment.text. Set startOffset and endOffset so currentSegment.text.slice(startOffset, endOffset) equals quote exactly.",
         },
         factsAddedItem: {
           id: "fact_0001",
