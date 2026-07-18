@@ -46,20 +46,6 @@ export const WatsonxChatResponseSchema = z
 const WatsonxModelSpecSchema = z
   .object({
     model_id: z.string().min(1),
-    label: z.string().optional(),
-    provider: z.string().optional(),
-    functions: z.array(z.string()).optional(),
-    lifecycle: z
-      .array(
-        z
-          .object({
-            id: z.string(),
-            start_date: z.string().optional(),
-            alternative_model_ids: z.array(z.string()).optional(),
-          })
-          .passthrough(),
-      )
-      .optional(),
   })
   .passthrough();
 
