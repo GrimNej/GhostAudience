@@ -26,7 +26,7 @@
 
 ## Verification Completed
 
-- Full repository quality gate passed: placeholder and request-key scans, Biome, TypeScript, dependency-boundary and dead-code checks, plus 46 unit tests.
+- Full repository quality gate passed: placeholder and request-key scans, Biome, TypeScript, dependency-boundary and dead-code checks, plus 49 unit tests.
 - `GET /api/v1/health` and `GET /api/v1/capabilities` returned HTTP 200 over the custom domain.
 - Capabilities reported the live watsonx.ai provider and `openai/gpt-oss-120b` catalog capability.
 - A real browser completed all three fixture analysis steps over the custom domain; each request returned HTTP 200.
@@ -38,3 +38,4 @@
 - `62ae855` — normalize unambiguous watsonx evidence output.
 - `67a17a9` — add the production custom-domain route.
 - `3c2e850` — allow the Cloudflare analytics beacon under CSP.
+- Model-output normalizer and invariant guards are covered at the configured CI coverage thresholds.

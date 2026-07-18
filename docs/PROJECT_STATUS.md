@@ -13,7 +13,7 @@ Production release is live at `https://audience.grimnej.com` with IBM watsonx.ai
 - Added the `audience.grimnej.com` Worker custom domain without modifying or deleting existing DNS records.
 - Preserved both the custom domain and Workers development URL as permitted production origins during the transition.
 - Verified DNS-backed HTTPS, health, capability, CORS, security headers, fixture analysis, and real live watsonx.ai analysis on the custom domain.
-- Passed the complete repository quality gate with 46 unit tests before the release.
+- Passed the complete repository quality gate with 49 unit tests before the release.
 
 ## Operational Notes
 
