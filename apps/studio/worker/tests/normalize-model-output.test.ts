@@ -1,6 +1,7 @@
 import type { StepAnalysisInput } from "@ghost-audience/contracts";
 import { describe, expect, it } from "vitest";
 import { ApiError, asApiError } from "../errors";
+import { supportsJsonObjectOutput } from "../providers/watsonx/model-features";
 import { normalizeStepOutput } from "../validation/normalize-step-output";
 import { buildSafeFallbackStepOutput } from "../validation/safe-fallback-step-output";
 import { validateStepOutput } from "../validation/validate-step-output";
@@ -84,7 +85,116 @@ describe("normalizeStepOutput", () => {
       endOffset: input.currentSegment.text.length,
       quote: input.currentSegment.text,
     });
+    expect(recovered.questionOperations).toHaveLength(3);
     expect(recovered.warnings).toHaveLength(1);
+  });
+
+  it("salvages useful model questions and repairs them to exact evidence", () => {
+    const recovered = buildSafeFallbackStepOutput(input, {
+      questionOperations: [
+        {
+          text: "Why does Mira stop at the door?",
+          evidence: [{ quote: "Mira" }],
+        },
+      ],
+    });
+
+    expect(validateStepOutput(input, recovered)).toEqual(recovered);
+    expect(recovered.questionOperations[0]).toMatchObject({
+      type: "open",
+      text: "Why does Mira stop at the door?",
+      evidence: [
+        {
+          segmentId: input.currentSegment.id,
+          startOffset: 0,
+          endOffset: 4,
+          quote: "Mira",
+        },
+      ],
+    });
+  });
+
+  it("turns a narrative reversal into a specific, grammatical audience question", () => {
+    const storyInput: StepAnalysisInput = {
+      ...input,
+      currentOrdinal: 1,
+      currentSegment: {
+        ...input.currentSegment,
+        text: "Kaelen fought until dawn. The Warlord’s horns sounded a retreat.",
+      },
+    };
+
+    const recovered = buildSafeFallbackStepOutput(storyInput);
+
+    expect(validateStepOutput(storyInput, recovered)).toEqual(recovered);
+    expect(
+      recovered.questionOperations.some(
+        (operation) =>
+          operation.type === "open" &&
+          operation.text ===
+            "What specifically causes the Warlord to retreat or change course at this point?",
+      ),
+    ).toBe(true);
+  });
+
+  it("covers broad-content and anonymous-narrative recovery paths", () => {
+    const laterSpeech: StepAnalysisInput = {
+      ...input,
+      currentOrdinal: 2,
+      currentSegment: {
+        ...input.currentSegment,
+        text: "The proposal adds a second supporting example without a conclusion.",
+      },
+    };
+    const anonymousStory: StepAnalysisInput = {
+      ...input,
+      currentSegment: {
+        ...input.currentSegment,
+        text: '"go now!" a voice shouted. Two guards faced five attackers.',
+      },
+    };
+
+    const speechResult = buildSafeFallbackStepOutput(laterSpeech);
+    const storyResult = buildSafeFallbackStepOutput(anonymousStory);
+
+    expect(validateStepOutput(laterSpeech, speechResult)).toEqual(speechResult);
+    expect(validateStepOutput(anonymousStory, storyResult)).toEqual(storyResult);
+    expect(speechResult.questionOperations[0]).toMatchObject({
+      type: "open",
+      text: "How does this section advance or qualify the central point established earlier?",
+    });
+    expect(storyResult.questionOperations[0]).toMatchObject({
+      type: "open",
+      text: "How can a group of two realistically withstand a group of five?",
+    });
+  });
+
+  it("normalizes varied recovered question shapes without duplicating them", () => {
+    const recovered = buildSafeFallbackStepOutput(input, [
+      null,
+      "not an object",
+      {
+        question: "Who is waiting beyond the door?",
+        evidence: [null, { quote: "Mira" }],
+      },
+      {
+        text: "When will Mira open the door?",
+        evidence: [{ quote: "not present in the source" }],
+      },
+      {
+        text: "Where does the door lead?",
+        evidence: "invalid",
+      },
+      { text: "Who is waiting beyond the door?" },
+      { text: "This is not a question" },
+    ]);
+
+    expect(validateStepOutput(input, recovered)).toEqual(recovered);
+    expect(
+      recovered.questionOperations.map((operation) =>
+        operation.type === "open" ? operation.kind : null,
+      ),
+    ).toEqual(["identity", "timeline", "spatial_relation"]);
   });
 
   it("keeps fallback evidence exact when the section starts with whitespace", () => {
@@ -320,5 +430,16 @@ describe("normalizeStepOutput", () => {
       status: 500,
       retryable: false,
     });
+    expect(asApiError(new DOMException("Timed out", "AbortError"))).toMatchObject({
+      code: "PROVIDER_UNAVAILABLE",
+      status: 503,
+      retryable: true,
+    });
+  });
+
+  it("uses native JSON output for supported watsonx.ai model families", () => {
+    expect(supportsJsonObjectOutput("meta-llama/llama-3-3-70b-instruct")).toBe(true);
+    expect(supportsJsonObjectOutput("ibm/granite-4-h-small")).toBe(true);
+    expect(supportsJsonObjectOutput("openai/gpt-oss-120b")).toBe(false);
   });
 });

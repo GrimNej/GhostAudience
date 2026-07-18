@@ -66,7 +66,9 @@ export function analysisStepHandler(provider: NarrativeModelProvider) {
 
     let tokenReservation: TokenReservation | null = null;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 45_000);
+    // One repair attempt can follow the initial model call, so the route timeout must
+    // cover both provider time limits plus a small amount of gateway overhead.
+    const timer = setTimeout(() => controller.abort(), 75_000);
 
     try {
       if (context.get("runtimeConfig").providerMode === "live") {

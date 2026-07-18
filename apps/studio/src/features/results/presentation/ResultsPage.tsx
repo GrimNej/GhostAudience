@@ -112,8 +112,8 @@ function ResultsSummary({
   if (questions.length === 0) {
     return (
       <p>
-        The audience read found {factCount} clear story signals and no persistent
-        questions. Review the understanding view to see what landed.
+        The AI audience found {factCount} clear signals and no persistent questions.
+        Review What they understood to see what landed.
       </p>
     );
   }
@@ -123,7 +123,7 @@ function ResultsSummary({
       <p>
         Your audience formed {questions.length} meaningful questions. {blocking}{" "}
         {blocking === 1 ? "question needs" : "questions need"} attention because the
-        missing context may block the scene from landing.
+        missing context may prevent your point from landing.
       </p>
     );
   }
@@ -264,7 +264,7 @@ export function ResultsPage(): JSX.Element {
             <CheckCircle2 aria-hidden="true" size={16} />
             Audience read complete
           </span>
-          <h2>Here is what your audience is carrying.</h2>
+          <h2>Meet the questions your real audience may bring.</h2>
           <ResultsSummary questions={questions} factCount={value.run.facts.length} />
         </div>
         <div className="results-hero__actions">
@@ -339,8 +339,8 @@ export function ResultsPage(): JSX.Element {
           [
             ["overview", "Overview", Sparkles],
             ["questions", `Questions (${questions.length})`, MessageCircleQuestion],
-            ["journey", "Story journey", Route],
-            ["understanding", "What landed", Lightbulb],
+            ["journey", "Reaction journey", Route],
+            ["understanding", "What they understood", Lightbulb],
           ] as const
         ).map(([key, label, Icon]) => (
           <button
@@ -440,7 +440,7 @@ export function ResultsPage(): JSX.Element {
           <div className="section-heading section-heading--stack-mobile">
             <div>
               <p className="eyebrow">Audience voice</p>
-              <h3>Every question the story created</h3>
+              <h3>Every question your audience raised</h3>
             </div>
             <fieldset className="filter-pills">
               <legend className="visually-hidden">Filter questions</legend>

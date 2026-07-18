@@ -256,12 +256,12 @@ export function AnalysisPage(): JSX.Element {
       </div>
       <div className="analysis-ready__copy">
         <p className="eyebrow">Ready to listen</p>
-        <h2>Your draft is ready for its first audience.</h2>
+        <h2>Your content is ready for its AI audience.</h2>
         <p>
           We found {value.segments.length}{" "}
           {value.segments.length === 1 ? "section" : "sections"} in{" "}
-          {value.script.wordCount.toLocaleString()} words. The read follows the story in
-          order so later reveals cannot influence earlier reactions.
+          {value.script.wordCount.toLocaleString()} words. The audience follows your
+          content in order so later points cannot influence earlier reactions.
         </p>
         <div className="analysis-ready__meta">
           <span>

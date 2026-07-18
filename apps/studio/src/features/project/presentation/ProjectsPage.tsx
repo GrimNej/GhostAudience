@@ -52,7 +52,7 @@ export function ProjectsPage(): JSX.Element {
         <div>
           <p className="eyebrow">Your private workspace</p>
           <h1>Your audience reads</h1>
-          <p>Continue an existing draft or invite a fresh audience to something new.</p>
+          <p>Continue a saved read or invite a fresh AI audience to something new.</p>
         </div>
 
         <div className="page-actions">
@@ -104,7 +104,8 @@ export function ProjectsPage(): JSX.Element {
           </span>
           <h2>Your first audience is ready when you are.</h2>
           <p>
-            Paste a draft, start the read, and see what a first-time audience notices.
+            Paste any content, start the read, and see what a first-time audience may
+            understand, question, or find confusing.
           </p>
           <button
             type="button"

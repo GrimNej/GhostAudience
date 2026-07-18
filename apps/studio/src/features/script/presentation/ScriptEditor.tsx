@@ -64,7 +64,7 @@ export function ScriptEditor({
     text.trim().length === 0
       ? "Paste your content or import a supported file."
       : wordCount > hardWordLimit
-        ? `This draft exceeds the ${hardWordLimit.toLocaleString()} word limit.`
+        ? `This content exceeds the ${hardWordLimit.toLocaleString()} word limit.`
         : null;
 
   async function importFile(file: File): Promise<void> {
@@ -111,11 +111,11 @@ export function ScriptEditor({
     >
       <header className="content-composer__intro">
         <div>
-          <p className="eyebrow">Your story, article, or script</p>
-          <h2>What should your audience read?</h2>
+          <p className="eyebrow">Your speech, story, pitch, article, or script</p>
+          <h2>What should your AI audience hear or read?</h2>
           <p>
-            Paste the whole draft. Ghost Audience will divide it into readable sections
-            and follow the questions that appear as the story unfolds.
+            Paste the whole thing. Ghost Audience will divide it into sections and
+            simulate the questions, confusion, and curiosity of a first audience.
           </p>
         </div>
         <ol className="content-composer__promise" aria-label="Three simple steps">
@@ -209,7 +209,7 @@ export function ScriptEditor({
             aria-label="Content"
             aria-invalid={validationError !== null}
             aria-describedby={validationError === null ? undefined : errorId}
-            placeholder="Paste the complete draft here. You do not need to label scenes or prepare sections."
+            placeholder="Paste the complete content here. You do not need to format or prepare sections."
             onChange={(event) => {
               setText(event.target.value);
               if (fileName !== null) setFileName(null);

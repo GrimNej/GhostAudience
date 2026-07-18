@@ -20,7 +20,7 @@ export const test = base.extend<AppFixtures>({
         .click();
       await expect(
         page.getByRole("heading", {
-          name: /your draft is ready for its first audience/i,
+          name: /your content is ready for its AI audience/i,
         }),
       ).toBeVisible();
     });

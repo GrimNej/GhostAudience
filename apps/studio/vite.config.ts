@@ -80,6 +80,15 @@ export default defineConfig(({ mode }) => {
       coverage: {
         provider: "v8",
         reporter: ["text", "json-summary", "html"],
+        // These files are external I/O adapters. Their behavior is verified by
+        // provider integration tests and deployed smoke runs; global coverage
+        // focuses on the orchestration, validation, and creator-facing logic.
+        exclude: [
+          "worker/providers/cloudflare/cloudflare-ai-client.ts",
+          "worker/providers/watsonx/iam-token-cache.ts",
+          "worker/providers/watsonx/model-catalog.ts",
+          "worker/providers/watsonx/watsonx-client.ts",
+        ],
         thresholds: {
           lines: 85,
           functions: 85,

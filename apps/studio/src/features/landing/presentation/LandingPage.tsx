@@ -14,20 +14,20 @@ const steps = [
   {
     number: "01",
     icon: FileInput,
-    title: "Bring the whole draft",
-    copy: "Paste your content or import TXT, Markdown, or Fountain. No setup form is required.",
+    title: "Paste anything",
+    copy: "Bring a speech, story, pitch, article, or script. No setup form is required.",
   },
   {
     number: "02",
     icon: ScanText,
-    title: "Let the audience read",
-    copy: "The story is read in order, one section at a time, without using future reveals.",
+    title: "Meet your AI audience",
+    copy: "It follows your content in order and reacts without using information it has not reached yet.",
   },
   {
     number: "03",
     icon: MessageCircleQuestion,
-    title: "See what they carry",
-    copy: "Get audience questions, clarity risks, assumptions, evidence, and a shareable report.",
+    title: "Prepare for the real room",
+    copy: "See what landed, what confused them, and the questions people may ask you next.",
   },
 ] as const;
 
@@ -37,14 +37,14 @@ export function LandingPage(): JSX.Element {
       <div className="landing-hero">
         <div className="landing-hero__copy">
           <span className="landing-kicker">
-            <Sparkles aria-hidden="true" size={15} />A first audience for unfinished
-            work
+            <Sparkles aria-hidden="true" size={15} /> Your ideas, tested before the real
+            room
           </span>
-          <h1>Know what your audience is thinking before you publish.</h1>
+          <h1>Meet your audience before you present, publish, or perform.</h1>
           <p className="page-lede">
-            Add a script, story, article, or Markdown draft. Ghost Audience follows it
-            in order and shows the questions, assumptions, and clarity risks a new
-            reader could carry.
+            Paste a speech, story, article, pitch, or any cluster of text. Your AI
+            audience shows what it understood, what felt confusing, and what people may
+            ask when you share it for real.
           </p>
           <div className="landing__actions">
             <Link
@@ -122,19 +122,19 @@ export function LandingPage(): JSX.Element {
           </article>
           <div className="preview-note preview-note--top">
             <MessageCircleQuestion aria-hidden="true" size={17} />
-            Questions appear as the story unfolds
+            Questions appear as your ideas unfold
           </div>
           <div className="preview-note preview-note--bottom">
             <ShieldCheck aria-hidden="true" size={17} />
-            Later scenes stay hidden
+            Later sections stay hidden
           </div>
         </div>
       </div>
 
       <section className="landing-steps" aria-labelledby="how-it-works">
         <header className="landing-section-heading">
-          <p className="eyebrow">A clean path from draft to insight</p>
-          <h2 id="how-it-works">One input. One analysis. Useful answers.</h2>
+          <p className="eyebrow">A clean path from content to confidence</p>
+          <h2 id="how-it-works">Put something in. Get a real audience read back.</h2>
         </header>
         <div className="step-grid">
           {steps.map(({ number, icon: Icon, title, copy }) => (
@@ -152,8 +152,8 @@ export function LandingPage(): JSX.Element {
 
       <section className="landing-cta">
         <div>
-          <p className="eyebrow">Your draft already contains the answers</p>
-          <h2>Listen before the real audience arrives.</h2>
+          <p className="eyebrow">Questions are easier when you see them coming</p>
+          <h2>Bring it to an AI audience before the real one.</h2>
         </div>
         <Link className="button button--inverse button--large" to="/projects?create=1">
           Start a new audience read

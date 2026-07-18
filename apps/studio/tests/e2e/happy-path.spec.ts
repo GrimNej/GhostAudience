@@ -10,7 +10,7 @@ test("creator completes the three-step sample journey", { tag: "@smoke" }, async
 
   await expect(
     page.getByRole("heading", {
-      name: /here is what your audience is carrying/i,
+      name: /meet the questions your real audience may bring/i,
     }),
   ).toBeVisible({ timeout: 30_000 });
   await expect(page).toHaveURL(/\/results/u);
@@ -30,7 +30,7 @@ test("creator completes the three-step sample journey", { tag: "@smoke" }, async
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeHidden();
 
-  await page.getByRole("button", { name: /story journey/i }).click();
+  await page.getByRole("button", { name: /reaction journey/i }).click();
   await expect(
     page.getByRole("region", {
       name: /scrollable visual curiosity timeline/i,

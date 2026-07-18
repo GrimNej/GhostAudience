@@ -32,6 +32,6 @@ test("primary views have no automatically detectable serious violations", async 
   await page.getByRole("button", { name: /questions \(/i }).click();
   await expectNoSeriousViolations(page);
 
-  await page.getByRole("button", { name: /what landed/i }).click();
+  await page.getByRole("button", { name: /what they understood/i }).click();
   await expectNoSeriousViolations(page);
 });

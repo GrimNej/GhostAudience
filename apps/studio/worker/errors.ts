@@ -17,6 +17,19 @@ export class ApiError extends Error {
 
 export function asApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error.name === "AbortError" || error.name === "TimeoutError")
+  ) {
+    return new ApiError(
+      "PROVIDER_UNAVAILABLE",
+      503,
+      "The connected audience model took too long to respond.",
+      true,
+    );
+  }
   if (error instanceof z.ZodError) {
     return new ApiError(
       "INVALID_REQUEST",

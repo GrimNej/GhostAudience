@@ -173,6 +173,6 @@ describe("AnalysisPage", () => {
     renderAnalysisPage();
     fireEvent.click(screen.getByRole("button", { name: "Stop this analysis" }));
     expect(cancel).toHaveBeenCalledWith("run_active");
-    expect(screen.getByText(/listening for questions/i)).toBeVisible();
+    expect(screen.getByText(/simulating questions/i)).toBeVisible();
   });
 });

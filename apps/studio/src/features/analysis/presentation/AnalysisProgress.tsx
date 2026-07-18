@@ -46,11 +46,11 @@ export function AnalysisProgress({
         <h2 id="analysis-progress-title">
           {isComplete
             ? "Your results are ready."
-            : "Listening for questions, assumptions, and clarity risks."}
+            : "Simulating questions, confusion, and curiosity."}
         </h2>
         <p>
           {isComplete
-            ? `All ${totalSegments} sections were read in story order.`
+            ? `All ${totalSegments} sections were read in content order.`
             : `Reading section ${Math.min(completed + 1, totalSegments)} of ${totalSegments}. You can leave this tab open while the read continues.`}
         </p>
       </div>
@@ -66,7 +66,7 @@ export function AnalysisProgress({
         </progress>
         <div className="analysis-progress__notes">
           <span>
-            <Check aria-hidden="true" size={15} /> Reads in story order
+            <Check aria-hidden="true" size={15} /> Reacts in content order
           </span>
           <span>
             <Check aria-hidden="true" size={15} /> Grounds findings in your words

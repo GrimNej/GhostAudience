@@ -17,6 +17,7 @@ import { normalizeStepOutput } from "../../validation/normalize-step-output";
 import { parseJsonContent } from "../../validation/parse-json-content";
 import { buildSafeFallbackStepOutput } from "../../validation/safe-fallback-step-output";
 import { validateStepOutput } from "../../validation/validate-step-output";
+import { cloudflareAiChat } from "../cloudflare/cloudflare-ai-client";
 import type {
   ModelCapabilities,
   NarrativeModelProvider,
@@ -24,7 +25,51 @@ import type {
   ProviderUsage,
 } from "../model-provider";
 import { assertModelAvailable } from "./model-catalog";
-import { watsonxChat } from "./watsonx-client";
+import {
+  type WatsonxChatRequest,
+  type WatsonxChatResult,
+  watsonxChat,
+} from "./watsonx-client";
+
+const continuityWarning =
+  "IBM watsonx.ai was temporarily unavailable, so this section continued on the backup audience model.";
+const primaryProviderWindowMilliseconds = 15_000;
+
+type ResilientChatResult = WatsonxChatResult & {
+  readonly usedBackupModel: boolean;
+};
+
+function canUseBackupModel(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    [
+      "PROVIDER_UNAVAILABLE",
+      "PROVIDER_QUOTA_EXHAUSTED",
+      "PROVIDER_AUTH_FAILED",
+      "MODEL_NOT_AVAILABLE",
+    ].includes(error.code)
+  );
+}
+
+function isProviderDeadlineError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error.name === "AbortError" || error.name === "TimeoutError")
+  );
+}
+
+function addContinuityWarning(
+  output: StepAnalysisOutput,
+  usedBackupModel: boolean,
+): StepAnalysisOutput {
+  if (!usedBackupModel || output.warnings.includes(continuityWarning)) return output;
+  return {
+    ...output,
+    warnings: [...output.warnings, continuityWarning],
+  };
+}
 
 function usageOf(result: {
   readonly promptTokens: number | null;
@@ -73,14 +118,54 @@ function assertUsefulStepOutput(output: StepAnalysisOutput): void {
 
 export class WatsonxProvider implements NarrativeModelProvider {
   public readonly providerId = "watsonx";
-  public constructor(private readonly config: LiveRuntimeConfig) {}
+  public constructor(
+    private readonly config: LiveRuntimeConfig,
+    private readonly backupAi?: Ai,
+  ) {}
+
+  private async chat(
+    input: WatsonxChatRequest,
+    signal: AbortSignal,
+    preferBackupModel = false,
+  ): Promise<ResilientChatResult> {
+    if (preferBackupModel && this.backupAi !== undefined) {
+      return {
+        ...(await cloudflareAiChat(this.backupAi, input, signal)),
+        usedBackupModel: true,
+      };
+    }
+
+    const primarySignal = AbortSignal.any([
+      signal,
+      AbortSignal.timeout(
+        Math.min(input.timeLimitMilliseconds, primaryProviderWindowMilliseconds),
+      ),
+    ]);
+    try {
+      return {
+        ...(await watsonxChat(this.config, input, primarySignal)),
+        usedBackupModel: false,
+      };
+    } catch (error: unknown) {
+      if (
+        signal.aborted ||
+        this.backupAi === undefined ||
+        (!canUseBackupModel(error) && !isProviderDeadlineError(error))
+      ) {
+        throw error;
+      }
+      return {
+        ...(await cloudflareAiChat(this.backupAi, input, signal)),
+        usedBackupModel: true,
+      };
+    }
+  }
 
   public async analyzeStep(
     input: StepAnalysisInput,
     signal: AbortSignal,
   ): Promise<ProviderResult<StepAnalysisOutput>> {
-    const first = await watsonxChat(
-      this.config,
+    const first = await this.chat(
       {
         messages: [
           { role: "system", content: stepSystemPrompt },
@@ -94,18 +179,18 @@ export class WatsonxProvider implements NarrativeModelProvider {
     );
 
     try {
+      const firstCandidate = parseJsonContent(first.content);
       const output = validateStepOutput(
         input,
-        normalizeStepOutput(input, parseJsonContent(first.content)),
+        normalizeStepOutput(input, firstCandidate),
       );
       assertUsefulStepOutput(output);
       return {
-        output,
+        output: addContinuityWarning(output, first.usedBackupModel),
         usage: usageOf(first),
       };
     } catch (firstError: unknown) {
-      const repaired = await watsonxChat(
-        this.config,
+      const repaired = await this.chat(
         {
           messages: [
             { role: "system", content: stepSystemPrompt },
@@ -119,20 +204,29 @@ export class WatsonxProvider implements NarrativeModelProvider {
           timeLimitMilliseconds: 25_000,
         },
         signal,
+        first.usedBackupModel,
       );
+      let repairedCandidate: unknown = null;
       try {
+        repairedCandidate = parseJsonContent(repaired.content);
         const output = validateStepOutput(
           input,
-          normalizeStepOutput(input, parseJsonContent(repaired.content)),
+          normalizeStepOutput(input, repairedCandidate),
         );
         assertUsefulStepOutput(output);
         return {
-          output,
+          output: addContinuityWarning(
+            output,
+            first.usedBackupModel || repaired.usedBackupModel,
+          ),
           usage: combinedUsage(first, repaired),
         };
       } catch {
         return {
-          output: buildSafeFallbackStepOutput(input),
+          output: addContinuityWarning(
+            buildSafeFallbackStepOutput(input, repairedCandidate),
+            first.usedBackupModel || repaired.usedBackupModel,
+          ),
           usage: combinedUsage(first, repaired),
         };
       }
@@ -143,8 +237,7 @@ export class WatsonxProvider implements NarrativeModelProvider {
     input: FinalizeRunInput,
     signal: AbortSignal,
   ): Promise<ProviderResult<FinalizeRunOutput>> {
-    const result = await watsonxChat(
-      this.config,
+    const result = await this.chat(
       {
         messages: [
           { role: "system", content: finalizeSystemPrompt },

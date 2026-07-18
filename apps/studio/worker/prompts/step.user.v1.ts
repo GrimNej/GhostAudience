@@ -27,7 +27,7 @@ export function buildStepUserPrompt(input: StepAnalysisInput): string {
       },
       responseContract: {
         usefulness:
-          "For a segment with concrete events or dialogue, add one to three explicit facts. Open a question only for a genuine unresolved uncertainty. Do not return every array empty unless the segment has no concrete fact and no meaningful uncertainty.",
+          "For a segment with concrete ideas, claims, events, dialogue, or definitions, add one to three explicit facts describing what landed. Open questions for genuine confusion, missing support, practical objections, anticipated Q&A, or useful curiosity. Do not return every array empty unless the segment has no concrete point and no meaningful audience question.",
         ids: "Every id and operationId is 8-128 characters using only letters, digits, underscores, or hyphens.",
         evidence: {
           requiredFor: ["factsAdded", "assumptionsAdded", "questionOperations"],

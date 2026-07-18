@@ -1,6 +1,7 @@
 import type { LiveRuntimeConfig } from "../../env";
 import { ApiError } from "../../errors";
 import { getIamToken, invalidateIamToken } from "./iam-token-cache";
+import { supportsJsonObjectOutput } from "./model-features";
 import { WatsonxChatResponseSchema } from "./watsonx-schemas";
 
 interface WatsonxMessage {
@@ -22,10 +23,6 @@ export interface WatsonxChatResult {
 
 function isGptOssModel(modelId: string): boolean {
   return modelId.startsWith("openai/gpt-oss-");
-}
-
-function usesNativeJsonObject(modelId: string): boolean {
-  return modelId.startsWith("ibm/granite-");
 }
 
 function mapProviderFailure(status: number): ApiError {
@@ -88,7 +85,7 @@ async function execute(
           }
         : {
             max_tokens: input.maxTokens,
-            ...(usesNativeJsonObject(config.watsonxModelId)
+            ...(supportsJsonObjectOutput(config.watsonxModelId)
               ? { response_format: { type: "json_object" } }
               : {}),
           }),

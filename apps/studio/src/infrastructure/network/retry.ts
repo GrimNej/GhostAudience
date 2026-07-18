@@ -8,7 +8,7 @@ export interface RetryPolicy {
 }
 
 const DEFAULT_RETRY_POLICY: RetryPolicy = {
-  maximumAttempts: 3,
+  maximumAttempts: 4,
   baseDelayMs: 750,
   maximumDelayMs: 12_000,
   jitterMs: 250,

@@ -29,8 +29,8 @@ export type AppEnvironment = {
 };
 const app = new Hono<AppEnvironment>();
 
-function createProvider(config: RuntimeConfig): NarrativeModelProvider {
-  if (config.providerMode === "live") return new WatsonxProvider(config);
+function createProvider(config: RuntimeConfig, ai: Ai): NarrativeModelProvider {
+  if (config.providerMode === "live") return new WatsonxProvider(config, ai);
   if (config.providerMode === "fixture") return new FixtureProvider();
   return new DisabledProvider();
 }
@@ -60,13 +60,19 @@ app.use("/api/v1/analysis/*", rateLimitMiddleware);
 
 app.get("/api/v1/health", healthHandler);
 app.get("/api/v1/capabilities", async (context) =>
-  capabilitiesHandler(createProvider(context.get("runtimeConfig")))(context),
+  capabilitiesHandler(createProvider(context.get("runtimeConfig"), context.env.AI))(
+    context,
+  ),
 );
 app.post("/api/v1/analysis/step", async (context) =>
-  analysisStepHandler(createProvider(context.get("runtimeConfig")))(context),
+  analysisStepHandler(createProvider(context.get("runtimeConfig"), context.env.AI))(
+    context,
+  ),
 );
 app.post("/api/v1/analysis/finalize", async (context) =>
-  analysisFinalizeHandler(createProvider(context.get("runtimeConfig")))(context),
+  analysisFinalizeHandler(createProvider(context.get("runtimeConfig"), context.env.AI))(
+    context,
+  ),
 );
 
 app.onError((error, context) => {

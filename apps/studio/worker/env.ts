@@ -3,6 +3,7 @@ import { z } from "zod";
 export interface Bindings {
   readonly CONTROL_DB: D1Database;
   readonly ASSETS: Fetcher;
+  readonly AI: Ai;
   readonly ENVIRONMENT: string;
   readonly PROVIDER_MODE: string;
   readonly ALLOWED_ORIGINS: string;
