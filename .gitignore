@@ -11,6 +11,7 @@ test-results/
 .env
 .env.*
 !.env.example
+!apps/studio/.env.production
 *.tsbuildinfo
 .DS_Store
 Thumbs.db
