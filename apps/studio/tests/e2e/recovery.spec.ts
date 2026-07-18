@@ -8,7 +8,7 @@ test("a completed audience read survives refresh without duplicate operations", 
   await page.getByRole("button", { name: /start audience analysis/i }).click();
   await expect(page.getByText(/audience read complete/i)).toBeVisible();
 
-  await page.reload({ waitUntil: "commit" });
+  await page.reload({ waitUntil: "domcontentloaded", timeout: 30_000 });
   await expect(page.getByText(/audience read complete/i)).toBeVisible();
 
   await page.getByRole("link", { name: "Method" }).click();
