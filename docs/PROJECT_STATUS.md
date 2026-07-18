@@ -2,25 +2,43 @@
 
 ## Current Phase
 
-Production release is live at `https://audience.grimnej.com` with IBM watsonx.ai enabled through `openai/gpt-oss-120b`.
+The rebuilt production release is live at `https://audience.grimnej.com`.
+
+The product now follows one clear promise: add any substantial text, run one audience read, and receive evidence-backed questions, clarity risks, audience understanding, and likely real-world Q&A.
 
 ## Completed
 
-- Initialized and maintained the project on the `main` branch with a pushed GitHub history.
-- Implemented the application, Cloudflare Worker, D1 control database, fixture mode, and live watsonx.ai provider path.
-- Added strict model-output normalization for unambiguous evidence metadata before contract validation.
-- Restored the stable `openai/gpt-oss-120b` production model after evaluating the available alternative.
-- Added the `audience.grimnej.com` Worker custom domain without modifying or deleting existing DNS records.
-- Preserved both the custom domain and Workers development URL as permitted production origins during the transition.
-- Verified DNS-backed HTTPS, health, capability, CORS, security headers, fixture analysis, and real live watsonx.ai analysis on the custom domain.
-- Passed the complete repository quality gate with 49 unit tests before the release.
+- Replaced the confusing setup flow with a single composer for pasted text or TXT, Markdown, and Fountain files.
+- Made the title and creator context optional. Neither can block analysis.
+- Added automatic segmentation and one primary `Analyze my content` action.
+- Consolidated questions, clarity risks, reaction journey, audience understanding, evidence, intent review, and exports into one Results workspace.
+- Added automatic navigation from analysis to Results and plain-language recovery for interrupted runs.
+- Kept IBM watsonx.ai Llama 3.3 70B Instruct as the primary model.
+- Added Cloudflare Workers AI Llama 3.1 8B Fast as a bounded continuity model when IBM is unavailable or exceeds the interactive response window.
+- Added model-question salvage, exact-evidence repair, and content-aware audience questions so format drift cannot produce an empty report.
+- Preserved the `audience.grimnej.com` custom domain without modifying or deleting existing DNS records.
+- Passed 72 TypeScript unit and integration tests, including 44 Studio tests.
+- Passed 16 browser tests across Chromium, Firefox, WebKit, and mobile Chromium.
+- Passed the Studio coverage gate at 90.95% statements, 80.21% branches, 90.41% functions, and 94.17% lines.
+
+## Live Acceptance Test
+
+The exact 504-word Iron Crag narrative supplied by the owner was imported through the public application and automatically divided into two reading sections.
+
+- Both live analysis requests returned HTTP 200.
+- The application opened Results without another user action.
+- Results contained 6 meaningful questions, 4 clarity risks, and 2 clear audience signals.
+- Questions included the forty-versus-five-thousand plausibility challenge, the reason for the Warlord's retreat, post-battle recovery, Sir Kaelen's motivation, and his stakes.
+- Question details displayed exact source evidence and intent-review controls.
+- Refreshing the page preserved the completed report.
+- The browser console contained zero application errors.
 
 ## Operational Notes
 
 - Runtime credentials exist only as Cloudflare Worker secrets and are not stored in Git.
-- The local machine currently runs Node.js 24.14.0 while the repository requests Node.js 24.18.0 or later; local checks pass with a warning and hosted CI uses the pinned compatible runtime.
-- GitHub Actions remains the final hosted verification for each pushed commit.
+- The local machine currently runs Node.js 24.14.0 while the repository requests Node.js 24.18.0 or later. Local checks pass with a warning and hosted CI uses the pinned compatible runtime.
+- Production Worker version: `76151317-610d-452b-a3b2-3e5bfae3cc4b`.
 
 ## Next Owner Task
 
-No domain setup is pending. Use `https://audience.grimnej.com` as the public application URL.
+No setup task is pending. Use `https://audience.grimnej.com` as the public application URL.

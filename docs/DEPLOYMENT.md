@@ -1,37 +1,44 @@
-# Production Deployment Prerequisites
+# Production Deployment
 
-Local fixture mode is complete. The exact repository and Cloudflare account handoff is in `docs/OWNER_ACTIONS.md`.
+The production Worker is configured in the `production` environment of `apps/studio/wrangler.jsonc`. Its custom domain is `audience.grimnej.com`. Do not modify or delete unrelated DNS records when releasing the application.
 
-## Owner actions required
+The Worker has an `AI` binding for the automatic continuity model. This binding has no secret value and is deployed from Wrangler configuration.
 
-1. Log in to Cloudflare and create or confirm a D1 database for the `CONTROL_DB` binding.
-2. Set the production D1 database ID in `apps/studio/wrangler.jsonc`.
-3. Decide the public origin. A Cloudflare Workers URL is sufficient initially; a custom domain is optional.
-4. For a later live-model release, create or select an IBM Cloud watsonx.ai project with access to an available Granite model, then confirm its project ID and model ID.
+## Required Cloudflare Secrets
 
-## Secrets to set after access is available
-
-From `apps/studio`, set the two application secrets against the production environment. Generate fresh, unique values; do not reuse local fixture values.
+The following secrets must exist on the `ghost-audience` Worker:
 
 ```powershell
-pnpm exec wrangler secret put RATE_LIMIT_SALT --env production
-pnpm exec wrangler secret put SESSION_SIGNING_SECRET --env production
+pnpm --filter @ghost-audience/studio exec wrangler secret put RATE_LIMIT_SALT --env production
+pnpm --filter @ghost-audience/studio exec wrangler secret put SESSION_SIGNING_SECRET --env production
+pnpm --filter @ghost-audience/studio exec wrangler secret put WATSONX_API_KEY --env production
+pnpm --filter @ghost-audience/studio exec wrangler secret put WATSONX_PROJECT_ID --env production
 ```
 
-When changing `PROVIDER_MODE` from `fixture` to `live`, also set `WATSONX_API_KEY` and `WATSONX_PROJECT_ID` as production secrets and confirm the configured Granite model is available to that watsonx.ai project.
+Never commit, print, or paste secret values into repository files or command arguments.
 
-Update `ALLOWED_ORIGINS` in the production section of `apps/studio/wrangler.jsonc` to the exact deployed HTTPS origin. The app's tracked `.env.cloudflare-production` selects the production Cloudflare environment only for the deployment build; do not add `--env production` to the deployment command. Then apply the D1 migration remotely and deploy:
+## Release Commands
+
+Authenticate with Wrangler, apply any pending D1 migrations, validate the upload, and deploy:
 
 ```powershell
-pnpm exec wrangler d1 migrations apply CONTROL_DB --env production --remote
+pnpm --filter @ghost-audience/studio exec wrangler whoami
+pnpm --filter @ghost-audience/studio exec wrangler d1 migrations apply CONTROL_DB --env production --remote
+pnpm --filter @ghost-audience/studio build:production
+pnpm --filter @ghost-audience/studio exec wrangler deploy --env production --dry-run
 pnpm deploy
 ```
 
-## Required post-deploy checks
+`pnpm deploy` builds in `cloudflare-production` mode and explicitly deploys the production Wrangler environment. The custom domain declaration is applied without changing unrelated zone records.
+
+## Required Post-Deploy Checks
 
 - Verify `/api/v1/health` and `/api/v1/capabilities` over the deployed HTTPS origin.
-- Run the security-header and fixture smoke checks against that origin.
-- Test a live Granite analysis with non-sensitive sample text, then inspect Worker logs to confirm no script content or credentials are logged.
-- Keep fixture mode available as a transparent demonstration fallback.
+- Confirm capabilities report live watsonx.ai and the configured primary model.
+- Run the security-header and browser smoke checks against the custom domain.
+- Test a live analysis with non-sensitive sample text and confirm every section commits.
+- Check the browser console and Worker logs for application errors without recording script content or credentials.
+- Confirm a primary timeout continues through the Workers AI binding rather than failing the creator's run.
+- Keep fixture mode available as a transparent local demonstration mode.
 
-Do not claim production deployment, watsonx.ai validation, IBM Bob use, certificates, or challenge eligibility until those owner-controlled steps have actually happened.
+Do not claim a production release or model verification until these checks have actually passed.

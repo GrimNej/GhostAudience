@@ -8,7 +8,7 @@ Turn Ghost Audience into a clear three-step product:
 2. Start a first-time audience analysis with one primary action.
 3. Review audience questions, clarity risks, understanding, and exports in one results workspace.
 
-## Product decisions
+## Product Decisions
 
 - A title is optional. Imported filenames and a safe default provide one automatically.
 - Plain text, Markdown, and Fountain files can be imported directly.
@@ -20,7 +20,7 @@ Turn Ghost Audience into a clear three-step product:
 - Results combine the most useful parts of the old Timeline, Mindboard, and Report pages.
 - Existing project URLs remain valid through redirects.
 
-## Reliability acceptance criteria
+## Reliability Acceptance Criteria
 
 - A malformed model response receives one bounded repair attempt.
 - If the repaired response is still invalid, the Worker commits a deterministic evidence-backed fact from the current section and continues the run.
@@ -28,7 +28,7 @@ Turn Ghost Audience into a clear three-step product:
 - Repeated clicks in the same tab are idempotent and do not show a false competing-tab error.
 - Failed or cancelled runs show a plain-language retry action.
 
-## Experience acceptance criteria
+## Experience Acceptance Criteria
 
 - A new user can paste content and reach analysis with one primary button.
 - A returning user can see project status and open the most relevant next view.
@@ -37,12 +37,19 @@ Turn Ghost Audience into a clear three-step product:
 - The production flow works with keyboard navigation and responsive layouts.
 - User-facing copy does not use em dashes.
 
-## Verification checklist
+## Verification Checklist
 
-- Unit and integration tests
-- Production build
-- Chromium, Firefox, and WebKit end-to-end tests
-- Automated accessibility scan
-- Real browser test against the deployed custom domain
-- Live watsonx.ai run using a multi-section narrative
-- GitHub Actions verification after push
+- [x] Unit and integration tests
+- [x] Production build
+- [x] Chromium, Firefox, and WebKit end-to-end tests
+- [x] Mobile Chromium test
+- [x] Automated accessibility scan
+- [x] Real browser test against the deployed custom domain
+- [x] Live provider run using the owner's multi-section Iron Crag narrative
+- [x] Exact question evidence and detail view
+- [x] Refresh persistence
+- [ ] GitHub Actions verification after the final push
+
+## Verified Release Result
+
+The public application accepted the 504-word Iron Crag story without creator context, split it into two sections, completed both analysis requests with HTTP 200, and opened Results automatically. The report contained 6 evidence-backed questions, 4 clarity risks, and 2 clear signals. The browser had zero application errors and the report survived a full reload.

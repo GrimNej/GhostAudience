@@ -1,8 +1,20 @@
 # Ghost Audience
 
-**Meet your audience before they exist.**
+**Meet your audience before you present, publish, or perform.**
 
-Ghost Audience is a no-hindsight narrative debugger for storytellers and content creators. It reads a script sequentially, reconstructs what a plausible first-time audience could know at each moment, generates evidence-grounded questions, and tracks each question from opening to resolution.
+Ghost Audience lets a creator paste any substantial piece of text and receive a simulated first-audience read before sharing it with real people. It works with speeches, stories, fiction, articles, pitches, scripts, and other written content. The result shows what landed, what may confuse people, and the questions a real audience may ask.
+
+Public application: [audience.grimnej.com](https://audience.grimnej.com)
+
+## How To Use It
+
+1. Open the application and choose **Analyze your content**.
+2. Paste a complete speech, story, script, article, pitch, essay, or other cluster of text. You can also import a TXT, Markdown, or Fountain file.
+3. Select **Analyze my content**. A title and creator context are optional.
+4. Let the analysis finish. The application opens Results automatically.
+5. Review the likely Q&A, clarity risks, reaction journey, understood facts, exact evidence, and export options in one workspace.
+
+Projects and results stay in the current browser. Returning users can reopen a saved project from the Projects screen.
 
 ## The problem
 
@@ -23,7 +35,7 @@ Future segments and creator-supplied future intent are structurally absent. Ever
 
 ## Selected challenge theme
 
-**July Challenge — Reimagine Creative Industries with AI**
+**July Challenge - Reimagine Creative Industries with AI**
 
 Ghost Audience directly supports storytelling and content creation. It helps writers, filmmakers, video essayists, game-narrative designers, educators, and other creators understand how their work unfolds for a first-time audience before publication.
 
@@ -34,7 +46,8 @@ Human test readers remain essential, but they often arrive late and can be expen
 ## AI and technical approach
 
 - **IBM Bob:** primary development environment for planning, implementation, testing, debugging, security review, accessibility review, and deployment validation.
-- **IBM watsonx.ai / Granite:** bounded sequential script analysis.
+- **IBM watsonx.ai / Llama 3.3 70B Instruct:** primary bounded sequential content analysis.
+- **Cloudflare Workers AI / Llama 3.1 8B Fast:** automatic continuity when the primary provider is unavailable or too slow.
 - **React, TypeScript, and Vite:** local-first creator workspace.
 - **Analysis controller and locks:** deterministic, resumable analysis workflow.
 - **IndexedDB through Dexie:** local script and result persistence.
