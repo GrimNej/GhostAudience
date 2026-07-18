@@ -1,34 +1,26 @@
 # Project Status
 
-## Current phase
+## Current Phase
 
-Fixture production deployment complete; live IBM watsonx.ai integration remains deliberately disabled.
+Production release is live at `https://audience.grimnej.com` with IBM watsonx.ai enabled through `openai/gpt-oss-120b`.
 
 ## Completed
 
-- Initialized the repository on the `main` branch.
-- Extracted all 195 canonical `FILE:` sections from the verified blueprint.
-- Installed the pinned JavaScript workspace dependencies with pnpm 11.14.0.
-- Approved only `esbuild` and `workerd` post-install builds, which are required for Vite and Cloudflare Workers.
-- Added the three missing package TypeScript project configurations required by the blueprint's workspace scripts.
-- Corrected parser offsets, Unicode word counting, contract fixtures, deterministic property tests, and local Worker fixture configuration.
-- Implemented persistent analysis resume controls, fenced cross-tab protection, accessible question-review controls, and production-safe deployment configuration.
-- Added local D1 migration automation to browser-test startup and verified the full browser suite on Chromium, Firefox, WebKit, and mobile Chromium.
-- Locked and tested the Python evaluation utility with 97% coverage, Ruff, and mypy.
-- Passed the complete repository quality gate, fixture-manifest gate, coverage gate, build, and 16-test cross-browser suite.
-- Pushed the complete `main` history to `https://github.com/GrimNej/GhostAudience`.
-- Applied the remote D1 migration and deployed the fixture-mode Worker at `https://ghost-audience-production.ginejneupane123.workers.dev`.
-- Verified deployed health, capabilities, CORS, security headers, and the browser demo's three-segment analysis flow.
-- Passed the GitHub CI, full Submission gate, and Security workflow after correcting the workspace-scoped Playwright install and local fixture setup.
+- Initialized and maintained the project on the `main` branch with a pushed GitHub history.
+- Implemented the application, Cloudflare Worker, D1 control database, fixture mode, and live watsonx.ai provider path.
+- Added strict model-output normalization for unambiguous evidence metadata before contract validation.
+- Restored the stable `openai/gpt-oss-120b` production model after evaluating the available alternative.
+- Added the `audience.grimnej.com` Worker custom domain without modifying or deleting existing DNS records.
+- Preserved both the custom domain and Workers development URL as permitted production origins during the transition.
+- Verified DNS-backed HTTPS, health, capability, CORS, security headers, fixture analysis, and real live watsonx.ai analysis on the custom domain.
+- Passed the complete repository quality gate with 46 unit tests before the release.
 
-## In progress
+## Operational Notes
 
-No local implementation work is pending. The next technical milestone is an optional credentialed watsonx.ai live-model release.
+- Runtime credentials exist only as Cloudflare Worker secrets and are not stored in Git.
+- The local machine currently runs Node.js 24.14.0 while the repository requests Node.js 24.18.0 or later; local checks pass with a warning and hosted CI uses the pinned compatible runtime.
+- GitHub Actions remains the final hosted verification for each pushed commit.
 
-## External setup pending
+## Next Owner Task
 
-Fixture mode is deployed and functional. Live watsonx.ai requires the project owner's IBM Cloud/watsonx.ai project and explicit model confirmation. See `docs/DEPLOYMENT.md`; no IBM account, payment method, or live-model secret will be created without explicit confirmation.
-
-## Local verification caveat
-
-This machine has Node.js 24.14.0, so JavaScript commands emit an engine warning against the required Node.js 24.18.0. `uv` resolved and ran the Python tooling with CPython 3.13.13; CI pins 3.13.14. Repeat the release gate in CI before public submission.
+No domain setup is pending. Use `https://audience.grimnej.com` as the public application URL.
