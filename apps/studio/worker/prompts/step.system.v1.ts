@@ -31,4 +31,6 @@ OUTPUT
 - Return no Markdown, preface, or explanation.
 - Copy requestId exactly.
 - Respect operation limits.
+- Include every required output array, even when it is empty.
+- If an operation cannot meet every required field and exact evidence offset, omit it and add a short warning instead.
 `.trim();

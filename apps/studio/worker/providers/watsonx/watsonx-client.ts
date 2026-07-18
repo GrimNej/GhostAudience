@@ -69,6 +69,7 @@ async function execute(
     body: JSON.stringify({
       model_id: config.watsonxModelId,
       project_id: config.watsonxProjectId,
+      response_format: { type: "json_object" },
       messages: input.messages,
       max_tokens: input.maxTokens,
       temperature: input.temperature,
