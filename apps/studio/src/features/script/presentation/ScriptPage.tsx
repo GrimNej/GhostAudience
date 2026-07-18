@@ -1,10 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useProject } from "../../project/presentation/useProject";
 import { useScriptActions } from "../data/use-script-actions";
 import { ScriptEditor } from "./ScriptEditor";
 
 export function ScriptPage(): JSX.Element {
   const { projectId } = useParams();
+  const navigate = useNavigate();
   if (projectId === undefined) {
     throw new Error("Script route is missing projectId.");
   }
@@ -23,7 +24,10 @@ export function ScriptPage(): JSX.Element {
       initialTitle={value.script?.title ?? value.project.name}
       initialText={value.script?.normalizedText ?? ""}
       disabled={false}
-      onSave={actions.save}
+      onSave={async (title, text) => {
+        await actions.save(title, text);
+        await navigate(`/project/${projectId}/intent`);
+      }}
     />
   );
 }
