@@ -1,4 +1,1 @@
-export {
-  useProject,
-  useWorkspaceRepository,
-} from "../data/use-project-workspace";
+export { useProject } from "../data/use-project-workspace";

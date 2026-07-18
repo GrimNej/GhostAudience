@@ -4,15 +4,8 @@ import {
   StateInvariantError,
   UnknownQuestionError,
 } from "./errors.js";
-import {
-  mergeEvidence,
-  validateEvidenceSpan,
-} from "./evidence.js";
-import type {
-  AudienceQuestion,
-  QuestionEvent,
-  QuestionStatus,
-} from "./questions.js";
+import { mergeEvidence, validateEvidenceSpan } from "./evidence.js";
+import type { AudienceQuestion, QuestionEvent, QuestionStatus } from "./questions.js";
 import type { ScriptSegment } from "./script.js";
 
 export interface TransitionContext {
@@ -22,10 +15,7 @@ export interface TransitionContext {
   readonly appliedOperationIds: ReadonlySet<string>;
 }
 
-type ExistingEvent = Exclude<
-  QuestionEvent,
-  { readonly type: "QUESTION_OPENED" }
->;
+type ExistingEvent = Exclude<QuestionEvent, { readonly type: "QUESTION_OPENED" }>;
 
 const ALLOWED_EXISTING_EVENTS: Readonly<
   Record<QuestionStatus, ReadonlySet<ExistingEvent["type"]>>
@@ -49,10 +39,7 @@ const ALLOWED_EXISTING_EVENTS: Readonly<
   stale: new Set(["QUESTION_REOPENED"]),
 };
 
-function validateEventEvidence(
-  event: QuestionEvent,
-  context: TransitionContext,
-): void {
+function validateEventEvidence(event: QuestionEvent, context: TransitionContext): void {
   const evidence =
     event.type === "QUESTION_OPENED"
       ? event.question.evidence
@@ -73,23 +60,17 @@ function validateEventEvidence(
     }
 
     if (segment.ordinal > context.currentOrdinal) {
-      throw new StateInvariantError(
-        "Evidence references a future segment",
-        {
-          evidenceOrdinal: segment.ordinal,
-          currentOrdinal: context.currentOrdinal,
-        },
-      );
+      throw new StateInvariantError("Evidence references a future segment", {
+        evidenceOrdinal: segment.ordinal,
+        currentOrdinal: context.currentOrdinal,
+      });
     }
 
     validateEvidenceSpan(span, segment);
   }
 }
 
-function assertOperationIsNew(
-  event: QuestionEvent,
-  context: TransitionContext,
-): void {
+function assertOperationIsNew(event: QuestionEvent, context: TransitionContext): void {
   if (context.appliedOperationIds.has(event.operationId)) {
     throw new DuplicateOperationError(event.operationId);
   }
@@ -112,8 +93,7 @@ function assertStaleThreshold(
   question: AudienceQuestion,
   context: TransitionContext,
 ): void {
-  const age =
-    context.currentOrdinal - question.lastChangedAtOrdinal;
+  const age = context.currentOrdinal - question.lastChangedAtOrdinal;
 
   if (age < context.staleAfterSegments) {
     throw new InvalidQuestionTransitionError(
@@ -172,10 +152,7 @@ export function applyQuestionEvent(
     case "QUESTION_REINFORCED":
       return {
         ...question,
-        evidence: mergeEvidence(
-          question.evidence,
-          event.evidence,
-        ),
+        evidence: mergeEvidence(question.evidence, event.evidence),
         rationale: event.rationale,
         lastChangedAtOrdinal: context.currentOrdinal,
         revision: question.revision + 1,
@@ -185,10 +162,7 @@ export function applyQuestionEvent(
       return {
         ...question,
         status: "partially_answered",
-        answerEvidence: mergeEvidence(
-          question.answerEvidence,
-          event.answerEvidence,
-        ),
+        answerEvidence: mergeEvidence(question.answerEvidence, event.answerEvidence),
         rationale: event.rationale,
         lastChangedAtOrdinal: context.currentOrdinal,
         revision: question.revision + 1,
@@ -198,10 +172,7 @@ export function applyQuestionEvent(
       return {
         ...question,
         status: "resolved",
-        answerEvidence: mergeEvidence(
-          question.answerEvidence,
-          event.answerEvidence,
-        ),
+        answerEvidence: mergeEvidence(question.answerEvidence, event.answerEvidence),
         rationale: event.rationale,
         lastChangedAtOrdinal: context.currentOrdinal,
         resolvedAtOrdinal: context.currentOrdinal,
@@ -212,10 +183,7 @@ export function applyQuestionEvent(
       return {
         ...question,
         status: "contradicted",
-        evidence: mergeEvidence(
-          question.evidence,
-          event.evidence,
-        ),
+        evidence: mergeEvidence(question.evidence, event.evidence),
         rationale: event.rationale,
         lastChangedAtOrdinal: context.currentOrdinal,
         resolvedAtOrdinal: null,
@@ -238,10 +206,7 @@ export function applyQuestionEvent(
       return {
         ...question,
         status: "open",
-        evidence: mergeEvidence(
-          question.evidence,
-          event.evidence,
-        ),
+        evidence: mergeEvidence(question.evidence, event.evidence),
         rationale: event.rationale,
         lastChangedAtOrdinal: context.currentOrdinal,
         resolvedAtOrdinal: null,

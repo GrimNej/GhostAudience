@@ -19,7 +19,8 @@ export function TimelinePage(): JSX.Element {
   if (value === null) {
     return <p>Run an analysis to see the timeline.</p>;
   }
-  const selected = value.questions.find((question) => question.id === selectedId) ?? null;
+  const selected =
+    value.questions.find((question) => question.id === selectedId) ?? null;
   const segmentsById = new Map(value.segments.map((segment) => [segment.id, segment]));
   return (
     <>
@@ -31,6 +32,7 @@ export function TimelinePage(): JSX.Element {
       />
       {selected === null ? null : (
         <QuestionDetail
+          key={selected.id}
           question={selected}
           segments={segmentsById}
           onClose={() => setSelectedId(null)}

@@ -1,11 +1,11 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { useProject, useWorkspaceRepository } from "../../project/data/use-project-workspace";
+import {
+  useProject,
+  useWorkspaceRepository,
+} from "../../project/data/use-project-workspace";
 import { createMindboardSnapshot } from "../domain/create-mindboard-snapshot";
 
-export function useMindboardData(
-  projectId: string,
-  selectedOrdinal: number,
-) {
+export function useMindboardData(projectId: string, selectedOrdinal: number) {
   const reads = useWorkspaceRepository();
   const workspace = useProject(projectId);
   const value = useLiveQuery(
@@ -27,10 +27,7 @@ export function useMindboardData(
         ),
       );
       const ordinal = Math.min(selectedOrdinal, maximumOrdinal);
-      const state = await reads.audienceStateAt(
-        workspace.latestRun,
-        ordinal,
-      );
+      const state = await reads.audienceStateAt(workspace.latestRun, ordinal);
       return {
         ordinal,
         maximumOrdinal,

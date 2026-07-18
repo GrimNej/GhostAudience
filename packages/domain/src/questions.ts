@@ -1,9 +1,5 @@
 import type { EvidenceSpan } from "./evidence.js";
-import type {
-  OperationId,
-  QuestionId,
-  RunId,
-} from "./ids.js";
+import type { OperationId, QuestionId, RunId } from "./ids.js";
 
 export type QuestionKind =
   | "identity"
@@ -27,10 +23,7 @@ export type QuestionStatus =
   | "contradicted"
   | "stale";
 
-export type QuestionSeverity =
-  | "curiosity"
-  | "clarity_risk"
-  | "blocking_confusion";
+export type QuestionSeverity = "curiosity" | "clarity_risk" | "blocking_confusion";
 
 export type CreatorDisposition =
   | "unreviewed"
@@ -114,10 +107,6 @@ export type QuestionEvent =
       readonly rationale: string;
     });
 
-export function eventQuestionId(
-  event: QuestionEvent,
-): QuestionId {
-  return event.type === "QUESTION_OPENED"
-    ? event.question.id
-    : event.questionId;
+export function eventQuestionId(event: QuestionEvent): QuestionId {
+  return event.type === "QUESTION_OPENED" ? event.question.id : event.questionId;
 }

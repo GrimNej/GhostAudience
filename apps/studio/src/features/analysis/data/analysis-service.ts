@@ -24,12 +24,16 @@ export class AnalysisService {
     private readonly circuitBreaker = new CircuitBreaker(),
   ) {}
 
-  public async analyzeSegment(input: AnalyzeSegmentInput, signal: AbortSignal): Promise<{
+  public async analyzeSegment(
+    input: AnalyzeSegmentInput,
+    signal: AbortSignal,
+  ): Promise<{
     readonly request: Awaited<ReturnType<typeof buildStepAnalysisInput>>;
     readonly response: StepAnalysisOutput;
   }> {
     const segment = input.script.segments[input.ordinal];
-    if (segment === undefined) throw new Error(`Segment ${input.ordinal} does not exist.`);
+    if (segment === undefined)
+      throw new Error(`Segment ${input.ordinal} does not exist.`);
     const request = await buildStepAnalysisInput({
       requestId: `request_${nanoid(20)}`,
       runId: input.runId,
@@ -40,13 +44,22 @@ export class AnalysisService {
       promptVersion: input.promptVersion,
       modelId: input.modelId,
     });
-    if (input.futureCanary !== null && inspectForFutureCanary(request, input.futureCanary).found) {
+    if (
+      input.futureCanary !== null &&
+      inspectForFutureCanary(request, input.futureCanary).found
+    ) {
       throw new Error("Future canary leaked into the neutral request.");
     }
     const response = await this.circuitBreaker.execute(() =>
-      withRetry((_attempt, retrySignal) => this.apiClient.analyzeStep(request, retrySignal), signal),
+      withRetry(
+        (_attempt, retrySignal) => this.apiClient.analyzeStep(request, retrySignal),
+        signal,
+      ),
     );
-    if (input.futureCanary !== null && inspectForFutureCanary(response, input.futureCanary).found) {
+    if (
+      input.futureCanary !== null &&
+      inspectForFutureCanary(response, input.futureCanary).found
+    ) {
       throw new Error("Future canary appeared in the model response.");
     }
     return { request, response };

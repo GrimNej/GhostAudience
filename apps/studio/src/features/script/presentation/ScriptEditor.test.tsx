@@ -1,40 +1,19 @@
-import {
-  render,
-  screen,
-} from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { ScriptEditor } from "./ScriptEditor";
 
 describe("ScriptEditor", () => {
   it("prevents saving an empty script", async () => {
     const user = userEvent.setup();
-    const onSave = vi.fn<
-      (
-        title: string,
-        text: string,
-      ) => Promise<void>
-    >();
+    const onSave = vi.fn<(title: string, text: string) => Promise<void>>();
 
     render(
-      <ScriptEditor
-        initialTitle=""
-        initialText=""
-        disabled={false}
-        onSave={onSave}
-      />,
+      <ScriptEditor initialTitle="" initialText="" disabled={false} onSave={onSave} />,
     );
 
-    await user.type(
-      screen.getByLabelText("Title"),
-      "A test",
-    );
+    await user.type(screen.getByLabelText("Title"), "A test");
 
     expect(
       screen.getByRole("button", {
@@ -47,26 +26,15 @@ describe("ScriptEditor", () => {
 
   it("passes trimmed title and text", async () => {
     const user = userEvent.setup();
-    const onSave = vi.fn<
-      (
-        title: string,
-        text: string,
-      ) => Promise<void>
-    >().mockResolvedValue();
+    const onSave = vi
+      .fn<(title: string, text: string) => Promise<void>>()
+      .mockResolvedValue();
 
     render(
-      <ScriptEditor
-        initialTitle=""
-        initialText=""
-        disabled={false}
-        onSave={onSave}
-      />,
+      <ScriptEditor initialTitle="" initialText="" disabled={false} onSave={onSave} />,
     );
 
-    await user.type(
-      screen.getByLabelText("Title"),
-      "  Night Train  ",
-    );
+    await user.type(screen.getByLabelText("Title"), "  Night Train  ");
     await user.type(
       screen.getByLabelText("Script"),
       "  INT. TRAIN - NIGHT\nMira waits.  ",
@@ -93,8 +61,6 @@ describe("ScriptEditor", () => {
       />,
     );
 
-    expect(
-      screen.getByText("3 words"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("3 words")).toBeInTheDocument();
   });
 });

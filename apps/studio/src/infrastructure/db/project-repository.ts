@@ -1,16 +1,12 @@
 import {
   EMPTY_INTENT_CONTRACT,
-  projectId,
   type IntentContract,
+  projectId,
   type ScriptDocument,
 } from "@ghost-audience/domain";
 import { nanoid } from "nanoid";
 import type { GhostAudienceDatabase } from "./database";
-import type {
-  ProjectRecord,
-  ScriptRecord,
-  SegmentRecord,
-} from "./records";
+import type { ProjectRecord, ScriptRecord, SegmentRecord } from "./records";
 
 export interface CreateProjectInput {
   readonly name: string;
@@ -18,13 +14,9 @@ export interface CreateProjectInput {
 }
 
 export class ProjectRepository {
-  public constructor(
-    private readonly db: GhostAudienceDatabase,
-  ) {}
+  public constructor(private readonly db: GhostAudienceDatabase) {}
 
-  public async create(
-    input: CreateProjectInput,
-  ): Promise<ProjectRecord> {
+  public async create(input: CreateProjectInput): Promise<ProjectRecord> {
     const record: ProjectRecord = {
       id: projectId(`project_${nanoid(20)}`),
       name: input.name.trim() || "Untitled project",
@@ -37,17 +29,12 @@ export class ProjectRepository {
     return record;
   }
 
-  public get(
-    id: string,
-  ): Promise<ProjectRecord | undefined> {
+  public get(id: string): Promise<ProjectRecord | undefined> {
     return this.db.projects.get(id);
   }
 
   public list(): Promise<readonly ProjectRecord[]> {
-    return this.db.projects
-      .orderBy("updatedAt")
-      .reverse()
-      .toArray();
+    return this.db.projects.orderBy("updatedAt").reverse().toArray();
   }
 
   public async updateIntent(
@@ -55,17 +42,12 @@ export class ProjectRepository {
     intentContract: IntentContract,
     now: string,
   ): Promise<void> {
-    const changed = await this.db.projects.update(
-      projectIdValue,
-      {
-        intentContract: structuredClone(intentContract),
-        updatedAt: now,
-      },
-    );
+    const changed = await this.db.projects.update(projectIdValue, {
+      intentContract: structuredClone(intentContract),
+      updatedAt: now,
+    });
     if (changed !== 1) {
-      throw new Error(
-        `Project ${projectIdValue} does not exist.`,
-      );
+      throw new Error(`Project ${projectIdValue} does not exist.`);
     }
   }
 
@@ -85,65 +67,44 @@ export class ProjectRepository {
       createdAt: script.createdAt,
       updatedAt: script.updatedAt,
     };
-    const segmentRecords: readonly SegmentRecord[] =
-      script.segments.map((segment) => ({
-        ...segment,
-        scriptId: script.id,
-      }));
+    const segmentRecords: readonly SegmentRecord[] = script.segments.map((segment) => ({
+      ...segment,
+      scriptId: script.id,
+    }));
 
     await this.db.transaction(
       "rw",
-      [
-        this.db.projects,
-        this.db.scripts,
-        this.db.segments,
-        this.db.auditEvents,
-      ],
+      [this.db.projects, this.db.scripts, this.db.segments, this.db.auditEvents],
       async () => {
-        const project = await this.db.projects.get(
-          projectIdValue,
-        );
+        const project = await this.db.projects.get(projectIdValue);
         if (project === undefined) {
-          throw new Error(
-            `Project ${projectIdValue} does not exist.`,
-          );
+          throw new Error(`Project ${projectIdValue} does not exist.`);
         }
 
-        const existing = await this.db.scripts.get(
-          script.id,
-        );
+        const existing = await this.db.scripts.get(script.id);
         if (
           existing !== undefined &&
           (existing.sha256 !== script.sha256 ||
-            existing.segmentManifestHash !==
-              script.segmentManifestHash)
+            existing.segmentManifestHash !== script.segmentManifestHash)
         ) {
-          throw new Error(
-            "Immutable script-version ID collision.",
-          );
+          throw new Error("Immutable script-version ID collision.");
         }
 
         if (existing === undefined) {
           await this.db.scripts.add(scriptRecord);
-          await this.db.segments.bulkAdd(
-            segmentRecords,
-          );
+          await this.db.segments.bulkAdd(segmentRecords);
         }
-        await this.db.projects.update(
-          projectIdValue,
-          {
-            activeScriptId: script.id,
-            updatedAt: script.updatedAt,
-          },
-        );
+        await this.db.projects.update(projectIdValue, {
+          activeScriptId: script.id,
+          updatedAt: script.updatedAt,
+        });
         await this.db.auditEvents.add({
           runId: null,
           type: "SCRIPT_VERSION_ACTIVATED",
           metadata: {
             projectId: projectIdValue,
             scriptVersionId: script.id,
-            segmentManifestHash:
-              script.segmentManifestHash,
+            segmentManifestHash: script.segmentManifestHash,
             segmentCount: segmentRecords.length,
           },
           createdAt: script.updatedAt,
@@ -152,10 +113,7 @@ export class ProjectRepository {
     );
   }
 
-  public async deleteProject(
-    projectIdValue: string,
-    now: string,
-  ): Promise<void> {
+  public async deleteProject(projectIdValue: string, now: string): Promise<void> {
     await this.db.transaction(
       "rw",
       [
@@ -172,18 +130,14 @@ export class ProjectRepository {
         this.db.runLeases,
       ],
       async () => {
-        const project = await this.db.projects.get(
-          projectIdValue,
-        );
+        const project = await this.db.projects.get(projectIdValue);
         if (project === undefined) return;
 
         const scripts = await this.db.scripts
           .where("projectId")
           .equals(projectIdValue)
           .toArray();
-        const scriptIds = scripts.map(
-          (script) => script.id,
-        );
+        const scriptIds = scripts.map((script) => script.id);
         const runs = await this.db.runs
           .where("projectId")
           .equals(projectIdValue)
@@ -192,49 +146,22 @@ export class ProjectRepository {
 
         for (const runIdValue of runIds) {
           await Promise.all([
-            this.db.runSteps
-              .where("runId")
-              .equals(runIdValue)
-              .delete(),
-            this.db.questions
-              .where("runId")
-              .equals(runIdValue)
-              .delete(),
-            this.db.questionEvents
-              .where("runId")
-              .equals(runIdValue)
-              .delete(),
-            this.db.knowledgeEvents
-              .where("runId")
-              .equals(runIdValue)
-              .delete(),
-            this.db.creatorReviews
-              .where("runId")
-              .equals(runIdValue)
-              .delete(),
-            this.db.auditEvents
-              .where("runId")
-              .equals(runIdValue)
-              .delete(),
+            this.db.runSteps.where("runId").equals(runIdValue).delete(),
+            this.db.questions.where("runId").equals(runIdValue).delete(),
+            this.db.questionEvents.where("runId").equals(runIdValue).delete(),
+            this.db.knowledgeEvents.where("runId").equals(runIdValue).delete(),
+            this.db.creatorReviews.where("runId").equals(runIdValue).delete(),
+            this.db.auditEvents.where("runId").equals(runIdValue).delete(),
             this.db.runLeases.delete(runIdValue),
           ]);
         }
 
         for (const scriptIdValue of scriptIds) {
-          await this.db.segments
-            .where("scriptId")
-            .equals(scriptIdValue)
-            .delete();
+          await this.db.segments.where("scriptId").equals(scriptIdValue).delete();
         }
 
-        await this.db.runs
-          .where("projectId")
-          .equals(projectIdValue)
-          .delete();
-        await this.db.scripts
-          .where("projectId")
-          .equals(projectIdValue)
-          .delete();
+        await this.db.runs.where("projectId").equals(projectIdValue).delete();
+        await this.db.scripts.where("projectId").equals(projectIdValue).delete();
         await this.db.projects.delete(projectIdValue);
         await this.db.auditEvents.add({
           runId: null,

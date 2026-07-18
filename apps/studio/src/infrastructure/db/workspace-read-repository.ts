@@ -1,10 +1,10 @@
 import {
+  type AudienceState,
   applyKnowledgeEvents,
   buildCompactNarrativeState,
   createEmptyAudienceState,
   replayQuestionEvents,
   runId,
-  type AudienceState,
   type ScriptDocument,
 } from "@ghost-audience/domain";
 import type { GhostAudienceDatabase } from "./database";
@@ -23,20 +23,30 @@ export class WorkspaceReadRepository {
   public async projectWorkspace(projectId: string): Promise<ProjectWorkspace | null> {
     const project = await this.db.projects.get(projectId);
     if (project === undefined) return null;
-    if (project.activeScriptId === null) return { project, script: null, segments: [], latestRun: null };
+    if (project.activeScriptId === null)
+      return { project, script: null, segments: [], latestRun: null };
     const [script, segments, runs] = await Promise.all([
       this.db.scripts.get(project.activeScriptId),
-      this.db.segments.where("scriptId").equals(project.activeScriptId).sortBy("ordinal"),
+      this.db.segments
+        .where("scriptId")
+        .equals(project.activeScriptId)
+        .sortBy("ordinal"),
       this.db.runs.where("projectId").equals(projectId).toArray(),
     ]);
-    const latestRun = runs.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0] ?? null;
+    const latestRun =
+      runs.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0] ??
+      null;
     return { project, script: script ?? null, segments, latestRun };
   }
 
   public async scriptDocument(scriptId: string): Promise<ScriptDocument> {
     const script = await this.db.scripts.get(scriptId);
-    if (script === undefined) throw new Error(`Script version ${scriptId} does not exist.`);
-    const segments = await this.db.segments.where("scriptId").equals(scriptId).sortBy("ordinal");
+    if (script === undefined)
+      throw new Error(`Script version ${scriptId} does not exist.`);
+    const segments = await this.db.segments
+      .where("scriptId")
+      .equals(scriptId)
+      .sortBy("ordinal");
     return {
       id: script.id as ScriptDocument["id"],
       title: script.title,
@@ -52,20 +62,47 @@ export class WorkspaceReadRepository {
   }
 
   public async questions(runIdValue: string) {
-    return this.db.questions.where("runId").equals(runIdValue).sortBy("openedAtOrdinal");
+    return this.db.questions
+      .where("runId")
+      .equals(runIdValue)
+      .sortBy("openedAtOrdinal");
   }
 
-  public async audienceStateAt(run: RunRecord, ordinal: number): Promise<AudienceState> {
-    const segments = await this.db.segments.where("scriptId").equals(run.scriptId).sortBy("ordinal");
-    const questionEvents = await this.db.questionEvents.where("runId").equals(run.id).sortBy("ordinal");
-    const knowledgeEvents = await this.db.knowledgeEvents.where("runId").equals(run.id).sortBy("ordinal");
+  public async audienceStateAt(
+    run: RunRecord,
+    ordinal: number,
+  ): Promise<AudienceState> {
+    const segments = await this.db.segments
+      .where("scriptId")
+      .equals(run.scriptId)
+      .sortBy("ordinal");
+    const questionEvents = await this.db.questionEvents
+      .where("runId")
+      .equals(run.id)
+      .sortBy("ordinal");
+    const knowledgeEvents = await this.db.knowledgeEvents
+      .where("runId")
+      .equals(run.id)
+      .sortBy("ordinal");
     let state = createEmptyAudienceState(runId(run.id));
 
     for (let current = 0; current <= ordinal; current += 1) {
-      const questionsForOrdinal = questionEvents.filter((record) => record.ordinal === current).map((record) => record.event);
-      const knowledgeForOrdinal = knowledgeEvents.filter((record) => record.ordinal === current).map((record) => record.event);
-      state = replayQuestionEvents(state, questionsForOrdinal, { currentOrdinal: current, staleAfterSegments: 3, segments });
-      const knowledge = applyKnowledgeEvents(state.facts, state.assumptions, knowledgeForOrdinal);
+      const questionsForOrdinal = questionEvents
+        .filter((record) => record.ordinal === current)
+        .map((record) => record.event);
+      const knowledgeForOrdinal = knowledgeEvents
+        .filter((record) => record.ordinal === current)
+        .map((record) => record.event);
+      state = replayQuestionEvents(state, questionsForOrdinal, {
+        currentOrdinal: current,
+        staleAfterSegments: 3,
+        segments,
+      });
+      const knowledge = applyKnowledgeEvents(
+        state.facts,
+        state.assumptions,
+        knowledgeForOrdinal,
+      );
       state = {
         ...state,
         processedThroughOrdinal: current,

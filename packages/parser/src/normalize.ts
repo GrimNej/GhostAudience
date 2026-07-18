@@ -1,6 +1,4 @@
-export function normalizeScriptText(
-  input: string,
-): string {
+export function normalizeScriptText(input: string): string {
   const withoutBom = input.replace(/^\uFEFF/u, "");
   const normalizedLines = withoutBom
     .normalize("NFC")
@@ -17,7 +15,7 @@ export function normalizeScriptText(
 
 export function countWords(input: string): number {
   const matches = input.match(
-    /[\p{Letter}\p{Number}]+(?:['’_-][\p{Letter}\p{Number}]+)*/gu,
+    /[\p{Letter}\p{Number}\p{Mark}]+(?:['\u2019_-][\p{Letter}\p{Number}\p{Mark}]+)*/gu,
   );
 
   return matches?.length ?? 0;

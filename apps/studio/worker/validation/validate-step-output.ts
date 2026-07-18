@@ -1,16 +1,13 @@
 import {
-  StepAnalysisOutputSchema,
   type StepAnalysisInput,
   type StepAnalysisOutput,
+  StepAnalysisOutputSchema,
 } from "@ghost-audience/contracts";
 
 import { ApiError } from "../errors";
 import { assertNoForbiddenClaims } from "./forbidden-output";
 
-function assertRequestId(
-  input: StepAnalysisInput,
-  output: StepAnalysisOutput,
-): void {
+function assertRequestId(input: StepAnalysisInput, output: StepAnalysisOutput): void {
   if (input.requestId !== output.requestId) {
     throw new ApiError(
       "INVARIANT_VIOLATION",
@@ -25,10 +22,7 @@ function assertOperationLimits(
   input: StepAnalysisInput,
   output: StepAnalysisOutput,
 ): void {
-  if (
-    output.questionOperations.length >
-    input.limits.maxOperations
-  ) {
+  if (output.questionOperations.length > input.limits.maxOperations) {
     throw new ApiError(
       "MODEL_OUTPUT_INVALID",
       502,
@@ -41,10 +35,7 @@ function assertOperationLimits(
     (operation) => operation.type === "open",
   );
 
-  if (
-    opened.length >
-    input.limits.maxNewQuestions
-  ) {
+  if (opened.length > input.limits.maxNewQuestions) {
     throw new ApiError(
       "MODEL_OUTPUT_INVALID",
       502,
@@ -58,17 +49,10 @@ function assertKnownQuestionIds(
   input: StepAnalysisInput,
   output: StepAnalysisOutput,
 ): void {
-  const known = new Set(
-    input.activeQuestions.map(
-      (question) => question.id,
-    ),
-  );
+  const known = new Set(input.activeQuestions.map((question) => question.id));
 
   for (const operation of output.questionOperations) {
-    if (
-      operation.type !== "open" &&
-      !known.has(operation.questionId)
-    ) {
+    if (operation.type !== "open" && !known.has(operation.questionId)) {
       throw new ApiError(
         "MODEL_OUTPUT_INVALID",
         502,
@@ -84,25 +68,14 @@ function assertEvidenceOnlyUsesCurrentSegment(
   output: StepAnalysisOutput,
 ): void {
   const spans = [
-    ...output.factsAdded.flatMap(
-      (fact) => fact.evidence,
-    ),
-    ...output.assumptionsAdded.flatMap(
-      (assumption) => assumption.evidence,
-    ),
-    ...output.assumptionUpdates.flatMap(
-      (update) => update.evidence,
-    ),
-    ...output.questionOperations.flatMap(
-      (operation) => operation.evidence,
-    ),
+    ...output.factsAdded.flatMap((fact) => fact.evidence),
+    ...output.assumptionsAdded.flatMap((assumption) => assumption.evidence),
+    ...output.assumptionUpdates.flatMap((update) => update.evidence),
+    ...output.questionOperations.flatMap((operation) => operation.evidence),
   ];
 
   for (const span of spans) {
-    if (
-      span.segmentId !==
-      input.currentSegment.id
-    ) {
+    if (span.segmentId !== input.currentSegment.id) {
       throw new ApiError(
         "EVIDENCE_INVALID",
         502,
@@ -120,25 +93,14 @@ function assertEvidenceText(
   const text = input.currentSegment.text;
 
   const spans = [
-    ...output.factsAdded.flatMap(
-      (fact) => fact.evidence,
-    ),
-    ...output.assumptionsAdded.flatMap(
-      (assumption) => assumption.evidence,
-    ),
-    ...output.assumptionUpdates.flatMap(
-      (update) => update.evidence,
-    ),
-    ...output.questionOperations.flatMap(
-      (operation) => operation.evidence,
-    ),
+    ...output.factsAdded.flatMap((fact) => fact.evidence),
+    ...output.assumptionsAdded.flatMap((assumption) => assumption.evidence),
+    ...output.assumptionUpdates.flatMap((update) => update.evidence),
+    ...output.questionOperations.flatMap((operation) => operation.evidence),
   ];
 
   for (const span of spans) {
-    const actual = text.slice(
-      span.startOffset,
-      span.endOffset,
-    );
+    const actual = text.slice(span.startOffset, span.endOffset);
 
     if (actual !== span.quote) {
       throw new ApiError(
@@ -155,16 +117,12 @@ export function validateStepOutput(
   input: StepAnalysisInput,
   value: unknown,
 ): StepAnalysisOutput {
-  const output =
-    StepAnalysisOutputSchema.parse(value);
+  const output = StepAnalysisOutputSchema.parse(value);
 
   assertRequestId(input, output);
   assertOperationLimits(input, output);
   assertKnownQuestionIds(input, output);
-  assertEvidenceOnlyUsesCurrentSegment(
-    input,
-    output,
-  );
+  assertEvidenceOnlyUsesCurrentSegment(input, output);
   assertEvidenceText(input, output);
   assertNoForbiddenClaims(output);
 

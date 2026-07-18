@@ -1,8 +1,4 @@
-import {
-  NavLink,
-  Outlet,
-  useParams,
-} from "react-router-dom";
+import { NavLink, Outlet, useParams } from "react-router-dom";
 
 import { useProject } from "./useProject";
 
@@ -19,20 +15,14 @@ export function ProjectLayout(): JSX.Element {
   const { projectId } = useParams();
 
   if (projectId === undefined) {
-    throw new Error(
-      "Project route is missing projectId.",
-    );
+    throw new Error("Project route is missing projectId.");
   }
 
   const value = useProject(projectId);
 
   if (value === undefined) {
     return (
-      <div
-        className="project-loading"
-        aria-busy="true"
-        aria-label="Loading project"
-      >
+      <div className="project-loading" aria-busy="true">
         <div className="skeleton project-loading__title" />
         <div className="skeleton project-loading__body" />
       </div>
@@ -56,15 +46,10 @@ export function ProjectLayout(): JSX.Element {
           <h1>{value.project.name}</h1>
         </div>
 
-        <p className="privacy-chip">
-          Stored in this browser
-        </p>
+        <p className="privacy-chip">Stored in this browser</p>
       </header>
 
-      <nav
-        className="project-tabs"
-        aria-label="Project sections"
-      >
+      <nav className="project-tabs" aria-label="Project sections">
         {tabs.map(([path, label]) => (
           <NavLink key={path} to={path}>
             {label}

@@ -6,9 +6,7 @@ const probabilityPattern =
 const systemPromptPattern =
   /\b(?:system prompt|hidden instruction|developer message)\b/i;
 
-export function assertNoForbiddenClaims(
-  value: unknown,
-): void {
+export function assertNoForbiddenClaims(value: unknown): void {
   const serialized = JSON.stringify(value);
 
   if (probabilityPattern.test(serialized)) {

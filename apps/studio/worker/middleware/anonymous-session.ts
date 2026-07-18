@@ -22,7 +22,11 @@ async function hmacHex(secret: string, value: string): Promise<string> {
     false,
     ["sign"],
   );
-  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value));
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(value),
+  );
   return bytesToHex(new Uint8Array(signature));
 }
 
@@ -36,12 +40,17 @@ function parseCookieHeader(header: string | undefined): ReadonlyMap<string, stri
   return values;
 }
 
-async function verifySession(value: string | undefined, secret: string): Promise<string | null> {
+async function verifySession(
+  value: string | undefined,
+  secret: string,
+): Promise<string | null> {
   if (value === undefined) return null;
   const [sessionId, expiresText, signature] = value.split(".");
-  if (sessionId === undefined || expiresText === undefined || signature === undefined) return null;
+  if (sessionId === undefined || expiresText === undefined || signature === undefined)
+    return null;
   const expires = Number.parseInt(expiresText, 10);
-  if (!Number.isFinite(expires) || expires <= Math.floor(Date.now() / 1000)) return null;
+  if (!Number.isFinite(expires) || expires <= Math.floor(Date.now() / 1000))
+    return null;
   const expected = await hmacHex(secret, `${sessionId}.${expiresText}`);
   if (expected.length !== signature.length) return null;
   let difference = 0;
@@ -51,10 +60,16 @@ async function verifySession(value: string | undefined, secret: string): Promise
   return difference === 0 ? sessionId : null;
 }
 
-export const anonymousSessionMiddleware: MiddlewareHandler<Environment> = async (context, next) => {
+export const anonymousSessionMiddleware: MiddlewareHandler<Environment> = async (
+  context,
+  next,
+) => {
   const config = context.get("runtimeConfig");
   const cookies = parseCookieHeader(context.req.header("cookie"));
-  let sessionId = await verifySession(cookies.get(COOKIE_NAME), config.sessionSigningSecret);
+  let sessionId = await verifySession(
+    cookies.get(COOKIE_NAME),
+    config.sessionSigningSecret,
+  );
 
   if (sessionId === null) {
     sessionId = crypto.randomUUID();

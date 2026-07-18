@@ -7,9 +7,7 @@ export interface MindboardSnapshot {
   readonly contradicted: readonly string[];
 }
 
-export function createMindboardSnapshot(
-  state: AudienceState,
-): MindboardSnapshot {
+export function createMindboardSnapshot(state: AudienceState): MindboardSnapshot {
   return {
     known: state.facts
       .filter((fact) => fact.supersededByFactId === null)
@@ -27,14 +25,10 @@ export function createMindboardSnapshot(
       .map((question) => question.text),
     contradicted: [
       ...state.assumptions
-        .filter(
-          (assumption) => assumption.status === "refuted",
-        )
+        .filter((assumption) => assumption.status === "refuted")
         .map((assumption) => assumption.statement),
       ...state.questions
-        .filter(
-          (question) => question.status === "contradicted",
-        )
+        .filter((question) => question.status === "contradicted")
         .map((question) => question.text),
     ],
   };

@@ -17,12 +17,7 @@ export function inspectForFutureCanary(
   };
 }
 
-function visit(
-  value: unknown,
-  path: string,
-  canary: string,
-  paths: string[],
-): void {
+function visit(value: unknown, path: string, canary: string, paths: string[]): void {
   if (typeof value === "string") {
     if (value.includes(canary)) {
       paths.push(path);
@@ -33,12 +28,7 @@ function visit(
 
   if (Array.isArray(value)) {
     for (const [index, item] of value.entries()) {
-      visit(
-        item,
-        `${path}[${index}]`,
-        canary,
-        paths,
-      );
+      visit(item, `${path}[${index}]`, canary, paths);
     }
 
     return;

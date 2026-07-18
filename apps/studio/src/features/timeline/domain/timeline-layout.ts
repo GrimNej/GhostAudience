@@ -1,15 +1,13 @@
-import type {
-  AudienceQuestion,
-} from "@ghost-audience/domain";
+import type { AudienceQuestion } from "@ghost-audience/domain";
 
-export interface TimelineNode {
+interface TimelineNode {
   readonly questionId: string;
   readonly ordinal: number;
   readonly status: string;
   readonly label: string;
 }
 
-export interface TimelineLane {
+interface TimelineLane {
   readonly questionId: string;
   readonly row: number;
   readonly startOrdinal: number;
@@ -28,8 +26,7 @@ export function buildTimelineLayout(
 ): TimelineLayout {
   const sorted = [...questions].sort(
     (left, right) =>
-      left.openedAtOrdinal -
-        right.openedAtOrdinal ||
+      left.openedAtOrdinal - right.openedAtOrdinal ||
       left.text.localeCompare(right.text),
   );
 
@@ -37,14 +34,9 @@ export function buildTimelineLayout(
   const lanes: TimelineLane[] = [];
 
   for (const question of sorted) {
-    const endOrdinal =
-      question.resolvedAtOrdinal ??
-      question.lastChangedAtOrdinal;
+    const endOrdinal = question.resolvedAtOrdinal ?? question.lastChangedAtOrdinal;
 
-    let row = rowEnds.findIndex(
-      (rowEnd) =>
-        rowEnd < question.openedAtOrdinal,
-    );
+    let row = rowEnds.findIndex((rowEnd) => rowEnd < question.openedAtOrdinal);
 
     if (row === -1) {
       row = rowEnds.length;
@@ -56,31 +48,23 @@ export function buildTimelineLayout(
     lanes.push({
       questionId: question.id,
       row,
-      startOrdinal:
-        question.openedAtOrdinal,
+      startOrdinal: question.openedAtOrdinal,
       endOrdinal,
       nodes: [
         {
           questionId: question.id,
-          ordinal:
-            question.openedAtOrdinal,
+          ordinal: question.openedAtOrdinal,
           status: "open",
           label: "Opened",
         },
-        ...(question.resolvedAtOrdinal ===
-        null
+        ...(question.resolvedAtOrdinal === null
           ? []
           : [
               {
                 questionId: question.id,
-                ordinal:
-                  question.resolvedAtOrdinal,
+                ordinal: question.resolvedAtOrdinal,
                 status: question.status,
-                label:
-                  question.status ===
-                  "resolved"
-                    ? "Resolved"
-                    : question.status,
+                label: question.status === "resolved" ? "Resolved" : question.status,
               },
             ]),
       ],

@@ -1,8 +1,6 @@
 import type { StepAnalysisInput } from "@ghost-audience/contracts";
 
-export function buildStepUserPrompt(
-  input: StepAnalysisInput,
-): string {
+export function buildStepUserPrompt(input: StepAnalysisInput): string {
   return JSON.stringify(
     {
       task: "analyze_current_segment",

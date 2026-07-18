@@ -5,10 +5,7 @@ import { WorkspaceReadRepository } from "../../../infrastructure/db/workspace-re
 
 export function useWorkspaceRepository(): WorkspaceReadRepository {
   const database = useDatabase();
-  return useMemo(
-    () => new WorkspaceReadRepository(database),
-    [database],
-  );
+  return useMemo(() => new WorkspaceReadRepository(database), [database]);
 }
 
 export function useProject(projectId: string) {

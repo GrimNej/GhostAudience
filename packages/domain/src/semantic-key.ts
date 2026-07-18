@@ -21,10 +21,7 @@ function tokenSet(value: string): ReadonlySet<string> {
   );
 }
 
-export function jaccardSimilarity(
-  left: string,
-  right: string,
-): number {
+export function jaccardSimilarity(left: string, right: string): number {
   const leftTokens = tokenSet(left);
   const rightTokens = tokenSet(right);
 
@@ -32,10 +29,7 @@ export function jaccardSimilarity(
     return 1;
   }
 
-  const union = new Set([
-    ...leftTokens,
-    ...rightTokens,
-  ]);
+  const union = new Set([...leftTokens, ...rightTokens]);
   let intersectionCount = 0;
 
   for (const token of leftTokens) {

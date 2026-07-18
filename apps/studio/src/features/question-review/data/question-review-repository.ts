@@ -1,21 +1,14 @@
-import type {
-  CreatorDisposition,
-} from "@ghost-audience/domain";
+import type { AudienceQuestion, CreatorDisposition } from "@ghost-audience/domain";
 import { nanoid } from "nanoid";
 
-import type {
-  GhostAudienceDatabase,
-} from "../../../infrastructure/db/database";
+import type { GhostAudienceDatabase } from "../../../infrastructure/db/database";
 
 export class QuestionReviewRepository {
-  public constructor(
-    private readonly database:
-      GhostAudienceDatabase,
-  ) {}
+  public constructor(private readonly database: GhostAudienceDatabase) {}
 
   public async setDisposition(
     runId: string,
-    questionId: string,
+    questionId: AudienceQuestion["id"],
     disposition: CreatorDisposition,
     now: string,
   ): Promise<void> {
@@ -27,19 +20,12 @@ export class QuestionReviewRepository {
         this.database.auditEvents,
       ],
       async () => {
-        const changed =
-          await this.database.questions.update(
-            questionId,
-            {
-              creatorDisposition:
-                disposition,
-            },
-          );
+        const changed = await this.database.questions.update(questionId, {
+          creatorDisposition: disposition,
+        });
 
         if (changed !== 1) {
-          throw new Error(
-            `Question ${questionId} does not exist.`,
-          );
+          throw new Error(`Question ${questionId} does not exist.`);
         }
 
         await this.database.creatorReviews.put({

@@ -16,9 +16,7 @@ export class InvalidIdentifierError extends DomainError {
     public readonly identifierKind: string,
     public readonly receivedValue: string,
   ) {
-    super(
-      `Invalid ${identifierKind} identifier: ${JSON.stringify(receivedValue)}`,
-    );
+    super(`Invalid ${identifierKind} identifier: ${JSON.stringify(receivedValue)}`);
   }
 }
 

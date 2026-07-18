@@ -4,8 +4,5 @@ import { QuestionReviewRepository } from "./question-review-repository";
 
 export function useQuestionReviewRepository(): QuestionReviewRepository {
   const database = useDatabase();
-  return useMemo(
-    () => new QuestionReviewRepository(database),
-    [database],
-  );
+  return useMemo(() => new QuestionReviewRepository(database), [database]);
 }

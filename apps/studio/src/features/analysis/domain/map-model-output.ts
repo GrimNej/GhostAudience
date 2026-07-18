@@ -1,17 +1,17 @@
 import type { QuestionOperation, StepAnalysisOutput } from "@ghost-audience/contracts";
 import {
-  areLikelyDuplicateQuestions,
+  type AudienceQuestion,
+  type AudienceState,
   applyKnowledgeEvents,
+  areLikelyDuplicateQuestions,
   buildCompactNarrativeState,
+  type EvidenceSpan,
+  type KnowledgeEvent,
   locateUniqueEvidenceQuote,
   normalizeSemanticKey,
   operationId,
-  questionId,
-  type AudienceQuestion,
-  type AudienceState,
-  type EvidenceSpan,
-  type KnowledgeEvent,
   type QuestionEvent,
+  questionId,
   type ScriptSegment,
 } from "@ghost-audience/domain";
 import { sha256 } from "@ghost-audience/parser";
@@ -55,23 +55,14 @@ export async function mapModelOutput(
     ),
   );
 
-  const knownQuestionIds = new Set(
-    priorState.questions.map((question) => question.id),
-  );
+  const knownQuestionIds = new Set(priorState.questions.map((question) => question.id));
   for (const event of questionEvents) {
-    if (
-      event.type !== "QUESTION_OPENED" &&
-      !knownQuestionIds.has(event.questionId)
-    ) {
-      throw new Error(
-        `Model referenced unknown question ${event.questionId}.`,
-      );
+    if (event.type !== "QUESTION_OPENED" && !knownQuestionIds.has(event.questionId)) {
+      throw new Error(`Model referenced unknown question ${event.questionId}.`);
     }
   }
 
-  const knownFactIds = new Set(
-    priorState.facts.map((fact) => fact.id),
-  );
+  const knownFactIds = new Set(priorState.facts.map((fact) => fact.id));
   const knownAssumptionIds = new Set(
     priorState.assumptions.map((assumption) => assumption.id),
   );
@@ -83,11 +74,7 @@ export async function mapModelOutput(
     }
     knownFactIds.add(fact.id);
     knowledgeEvents.push({
-      operationId: stableKnowledgeOperationId(
-        output.requestId,
-        "fact-added",
-        fact.id,
-      ),
+      operationId: stableKnowledgeOperationId(output.requestId, "fact-added", fact.id),
       type: "FACT_ADDED",
       fact: {
         id: fact.id,
@@ -104,9 +91,7 @@ export async function mapModelOutput(
 
   for (const assumption of output.assumptionsAdded) {
     if (knownAssumptionIds.has(assumption.id)) {
-      throw new Error(
-        `Assumption ID collision: ${assumption.id}.`,
-      );
+      throw new Error(`Assumption ID collision: ${assumption.id}.`);
     }
     knownAssumptionIds.add(assumption.id);
     knowledgeEvents.push({
@@ -131,9 +116,7 @@ export async function mapModelOutput(
 
   for (const update of output.assumptionUpdates) {
     if (!knownAssumptionIds.has(update.id)) {
-      throw new Error(
-        `Model updated unknown assumption ${update.id}.`,
-      );
+      throw new Error(`Model updated unknown assumption ${update.id}.`);
     }
     const type =
       update.status === "confirmed"
@@ -186,14 +169,9 @@ async function mapQuestionOperation(
   expectedTransportSegmentId: string,
 ): Promise<QuestionEvent> {
   if (operation.type === "open") {
-    const semanticKey = normalizeSemanticKey(
-      operation.semanticKey,
-    );
+    const semanticKey = normalizeSemanticKey(operation.semanticKey);
     const duplicate = priorQuestions.find((question) =>
-      areLikelyDuplicateQuestions(
-        question.semanticKey,
-        semanticKey,
-      ),
+      areLikelyDuplicateQuestions(question.semanticKey, semanticKey),
     );
 
     if (duplicate !== undefined) {
@@ -215,9 +193,7 @@ async function mapQuestionOperation(
       operationId: operationId(operation.operationId),
       type: "QUESTION_OPENED",
       question: {
-        id: questionId(
-          `question_${stableHash.slice(0, 24)}`,
-        ),
+        id: questionId(`question_${stableHash.slice(0, 24)}`),
         runId: runIdValue,
         semanticKey,
         text: operation.text.trim(),
@@ -229,8 +205,7 @@ async function mapQuestionOperation(
           repairEvidence(span, currentSegment, expectedTransportSegmentId),
         ),
         rationale: operation.rationale.trim(),
-        minimalClarification:
-          operation.minimalClarification?.trim() ?? null,
+        minimalClarification: operation.minimalClarification?.trim() ?? null,
       },
     };
   }
@@ -298,14 +273,8 @@ function repairEvidence(
       `Step output referenced ${span.segmentId}; expected transport segment ${expectedTransportSegmentId}.`,
     );
   }
-  const direct = currentSegment.text.slice(
-    span.startOffset,
-    span.endOffset,
-  );
-  if (
-    normalizeForEvidence(direct) ===
-    normalizeForEvidence(span.quote)
-  ) {
+  const direct = currentSegment.text.slice(span.startOffset, span.endOffset);
+  if (normalizeForEvidence(direct) === normalizeForEvidence(span.quote)) {
     return {
       segmentId: currentSegment.id,
       startOffset: span.startOffset,
@@ -313,15 +282,9 @@ function repairEvidence(
       quote: span.quote,
     };
   }
-  return locateUniqueEvidenceQuote(
-    currentSegment,
-    span.quote,
-  );
+  return locateUniqueEvidenceQuote(currentSegment, span.quote);
 }
 
 function normalizeForEvidence(value: string): string {
-  return value
-    .normalize("NFC")
-    .replace(/\s+/gu, " ")
-    .trim();
+  return value.normalize("NFC").replace(/\s+/gu, " ").trim();
 }

@@ -11,11 +11,7 @@ export const CompactAudienceFactSchema = z
   .object({
     id: IdSchema,
     statement: z.string().min(3).max(500),
-    confidence: z.enum([
-      "explicit",
-      "strong_inference",
-      "weak_inference",
-    ]),
+    confidence: z.enum(["explicit", "strong_inference", "weak_inference"]),
   })
   .strict();
 
@@ -24,12 +20,7 @@ export const CompactAudienceAssumptionSchema = z
     id: IdSchema,
     statement: z.string().min(3).max(500),
     strength: z.enum(["low", "medium", "high"]),
-    status: z.enum([
-      "active",
-      "confirmed",
-      "refuted",
-      "expired",
-    ]),
+    status: z.enum(["active", "confirmed", "refuted", "expired"]),
   })
   .strict();
 
@@ -39,13 +30,7 @@ export const ModelQuestionSummarySchema = z
     semanticKey: z.string().min(3).max(240),
     text: z.string().min(5).max(400),
     kind: QuestionKindSchema,
-    status: z.enum([
-      "open",
-      "partially_answered",
-      "resolved",
-      "contradicted",
-      "stale",
-    ]),
+    status: z.enum(["open", "partially_answered", "resolved", "contradicted", "stale"]),
     severity: QuestionSeveritySchema,
     openedAtOrdinal: z.number().int().nonnegative(),
     lastChangedAtOrdinal: z.number().int().nonnegative(),
@@ -56,13 +41,8 @@ export const CompactAudienceStateSchema = z
   .object({
     processedThroughOrdinal: z.number().int().min(-1),
     facts: z.array(CompactAudienceFactSchema).max(120),
-    assumptions: z
-      .array(CompactAudienceAssumptionSchema)
-      .max(80),
-    compactNarrativeState: z
-      .string()
-      .min(1)
-      .max(16_000),
+    assumptions: z.array(CompactAudienceAssumptionSchema).max(80),
+    compactNarrativeState: z.string().min(1).max(16_000),
   })
   .strict();
 
@@ -93,22 +73,12 @@ export const StepAnalysisInputSchema = z
       })
       .strict(),
     priorAudienceState: CompactAudienceStateSchema,
-    activeQuestions: z
-      .array(ModelQuestionSummarySchema)
-      .max(80),
+    activeQuestions: z.array(ModelQuestionSummarySchema).max(80),
     analysisPolicy: AnalysisPolicySchema,
     limits: z
       .object({
-        maxNewQuestions: z
-          .number()
-          .int()
-          .min(0)
-          .max(12),
-        maxOperations: z
-          .number()
-          .int()
-          .min(1)
-          .max(20),
+        maxNewQuestions: z.number().int().min(0).max(12),
+        maxOperations: z.number().int().min(1).max(20),
       })
       .strict(),
   })
@@ -124,11 +94,7 @@ const OpenQuestionOperationSchema = z
     severity: QuestionSeveritySchema,
     evidence: z.array(EvidenceSpanSchema).min(1).max(3),
     rationale: z.string().min(10).max(800),
-    minimalClarification: z
-      .string()
-      .min(3)
-      .max(500)
-      .nullable(),
+    minimalClarification: z.string().min(3).max(500).nullable(),
   })
   .strict();
 
@@ -149,11 +115,10 @@ const ExistingQuestionOperationSchema = z
   })
   .strict();
 
-export const QuestionOperationSchema =
-  z.discriminatedUnion("type", [
-    OpenQuestionOperationSchema,
-    ExistingQuestionOperationSchema,
-  ]);
+export const QuestionOperationSchema = z.discriminatedUnion("type", [
+  OpenQuestionOperationSchema,
+  ExistingQuestionOperationSchema,
+]);
 
 export const StepAnalysisOutputSchema = z
   .object({
@@ -165,15 +130,8 @@ export const StepAnalysisOutputSchema = z
           .object({
             id: IdSchema,
             statement: z.string().min(3).max(500),
-            confidence: z.enum([
-              "explicit",
-              "strong_inference",
-              "weak_inference",
-            ]),
-            evidence: z
-              .array(EvidenceSpanSchema)
-              .min(1)
-              .max(3),
+            confidence: z.enum(["explicit", "strong_inference", "weak_inference"]),
+            evidence: z.array(EvidenceSpanSchema).min(1).max(3),
           })
           .strict(),
       )
@@ -185,10 +143,7 @@ export const StepAnalysisOutputSchema = z
             id: IdSchema,
             statement: z.string().min(3).max(500),
             strength: z.enum(["low", "medium", "high"]),
-            evidence: z
-              .array(EvidenceSpanSchema)
-              .min(1)
-              .max(3),
+            evidence: z.array(EvidenceSpanSchema).min(1).max(3),
           })
           .strict(),
       )
@@ -198,32 +153,18 @@ export const StepAnalysisOutputSchema = z
         z
           .object({
             id: IdSchema,
-            status: z.enum([
-              "confirmed",
-              "refuted",
-              "expired",
-            ]),
+            status: z.enum(["confirmed", "refuted", "expired"]),
             evidence: z.array(EvidenceSpanSchema).max(3),
             rationale: z.string().min(5).max(500),
           })
           .strict(),
       )
       .max(20),
-    questionOperations: z
-      .array(QuestionOperationSchema)
-      .max(20),
-    warnings: z
-      .array(z.string().min(1).max(300))
-      .max(10),
+    questionOperations: z.array(QuestionOperationSchema).max(20),
+    warnings: z.array(z.string().min(1).max(300)).max(10),
   })
   .strict();
 
-export type StepAnalysisInput = z.infer<
-  typeof StepAnalysisInputSchema
->;
-export type StepAnalysisOutput = z.infer<
-  typeof StepAnalysisOutputSchema
->;
-export type QuestionOperation = z.infer<
-  typeof QuestionOperationSchema
->;
+export type StepAnalysisInput = z.infer<typeof StepAnalysisInputSchema>;
+export type StepAnalysisOutput = z.infer<typeof StepAnalysisOutputSchema>;
+export type QuestionOperation = z.infer<typeof QuestionOperationSchema>;

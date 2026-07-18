@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from "hono";
-import { ApiError } from "../errors";
 import type { Bindings, RuntimeConfig } from "../env";
+import { ApiError } from "../errors";
 
 interface Variables {
   readonly runtimeConfig: RuntimeConfig;
@@ -20,14 +20,18 @@ const INCREMENT_BUCKET_SQL = `
   RETURNING request_count
 `;
 
-interface BucketCountRow { readonly request_count: number; }
+interface BucketCountRow {
+  readonly request_count: number;
+}
 
 async function sha256Hex(value: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-export async function enforceRateLimit(
+async function enforceRateLimit(
   database: D1Database,
   clientHash: string,
   nowEpochSeconds: number,
@@ -39,14 +43,24 @@ export async function enforceRateLimit(
   const dayStart = Math.floor(nowEpochSeconds / 86_400) * 86_400;
 
   const results = await database.batch<BucketCountRow>([
-    database.prepare(INCREMENT_BUCKET_SQL).bind(clientHash, "window", windowStart, nowEpochSeconds),
-    database.prepare(INCREMENT_BUCKET_SQL).bind(clientHash, "day", dayStart, nowEpochSeconds),
+    database
+      .prepare(INCREMENT_BUCKET_SQL)
+      .bind(clientHash, "window", windowStart, nowEpochSeconds),
+    database
+      .prepare(INCREMENT_BUCKET_SQL)
+      .bind(clientHash, "day", dayStart, nowEpochSeconds),
   ]);
 
   const windowCount = results[0]?.results[0]?.request_count;
   const dayCount = results[1]?.results[0]?.request_count;
   if (windowCount === undefined || dayCount === undefined) {
-    throw new ApiError("PROVIDER_UNAVAILABLE", 503, "Rate-limit storage did not return both counters.", true, 30);
+    throw new ApiError(
+      "PROVIDER_UNAVAILABLE",
+      503,
+      "Rate-limit storage did not return both counters.",
+      true,
+      30,
+    );
   }
 
   if (windowCount > windowLimit) {
@@ -70,7 +84,10 @@ export async function enforceRateLimit(
   }
 }
 
-export const rateLimitMiddleware: MiddlewareHandler<Environment> = async (context, next) => {
+export const rateLimitMiddleware: MiddlewareHandler<Environment> = async (
+  context,
+  next,
+) => {
   if (!context.req.path.startsWith("/api/v1/analysis")) {
     await next();
     return;
@@ -94,7 +111,11 @@ export const rateLimitMiddleware: MiddlewareHandler<Environment> = async (contex
   context.executionCtx.waitUntil(
     context.env.CONTROL_DB.prepare(
       "DELETE FROM rate_limit_buckets WHERE updated_at < ?1",
-    ).bind(now - 172_800).run().then(() => undefined).catch(() => undefined),
+    )
+      .bind(now - 172_800)
+      .run()
+      .then(() => undefined)
+      .catch(() => undefined),
   );
 
   await next();

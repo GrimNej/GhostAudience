@@ -1,10 +1,10 @@
 import {
-  FinalizeRunOutputSchema,
-  StepAnalysisOutputSchema,
   type FinalizeRunInput,
   type FinalizeRunOutput,
+  FinalizeRunOutputSchema,
   type StepAnalysisInput,
   type StepAnalysisOutput,
+  StepAnalysisOutputSchema,
 } from "@ghost-audience/contracts";
 import { ApiError } from "../../errors";
 import type {
@@ -19,12 +19,8 @@ const ZERO_USAGE = {
   totalTokens: 0,
 } as const;
 
-function evidence(
-  input: StepAnalysisInput,
-  quote: string,
-) {
-  const startOffset =
-    input.currentSegment.text.indexOf(quote);
+function evidence(input: StepAnalysisInput, quote: string) {
+  const startOffset = input.currentSegment.text.indexOf(quote);
   if (startOffset < 0) {
     throw new ApiError(
       "EVIDENCE_INVALID",
@@ -41,30 +37,20 @@ function evidence(
   };
 }
 
-function openQuestionId(
-  input: StepAnalysisInput,
-  semanticKey: string,
-): string | null {
+function openQuestionId(input: StepAnalysisInput, semanticKey: string): string | null {
   return (
-    input.activeQuestions.find(
-      (question) =>
-        question.semanticKey === semanticKey,
-    )?.id ?? null
+    input.activeQuestions.find((question) => question.semanticKey === semanticKey)
+      ?.id ?? null
   );
 }
 
-function deterministicOperationId(
-  input: StepAnalysisInput,
-  suffix: string,
-): string {
+function deterministicOperationId(input: StepAnalysisInput, suffix: string): string {
   return `op_${input.requestId}_${suffix}`
     .replace(/[^a-zA-Z0-9_-]/gu, "_")
     .slice(0, 120);
 }
 
-function buildDemoStep(
-  input: StepAnalysisInput,
-): StepAnalysisOutput {
+function buildDemoStep(input: StepAnalysisInput): StepAnalysisOutput {
   const ordinal = input.currentOrdinal;
   if (ordinal === 0) {
     return StepAnalysisOutputSchema.parse({
@@ -74,8 +60,7 @@ function buildDemoStep(
       assumptionsAdded: [
         {
           id: "assumption_mira_prior_visit",
-          statement:
-            "Mira may have been at the house before.",
+          statement: "Mira may have been at the house before.",
           strength: "high",
           evidence: [evidence(input, "Not again.")],
         },
@@ -83,13 +68,9 @@ function buildDemoStep(
       assumptionUpdates: [],
       questionOperations: [
         {
-          operationId: deterministicOperationId(
-            input,
-            "recognition-open",
-          ),
+          operationId: deterministicOperationId(input, "recognition-open"),
           type: "open",
-          semanticKey:
-            "motivation|mira|recognizes|house",
+          semanticKey: "motivation|mira|recognizes|house",
           text: "Why does Mira recognize the house?",
           kind: "motivation",
           severity: "curiosity",
@@ -112,22 +93,13 @@ function buildDemoStep(
       assumptionUpdates: [],
       questionOperations: [
         {
-          operationId: deterministicOperationId(
-            input,
-            "reference-open",
-          ),
+          operationId: deterministicOperationId(input, "reference-open"),
           type: "open",
-          semanticKey:
-            "reference|she|identity|speaker-reference",
+          semanticKey: "reference|she|identity|speaker-reference",
           text: "Who does ‘she’ refer to?",
           kind: "reference",
           severity: "clarity_risk",
-          evidence: [
-            evidence(
-              input,
-              "She said never to touch that.",
-            ),
-          ],
+          evidence: [evidence(input, "She said never to touch that.")],
           rationale:
             "No previously established person has a unique claim to this pronoun.",
           minimalClarification:
@@ -139,10 +111,7 @@ function buildDemoStep(
   }
 
   if (ordinal === 2) {
-    const recognitionId = openQuestionId(
-      input,
-      "motivation|mira|recognizes|house",
-    );
+    const recognitionId = openQuestionId(input, "motivation|mira|recognizes|house");
     const referenceId = openQuestionId(
       input,
       "reference|she|identity|speaker-reference",
@@ -150,17 +119,11 @@ function buildDemoStep(
     const operations: unknown[] = [];
     if (recognitionId !== null) {
       operations.push({
-        operationId: deterministicOperationId(
-          input,
-          "recognition-resolve",
-        ),
+        operationId: deterministicOperationId(input, "recognition-resolve"),
         type: "resolve",
         questionId: recognitionId,
         evidence: [
-          evidence(
-            input,
-            "Anya brought me here the night the archive burned.",
-          ),
+          evidence(input, "Anya brought me here the night the archive burned."),
         ],
         rationale:
           "Mira explicitly explains that Anya brought her to the house before.",
@@ -168,18 +131,10 @@ function buildDemoStep(
     }
     if (referenceId !== null) {
       operations.push({
-        operationId: deterministicOperationId(
-          input,
-          "reference-resolve",
-        ),
+        operationId: deterministicOperationId(input, "reference-resolve"),
         type: "resolve",
         questionId: referenceId,
-        evidence: [
-          evidence(
-            input,
-            "beside her older sister, Anya",
-          ),
-        ],
+        evidence: [evidence(input, "beside her older sister, Anya")],
         rationale:
           "The photograph and Mira's dialogue identify Anya as the likely referent.",
       });
@@ -190,14 +145,10 @@ function buildDemoStep(
       factsAdded: [
         {
           id: "fact_anya_brought_mira",
-          statement:
-            "Anya brought Mira to the house on the night the archive burned.",
+          statement: "Anya brought Mira to the house on the night the archive burned.",
           confidence: "explicit",
           evidence: [
-            evidence(
-              input,
-              "Anya brought me here the night the archive burned.",
-            ),
+            evidence(input, "Anya brought me here the night the archive burned."),
           ],
         },
       ],
@@ -207,10 +158,7 @@ function buildDemoStep(
           id: "assumption_mira_prior_visit",
           status: "confirmed",
           evidence: [
-            evidence(
-              input,
-              "Anya brought me here the night the archive burned.",
-            ),
+            evidence(input, "Anya brought me here the night the archive burned."),
           ],
           rationale: "Mira confirms a prior visit.",
         },
@@ -228,9 +176,7 @@ function buildDemoStep(
   );
 }
 
-export class FixtureProvider
-  implements NarrativeModelProvider
-{
+export class FixtureProvider implements NarrativeModelProvider {
   public readonly providerId = "fixture";
 
   public async analyzeStep(
@@ -249,8 +195,7 @@ export class FixtureProvider
       (question) => question.status === "resolved",
     );
     const firstBlocking = input.questions.find(
-      (question) =>
-        question.severity === "blocking_confusion",
+      (question) => question.severity === "blocking_confusion",
     );
     const output = FinalizeRunOutputSchema.parse({
       schemaVersion: "1.0",
@@ -273,8 +218,7 @@ export class FixtureProvider
           : [
               {
                 questionId: firstBlocking.id,
-                summary:
-                  "This finding can obstruct comprehension until clarified.",
+                summary: "This finding can obstruct comprehension until clarified.",
               },
             ],
       lateResolutions: [],

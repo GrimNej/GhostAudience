@@ -1,3 +1,4 @@
+import type { StepAnalysisOutput } from "@ghost-audience/contracts";
 import type {
   AudienceAssumption,
   AudienceFact,
@@ -8,7 +9,6 @@ import type {
   QuestionEvent,
   ScriptDocument,
 } from "@ghost-audience/domain";
-import type { StepAnalysisOutput } from "@ghost-audience/contracts";
 
 export interface ProjectRecord {
   readonly id: string;
@@ -32,9 +32,9 @@ export interface ScriptRecord {
   readonly updatedAt: string;
 }
 
-export interface SegmentRecord extends ScriptDocument["segments"][number] {
+export type SegmentRecord = ScriptDocument["segments"][number] & {
   readonly scriptId: string;
-}
+};
 
 export type PersistentRunStatus =
   | "draft"
@@ -85,7 +85,9 @@ export interface RunStepRecord {
   readonly committedAt: string;
 }
 
-export interface QuestionRecord extends AudienceQuestion { readonly id: AudienceQuestion["id"]; }
+export interface QuestionRecord extends AudienceQuestion {
+  readonly id: AudienceQuestion["id"];
+}
 
 export interface QuestionEventRecord {
   readonly operationId: string;
@@ -121,7 +123,10 @@ export interface AuditEventRecord {
   readonly createdAt: string;
 }
 
-export interface SettingRecord { readonly key: string; readonly value: unknown; }
+export interface SettingRecord {
+  readonly key: string;
+  readonly value: unknown;
+}
 
 export interface RunLeaseRecord {
   readonly runId: string;

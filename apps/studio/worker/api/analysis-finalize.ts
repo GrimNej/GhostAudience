@@ -30,20 +30,12 @@ type Environment = {
   readonly Variables: Variables;
 };
 
-export function analysisFinalizeHandler(
-  provider: NarrativeModelProvider,
-) {
-  return async (
-    context: Context<Environment>,
-  ): Promise<Response> => {
+export function analysisFinalizeHandler(provider: NarrativeModelProvider) {
+  return async (context: Context<Environment>): Promise<Response> => {
     const requestId = context.get("requestId");
-    const parsed = FinalizeRunInputSchema.parse(
-      await context.req.json(),
-    );
+    const parsed = FinalizeRunInputSchema.parse(await context.req.json());
     const input = { ...parsed, requestId };
-    const idempotencyKey = await sha256Text(
-      JSON.stringify(input),
-    );
+    const idempotencyKey = await sha256Text(JSON.stringify(input));
     const now = Math.floor(Date.now() / 1000);
     const reservation = await reserveProviderRequest(
       context.env.CONTROL_DB,
@@ -52,45 +44,29 @@ export function analysisFinalizeHandler(
       now,
     );
     if (reservation.kind === "cached") {
-      return context.json(
-        FinalizeRunOutputSchema.parse(
-          reservation.response,
-        ),
-      );
+      return context.json(FinalizeRunOutputSchema.parse(reservation.response));
     }
 
     let tokenReservation: TokenReservation | null = null;
     const controller = new AbortController();
-    const timer = setTimeout(
-      () => controller.abort(),
-      35_000,
-    );
+    const timer = setTimeout(() => controller.abort(), 35_000);
     try {
       const config = context.get("runtimeConfig");
       if (config.providerMode === "live") {
         tokenReservation = await reserveTokenBudget(
           context.env.CONTROL_DB,
           config,
-          estimateRequestTokens(
-            JSON.stringify(input).length,
-            2_000,
-          ),
+          estimateRequestTokens(JSON.stringify(input).length, 2_000),
           now,
         );
       }
-      const result = await provider.finalizeRun(
-        input,
-        controller.signal,
-      );
-      const output = FinalizeRunOutputSchema.parse(
-        result.output,
-      );
+      const result = await provider.finalizeRun(input, controller.signal);
+      const output = FinalizeRunOutputSchema.parse(result.output);
       if (tokenReservation !== null) {
         await settleTokenBudget(
           context.env.CONTROL_DB,
           tokenReservation,
-          result.usage.totalTokens ??
-            tokenReservation.estimatedTokens,
+          result.usage.totalTokens ?? tokenReservation.estimatedTokens,
           Math.floor(Date.now() / 1000),
         );
         tokenReservation = null;

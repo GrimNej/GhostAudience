@@ -46,5 +46,3 @@ export class GhostAudienceDatabase extends Dexie {
     });
   }
 }
-
-export const database = new GhostAudienceDatabase();

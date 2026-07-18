@@ -11,9 +11,7 @@ export const IsoDateTimeSchema = z.iso.datetime({
   offset: true,
 });
 
-export const Sha256Schema = z
-  .string()
-  .regex(/^[a-f0-9]{64}$/u);
+export const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/u);
 
 export const EvidenceSpanSchema = z
   .object({
@@ -23,14 +21,10 @@ export const EvidenceSpanSchema = z
     quote: z.string().min(1).max(1_200),
   })
   .strict()
-  .refine(
-    (value) => value.endOffset > value.startOffset,
-    {
-      message:
-        "endOffset must be greater than startOffset",
-      path: ["endOffset"],
-    },
-  );
+  .refine((value) => value.endOffset > value.startOffset, {
+    message: "endOffset must be greater than startOffset",
+    path: ["endOffset"],
+  });
 
 export const QuestionKindSchema = z.enum([
   "identity",
@@ -54,8 +48,4 @@ export const QuestionSeveritySchema = z.enum([
   "blocking_confusion",
 ]);
 
-export const ProviderModeSchema = z.enum([
-  "watsonx",
-  "fixture",
-  "disabled",
-]);
+export const ProviderModeSchema = z.enum(["watsonx", "fixture", "disabled"]);

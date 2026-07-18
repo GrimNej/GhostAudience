@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readRuntimeConfig, type Bindings } from "../env";
+import { type Bindings, readRuntimeConfig } from "../env";
 
 const common = {
   CONTROL_DB: {} as D1Database,

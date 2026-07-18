@@ -1,11 +1,11 @@
 import {
-  ApiErrorEnvelopeSchema,
-  CapabilitiesResponseSchema,
-  StepAnalysisOutputSchema,
   type ApiErrorCode,
+  ApiErrorEnvelopeSchema,
   type CapabilitiesResponse,
+  CapabilitiesResponseSchema,
   type StepAnalysisInput,
   type StepAnalysisOutput,
+  StepAnalysisOutputSchema,
 } from "@ghost-audience/contracts";
 import type { z } from "zod";
 
@@ -31,7 +31,10 @@ function parseRetryAfter(response: Response): number | undefined {
   return Number.isFinite(seconds) && seconds > 0 ? seconds : undefined;
 }
 
-export async function parseApiResponse<T>(response: Response, schema: z.ZodType<T>): Promise<T> {
+async function parseApiResponse<T>(
+  response: Response,
+  schema: z.ZodType<T>,
+): Promise<T> {
   const text = await response.text();
   const contentType = response.headers.get("content-type") ?? "";
   let body: unknown = null;
@@ -78,11 +81,17 @@ export async function parseApiResponse<T>(response: Response, schema: z.ZodType<
 
 export class ApiClient {
   public async capabilities(signal?: AbortSignal): Promise<CapabilitiesResponse> {
-    const response = await fetch("/api/v1/capabilities", { headers: { Accept: "application/json" }, signal });
+    const response = await fetch("/api/v1/capabilities", {
+      headers: { Accept: "application/json" },
+      ...(signal === undefined ? {} : { signal }),
+    });
     return parseApiResponse(response, CapabilitiesResponseSchema);
   }
 
-  public async analyzeStep(input: StepAnalysisInput, signal: AbortSignal): Promise<StepAnalysisOutput> {
+  public async analyzeStep(
+    input: StepAnalysisInput,
+    signal: AbortSignal,
+  ): Promise<StepAnalysisOutput> {
     const response = await fetch("/api/v1/analysis/step", {
       method: "POST",
       headers: {

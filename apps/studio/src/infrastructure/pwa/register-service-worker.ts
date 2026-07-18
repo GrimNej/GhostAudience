@@ -1,15 +1,9 @@
-import {
-  registerSW,
-} from "virtual:pwa-register";
+import { registerSW } from "virtual:pwa-register";
 
 export interface ServiceWorkerUpdateHooks {
-  readonly onUpdateAvailable: (
-    applyUpdate: () => Promise<void>,
-  ) => void;
+  readonly onUpdateAvailable: (applyUpdate: () => Promise<void>) => void;
   readonly onOfflineReady: () => void;
-  readonly onRegistrationError: (
-    error: Error,
-  ) => void;
+  readonly onRegistrationError: (error: Error) => void;
 }
 
 export function registerApplicationServiceWorker(
@@ -25,13 +19,11 @@ export function registerApplicationServiceWorker(
     onOfflineReady() {
       hooks.onOfflineReady();
     },
-    onRegisterError(error) {
+    onRegisterError(error: unknown) {
       hooks.onRegistrationError(
         error instanceof Error
           ? error
-          : new Error(
-              "Service-worker registration failed.",
-            ),
+          : new Error("Service-worker registration failed."),
       );
     },
   });

@@ -1,5 +1,8 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { useProject, useWorkspaceRepository } from "../../project/data/use-project-workspace";
+import {
+  useProject,
+  useWorkspaceRepository,
+} from "../../project/data/use-project-workspace";
 import { buildReportModel } from "../domain/build-report";
 
 export function useReportData(projectId: string) {

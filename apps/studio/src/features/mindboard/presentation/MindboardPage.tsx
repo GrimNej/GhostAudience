@@ -20,8 +20,8 @@ function MindboardColumn({
         <p className="field__hint">{emptyMessage}</p>
       ) : (
         <ul>
-          {values.map((value, index) => (
-            <li key={`${title}-${index}-${value}`}>{value}</li>
+          {values.map((value) => (
+            <li key={`${title}-${value}`}>{value}</li>
           ))}
         </ul>
       )}
@@ -31,10 +31,12 @@ function MindboardColumn({
 
 export function MindboardPage(): JSX.Element {
   const { projectId } = useParams();
-  const { workspace, value } = useMindboardData(
-    projectId,
-    selectedOrdinal,
-  );
+  const [selectedOrdinal, setSelectedOrdinal] = useState(0);
+  const { workspace, value } = useMindboardData(projectId ?? "", selectedOrdinal);
+
+  if (projectId === undefined) {
+    throw new Error("Mindboard route is missing projectId.");
+  }
 
   if (workspace === undefined || value === undefined) {
     return <div aria-busy="true">Loading mindboard…</div>;
@@ -55,9 +57,7 @@ export function MindboardPage(): JSX.Element {
           max={value.maximumOrdinal}
           value={value.ordinal}
           onChange={(event) => {
-            setSelectedOrdinal(
-              Number.parseInt(event.currentTarget.value, 10),
-            );
+            setSelectedOrdinal(Number.parseInt(event.currentTarget.value, 10));
           }}
         />
       </label>

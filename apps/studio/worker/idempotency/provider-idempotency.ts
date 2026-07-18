@@ -48,13 +48,7 @@ export async function reserveProviderRequest(
       VALUES (?1, ?2, ?3, 'in_progress', ?4, ?4, ?5)
       ON CONFLICT (idempotency_key) DO NOTHING
     `)
-    .bind(
-      idempotencyKey,
-      routeKind,
-      ownerToken,
-      nowEpochSeconds,
-      expiresAt,
-    )
+    .bind(idempotencyKey, routeKind, ownerToken, nowEpochSeconds, expiresAt)
     .run();
 
   let row = await readRow(database, idempotencyKey);
@@ -67,26 +61,19 @@ export async function reserveProviderRequest(
     );
   }
 
-  if (
-    row.state === "completed" &&
-    row.response_json !== null
-  ) {
+  if (row.state === "completed" && row.response_json !== null) {
     return {
       kind: "cached",
       response: JSON.parse(row.response_json) as unknown,
     };
   }
 
-  if (
-    row.owner_token === ownerToken &&
-    row.state === "in_progress"
-  ) {
+  if (row.owner_token === ownerToken && row.state === "in_progress") {
     return { kind: "owner", ownerToken };
   }
 
   if (
-    (row.state === "in_progress" ||
-      row.state === "failed") &&
+    (row.state === "in_progress" || row.state === "failed") &&
     row.expires_at <= nowEpochSeconds
   ) {
     const takeover = await database
@@ -105,13 +92,7 @@ export async function reserveProviderRequest(
           AND expires_at <= ?3
         RETURNING owner_token, state, response_json, expires_at
       `)
-      .bind(
-        ownerToken,
-        routeKind,
-        nowEpochSeconds,
-        expiresAt,
-        idempotencyKey,
-      )
+      .bind(ownerToken, routeKind, nowEpochSeconds, expiresAt, idempotencyKey)
       .first<IdempotencyRow>();
 
     if (takeover?.owner_token === ownerToken) {
@@ -120,10 +101,7 @@ export async function reserveProviderRequest(
     row = await readRow(database, idempotencyKey);
   }
 
-  if (
-    row?.state === "completed" &&
-    row.response_json !== null
-  ) {
+  if (row?.state === "completed" && row.response_json !== null) {
     return {
       kind: "cached",
       response: JSON.parse(row.response_json) as unknown,
@@ -135,19 +113,12 @@ export async function reserveProviderRequest(
     425,
     "An identical provider request is already in progress or cooling down after failure.",
     true,
-    Math.max(
-      1,
-      (row?.expires_at ?? nowEpochSeconds + 5) -
-        nowEpochSeconds,
-    ),
+    Math.max(1, (row?.expires_at ?? nowEpochSeconds + 5) - nowEpochSeconds),
   );
 }
 
 async function sha256Hex(value: string): Promise<string> {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(value),
-  );
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return [...new Uint8Array(digest)]
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");

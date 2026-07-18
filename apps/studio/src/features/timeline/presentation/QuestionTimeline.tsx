@@ -1,28 +1,14 @@
-import {
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import type { AudienceQuestion } from "@ghost-audience/domain";
+import { useMemo, useRef, useState } from "react";
 
-import type {
-  AudienceQuestion,
-} from "@ghost-audience/domain";
-
-import {
-  buildTimelineLayout,
-} from "../domain/timeline-layout";
-import {
-  TimelineTable,
-} from "./TimelineTable";
+import { buildTimelineLayout } from "../domain/timeline-layout";
+import { TimelineTable } from "./TimelineTable";
 
 interface QuestionTimelineProps {
-  readonly questions:
-    readonly AudienceQuestion[];
+  readonly questions: readonly AudienceQuestion[];
   readonly segmentCount: number;
-  readonly selectedQuestionId:
-    string | null;
-  readonly onSelectQuestion:
-    (questionId: string) => void;
+  readonly selectedQuestionId: string | null;
+  readonly onSelectQuestion: (questionId: string) => void;
 }
 
 const cellWidth = 96;
@@ -36,84 +22,48 @@ export function QuestionTimeline({
   onSelectQuestion,
 }: QuestionTimelineProps): JSX.Element {
   const layout = useMemo(
-    () =>
-      buildTimelineLayout(
-        questions,
-        segmentCount,
-      ),
+    () => buildTimelineLayout(questions, segmentCount),
     [questions, segmentCount],
   );
 
-  const [viewMode, setViewMode] =
-    useState<"visual" | "table">("visual");
-  const scrollRef =
-    useRef<HTMLDivElement>(null);
+  const [viewMode, setViewMode] = useState<"visual" | "table">("visual");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const width =
-    labelWidth +
-    Math.max(segmentCount, 1) * cellWidth;
-  const height =
-    Math.max(layout.lanes.length, 1) *
-      laneHeight +
-    44;
+  const width = labelWidth + Math.max(segmentCount, 1) * cellWidth;
+  const height = Math.max(layout.lanes.length, 1) * laneHeight + 44;
 
   return (
-    <section
-      className="timeline panel"
-      aria-labelledby="timeline-title"
-    >
+    <section className="timeline panel" aria-labelledby="timeline-title">
       <div className="panel__header">
         <div>
-          <p className="eyebrow">
-            Question journey
-          </p>
-          <h2 id="timeline-title">
-            Curiosity timeline
-          </h2>
+          <p className="eyebrow">Question journey</p>
+          <h2 id="timeline-title">Curiosity timeline</h2>
         </div>
 
-        <div
-          className="segmented-control"
-          aria-label="Timeline view"
-        >
+        <fieldset className="segmented-control" aria-label="Timeline view">
           <button
             type="button"
-            aria-pressed={
-              viewMode === "visual"
-            }
-            onClick={() =>
-              setViewMode("visual")
-            }
+            aria-pressed={viewMode === "visual"}
+            onClick={() => setViewMode("visual")}
           >
             Visual
           </button>
           <button
             type="button"
-            aria-pressed={
-              viewMode === "table"
-            }
-            onClick={() =>
-              setViewMode("table")
-            }
+            aria-pressed={viewMode === "table"}
+            onClick={() => setViewMode("table")}
           >
             Table
           </button>
-        </div>
+        </fieldset>
       </div>
 
       {viewMode === "table" ? (
-        <TimelineTable
-          questions={questions}
-          onSelectQuestion={
-            onSelectQuestion
-          }
-        />
+        <TimelineTable questions={questions} onSelectQuestion={onSelectQuestion} />
       ) : (
-        <div
+        <section
           ref={scrollRef}
           className="timeline__scroll"
-          tabIndex={0}
-          role="region"
           aria-label="Scrollable visual curiosity timeline"
         >
           <svg
@@ -122,87 +72,43 @@ export function QuestionTimeline({
             role="img"
             aria-labelledby="timeline-svg-title timeline-svg-description"
           >
-            <title id="timeline-svg-title">
-              Audience question lifecycle
-            </title>
+            <title id="timeline-svg-title">Audience question lifecycle</title>
             <desc id="timeline-svg-description">
-              Questions run from the segment where
-              they open to the segment where they
+              Questions run from the segment where they open to the segment where they
               resolve or remain active.
             </desc>
 
-            {Array.from(
-              { length: segmentCount },
-              (_, ordinal) => {
-                const x =
-                  labelWidth +
-                  ordinal * cellWidth;
+            {Array.from({ length: segmentCount }, (_, ordinal) => {
+              const x = labelWidth + ordinal * cellWidth;
 
-                return (
-                  <g key={ordinal}>
-                    <line
-                      x1={x}
-                      x2={x}
-                      y1={36}
-                      y2={height}
-                      className="timeline__grid"
-                    />
-                    <text
-                      x={x + 8}
-                      y={24}
-                      className="timeline__heading"
-                    >
-                      S{ordinal + 1}
-                    </text>
-                  </g>
-                );
-              },
-            )}
+              return (
+                <g key={`segment-${x}`}>
+                  <line x1={x} x2={x} y1={36} y2={height} className="timeline__grid" />
+                  <text x={x + 8} y={24} className="timeline__heading">
+                    S{ordinal + 1}
+                  </text>
+                </g>
+              );
+            })}
 
             {layout.lanes.map((lane) => {
-              const question =
-                questions.find(
-                  (candidate) =>
-                    candidate.id ===
-                    lane.questionId,
-                );
+              const question = questions.find(
+                (candidate) => candidate.id === lane.questionId,
+              );
 
               if (question === undefined) {
                 return null;
               }
 
-              const y =
-                44 +
-                lane.row * laneHeight +
-                laneHeight / 2;
-              const x1 =
-                labelWidth +
-                lane.startOrdinal * cellWidth +
-                12;
-              const x2 =
-                labelWidth +
-                lane.endOrdinal * cellWidth +
-                cellWidth -
-                12;
+              const y = 44 + lane.row * laneHeight + laneHeight / 2;
+              const x1 = labelWidth + lane.startOrdinal * cellWidth + 12;
+              const x2 = labelWidth + lane.endOrdinal * cellWidth + cellWidth - 12;
 
               return (
-                <g
-                  key={question.id}
-                  data-selected={
-                    selectedQuestionId ===
-                    question.id
-                  }
-                >
-                  <text
-                    x={8}
-                    y={y + 5}
-                    className="timeline__label"
-                  >
+                <g key={question.id} data-selected={selectedQuestionId === question.id}>
+                  <text x={8} y={y + 5} className="timeline__label">
                     {question.text.length > 38
-                      ? `${question.text.slice(
-                          0,
-                          37,
-                        )}…`
+                      ? `${question.text.slice(0, 37)}…`
                       : question.text}
                   </text>
 
@@ -221,8 +127,7 @@ export function QuestionTimeline({
                     className="timeline__node timeline__node--open"
                   />
 
-                  {question.resolvedAtOrdinal !==
-                  null ? (
+                  {question.resolvedAtOrdinal !== null ? (
                     <circle
                       cx={x2}
                       cy={y}
@@ -231,35 +136,23 @@ export function QuestionTimeline({
                     />
                   ) : null}
 
-                  <foreignObject
-                    x={0}
-                    y={y - 22}
-                    width={width}
-                    height={44}
-                  >
+                  <foreignObject x={0} y={y - 22} width={width} height={44}>
                     <button
                       type="button"
                       className="timeline__hit-area"
                       aria-label={`${question.text}. ${question.status}. Opened at segment ${
-                        question.openedAtOrdinal +
-                        1
+                        question.openedAtOrdinal + 1
                       }.`}
-                      onClick={() =>
-                        onSelectQuestion(
-                          question.id,
-                        )
-                      }
+                      onClick={() => onSelectQuestion(question.id)}
                     >
-                      <span className="visually-hidden">
-                        Open question details
-                      </span>
+                      <span className="visually-hidden">Open question details</span>
                     </button>
                   </foreignObject>
                 </g>
               );
             })}
           </svg>
-        </div>
+        </section>
       )}
     </section>
   );

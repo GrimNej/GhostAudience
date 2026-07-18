@@ -4,15 +4,10 @@ import { useDatabase } from "../../../app/database-context";
 import { ProjectRepository } from "../../../infrastructure/db/project-repository";
 
 export interface ScriptActions {
-  readonly save: (
-    title: string,
-    text: string,
-  ) => Promise<void>;
+  readonly save: (title: string, text: string) => Promise<void>;
 }
 
-export function useScriptActions(
-  projectId: string,
-): ScriptActions {
+export function useScriptActions(projectId: string): ScriptActions {
   const database = useDatabase();
   return useMemo(() => {
     const repository = new ProjectRepository(database);

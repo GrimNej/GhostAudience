@@ -41,27 +41,23 @@ const severityRank = {
   blocking_confusion: 2,
 } as const;
 
-export function compareQuestionPriority(
+function compareQuestionPriority(
   left: AudienceQuestion,
   right: AudienceQuestion,
 ): number {
   return (
-    severityRank[right.severity] -
-      severityRank[left.severity] ||
-    right.lastChangedAtOrdinal -
-      left.lastChangedAtOrdinal ||
+    severityRank[right.severity] - severityRank[left.severity] ||
+    right.lastChangedAtOrdinal - left.lastChangedAtOrdinal ||
     left.id.localeCompare(right.id)
   );
 }
 
-export async function createTransportSegmentId(
+async function createTransportSegmentId(
   ordinal: number,
   priorPrefixHash: string,
   segmentHash: string,
 ): Promise<string> {
-  const identity = await sha256(
-    `${ordinal}:${priorPrefixHash}:${segmentHash}`,
-  );
+  const identity = await sha256(`${ordinal}:${priorPrefixHash}:${segmentHash}`);
   return `segment_prefix_${identity.slice(0, 32)}`;
 }
 
@@ -70,10 +66,7 @@ export async function buildStepAnalysisInput(
 ): Promise<StepAnalysisInput> {
   const ordinal = options.currentSegment.ordinal;
   const expectedPreviousOrdinal = ordinal - 1;
-  if (
-    options.priorState.processedThroughOrdinal !==
-    expectedPreviousOrdinal
-  ) {
+  if (options.priorState.processedThroughOrdinal !== expectedPreviousOrdinal) {
     throw new Error(
       `Prior state cursor mismatch: expected ${expectedPreviousOrdinal}, received ${options.priorState.processedThroughOrdinal}.`,
     );
@@ -83,23 +76,16 @@ export async function buildStepAnalysisInput(
     ordinal === 0
       ? await sha256("ghost-audience:prefix:v1")
       : options.prefixHashes[ordinal - 1];
-  const expectedNextPrefixHash =
-    options.prefixHashes[ordinal];
-  if (
-    priorPrefixHash === undefined ||
-    expectedNextPrefixHash === undefined
-  ) {
-    throw new Error(
-      `Missing prefix hash for segment ${ordinal}.`,
-    );
+  const expectedNextPrefixHash = options.prefixHashes[ordinal];
+  if (priorPrefixHash === undefined || expectedNextPrefixHash === undefined) {
+    throw new Error(`Missing prefix hash for segment ${ordinal}.`);
   }
 
-  const transportSegmentId =
-    await createTransportSegmentId(
-      ordinal,
-      priorPrefixHash,
-      options.currentSegment.sha256,
-    );
+  const transportSegmentId = await createTransportSegmentId(
+    ordinal,
+    priorPrefixHash,
+    options.currentSegment.sha256,
+  );
 
   const inputWithoutIdempotency = {
     schemaVersion: "1.0" as const,
@@ -115,8 +101,7 @@ export async function buildStepAnalysisInput(
       sha256: options.currentSegment.sha256,
     },
     priorAudienceState: {
-      processedThroughOrdinal:
-        options.priorState.processedThroughOrdinal,
+      processedThroughOrdinal: options.priorState.processedThroughOrdinal,
       facts: options.priorState.facts
         .slice(-120)
         .map(({ id, statement, confidence }) => ({
@@ -132,14 +117,12 @@ export async function buildStepAnalysisInput(
           strength,
           status,
         })),
-      compactNarrativeState:
-        options.priorState.compactNarrativeState,
+      compactNarrativeState: options.priorState.compactNarrativeState,
     },
     activeQuestions: options.priorState.questions
       .filter(
         (question) =>
-          question.status === "open" ||
-          question.status === "partially_answered",
+          question.status === "open" || question.status === "partially_answered",
       )
       .sort(compareQuestionPriority)
       .slice(0, 80)
@@ -181,18 +164,12 @@ export async function buildStepAnalysisInput(
     canonicalJson({
       schemaVersion: inputWithoutIdempotency.schemaVersion,
       runId: inputWithoutIdempotency.runId,
-      currentOrdinal:
-        inputWithoutIdempotency.currentOrdinal,
-      priorPrefixHash:
-        inputWithoutIdempotency.priorPrefixHash,
-      expectedNextPrefixHash:
-        inputWithoutIdempotency.expectedNextPrefixHash,
-      currentSegment:
-        inputWithoutIdempotency.currentSegment,
-      priorAudienceState:
-        inputWithoutIdempotency.priorAudienceState,
-      activeQuestions:
-        inputWithoutIdempotency.activeQuestions,
+      currentOrdinal: inputWithoutIdempotency.currentOrdinal,
+      priorPrefixHash: inputWithoutIdempotency.priorPrefixHash,
+      expectedNextPrefixHash: inputWithoutIdempotency.expectedNextPrefixHash,
+      currentSegment: inputWithoutIdempotency.currentSegment,
+      priorAudienceState: inputWithoutIdempotency.priorAudienceState,
+      activeQuestions: inputWithoutIdempotency.activeQuestions,
       promptVersion: options.promptVersion,
       modelId: options.modelId,
     }),
@@ -211,37 +188,25 @@ export function canonicalJson(value: unknown): string {
     return `[${value.map(canonicalJson).join(",")}]`;
   }
   if (value !== null && typeof value === "object") {
-    return `{${Object.entries(
-      value as Record<string, unknown>,
-    )
-      .sort(([left], [right]) =>
-        left.localeCompare(right),
-      )
-      .map(
-        ([key, nested]) =>
-          `${JSON.stringify(key)}:${canonicalJson(nested)}`,
-      )
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, nested]) => `${JSON.stringify(key)}:${canonicalJson(nested)}`)
       .join(",")}}`;
   }
   return JSON.stringify(value);
 }
 
-function assertNoForbiddenKeys(
-  value: unknown,
-  path = "$",
-): void {
+function assertNoForbiddenKeys(value: unknown, path = "$"): void {
   if (value === null || typeof value !== "object") return;
   if (Array.isArray(value)) {
-    value.forEach((item, index) =>
-      assertNoForbiddenKeys(item, `${path}[${index}]`),
-    );
+    for (const [index, item] of value.entries()) {
+      assertNoForbiddenKeys(item, `${path}[${index}]`);
+    }
     return;
   }
   for (const [key, nested] of Object.entries(value)) {
     if (FORBIDDEN_REQUEST_KEYS.has(key)) {
-      throw new Error(
-        `Forbidden no-hindsight key ${path}.${key}.`,
-      );
+      throw new Error(`Forbidden no-hindsight key ${path}.${key}.`);
     }
     assertNoForbiddenKeys(nested, `${path}.${key}`);
   }

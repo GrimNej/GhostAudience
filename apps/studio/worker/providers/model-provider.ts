@@ -18,10 +18,7 @@ export interface ProviderResult<T> {
 
 export interface ModelCapabilities {
   readonly providerId: string;
-  readonly providerMode:
-    | "watsonx"
-    | "fixture"
-    | "disabled";
+  readonly providerMode: "watsonx" | "fixture" | "disabled";
   readonly modelId: string | null;
   readonly modelAvailable: boolean;
   readonly checkedAt: string;
@@ -41,7 +38,5 @@ export interface NarrativeModelProvider {
     input: FinalizeRunInput,
     signal: AbortSignal,
   ): Promise<ProviderResult<FinalizeRunOutput>>;
-  capabilities(
-    signal: AbortSignal,
-  ): Promise<ModelCapabilities>;
+  capabilities(signal: AbortSignal): Promise<ModelCapabilities>;
 }

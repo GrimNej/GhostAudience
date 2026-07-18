@@ -5,18 +5,27 @@ import { useAnalysisController } from "../data/use-analysis-controller";
 import { useCapabilities } from "../data/use-capabilities";
 import { AnalysisProgress } from "./AnalysisProgress";
 
+const RESUMABLE_STATUSES = new Set([
+  "ready",
+  "running",
+  "waiting_retry",
+  "cancelled",
+  "failed",
+]);
+
+function isActiveRunStatus(status: string): boolean {
+  return ["running", "waiting_retry"].includes(status);
+}
+
 export function AnalysisPage(): JSX.Element {
   const { projectId } = useParams();
   const controller = useAnalysisController();
   const capabilities = useCapabilities();
   const [starting, setStarting] = useState(false);
-  const [startError, setStartError] =
-    useState<string | null>(null);
+  const [startError, setStartError] = useState<string | null>(null);
 
   if (projectId === undefined) {
-    throw new Error(
-      "Analysis route is missing projectId.",
-    );
+    throw new Error("Analysis route is missing projectId.");
   }
 
   const value = useProject(projectId);
@@ -29,17 +38,14 @@ export function AnalysisPage(): JSX.Element {
     return (
       <section>
         <h2>Add a script first</h2>
-        <p>
-          Analysis requires a saved and segmented script.
-        </p>
+        <p>Analysis requires a saved and segmented script.</p>
       </section>
     );
   }
 
   const run = value.latestRun;
   const capability = capabilities.data;
-  const fixtureAvailable =
-    capability?.fixtureModeAvailable ?? true;
+  const fixtureAvailable = capability?.fixtureModeAvailable ?? true;
   const liveAvailable =
     capability?.liveAnalysisEnabled === true &&
     capability.providerMode === "watsonx" &&
@@ -47,9 +53,7 @@ export function AnalysisPage(): JSX.Element {
     capability.tokenBudget.remainingBeforeHardStop > 0;
 
   if (run === null) {
-    const start = async (
-      providerMode: "watsonx" | "fixture",
-    ): Promise<void> => {
+    const start = async (providerMode: "watsonx" | "fixture"): Promise<void> => {
       if (starting) return;
       setStarting(true);
       setStartError(null);
@@ -58,19 +62,12 @@ export function AnalysisPage(): JSX.Element {
           projectId,
           providerMode,
           modelId:
-            providerMode === "fixture"
-              ? "fixture-v1"
-              : capability?.modelId ?? "",
-          promptVersion:
-            providerMode === "fixture"
-              ? "fixture-v1"
-              : "step-v1",
+            providerMode === "fixture" ? "fixture-v1" : (capability?.modelId ?? ""),
+          promptVersion: providerMode === "fixture" ? "fixture-v1" : "step-v1",
         });
       } catch (error: unknown) {
         setStartError(
-          error instanceof Error
-            ? error.message
-            : "Unable to start analysis.",
+          error instanceof Error ? error.message : "Unable to start analysis.",
         );
       } finally {
         setStarting(false);
@@ -81,14 +78,10 @@ export function AnalysisPage(): JSX.Element {
       <section className="analysis-start panel">
         <div className="panel__body">
           <p className="eyebrow">Ready</p>
-          <h2>
-            Analyze {value.segments.length} segments
-            sequentially
-          </h2>
+          <h2>Analyze {value.segments.length} segments sequentially</h2>
           <p>
-            Neutral step requests contain only prior accepted
-            audience state and the current segment. Creator
-            intent is evaluated locally afterward.
+            Neutral step requests contain only prior accepted audience state and the
+            current segment. Creator intent is evaluated locally afterward.
           </p>
           <div className="button-row">
             <button
@@ -114,9 +107,8 @@ export function AnalysisPage(): JSX.Element {
           </div>
           {!liveAvailable ? (
             <p className="field__hint">
-              Live Granite is unavailable, disabled, or inside
-              the protected token reserve. Fixture mode remains
-              available.
+              Live Granite is unavailable, disabled, or inside the protected token
+              reserve. Fixture mode remains available.
             </p>
           ) : null}
           {startError === null ? null : (
@@ -128,6 +120,24 @@ export function AnalysisPage(): JSX.Element {
       </section>
     );
   }
+
+  const activeRun = isActiveRunStatus(run.status);
+  const canResume = RESUMABLE_STATUSES.has(run.status);
+
+  const resume = async (): Promise<void> => {
+    if (starting) return;
+    setStarting(true);
+    setStartError(null);
+    try {
+      await controller.resume(run.id);
+    } catch (error: unknown) {
+      setStartError(
+        error instanceof Error ? error.message : "Unable to resume analysis.",
+      );
+    } finally {
+      setStarting(false);
+    }
+  };
 
   return (
     <section>
@@ -142,8 +152,7 @@ export function AnalysisPage(): JSX.Element {
         }
         noFutureScenesSupplied
       />
-      {run.status === "running" ||
-      run.status === "waiting_retry" ? (
+      {activeRun ? (
         <button
           type="button"
           className="button button--danger"
@@ -152,9 +161,32 @@ export function AnalysisPage(): JSX.Element {
           Cancel analysis
         </button>
       ) : null}
+      {canResume ? (
+        <button
+          type="button"
+          className="button button--primary"
+          disabled={starting}
+          onClick={() => {
+            void resume();
+          }}
+        >
+          {starting ? "Resuming…" : "Resume analysis"}
+        </button>
+      ) : null}
+      {activeRun ? (
+        <p className="field__hint">
+          If another tab owns this run, it will remain the only tab allowed to commit a
+          step.
+        </p>
+      ) : null}
       {run.failureMessage === null ? null : (
         <p role="alert" className="error-message">
           {run.failureMessage}
+        </p>
+      )}
+      {startError === null ? null : (
+        <p role="alert" className="error-message">
+          {startError}
         </p>
       )}
     </section>

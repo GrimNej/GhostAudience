@@ -1,16 +1,16 @@
+import type { StepAnalysisOutput } from "@ghost-audience/contracts";
 import {
+  type AudienceState,
   applyKnowledgeEvents,
   buildCompactNarrativeState,
   createEmptyAudienceState,
-  replayQuestionEvents,
-  runId,
-  type AudienceState,
   type IntentContract,
   type KnowledgeEvent,
   type QuestionEvent,
+  replayQuestionEvents,
+  runId,
   type ScriptSegment,
 } from "@ghost-audience/domain";
-import type { StepAnalysisOutput } from "@ghost-audience/contracts";
 import { nanoid } from "nanoid";
 import type { GhostAudienceDatabase } from "./database";
 import type {
@@ -97,7 +97,10 @@ export class RunRepository {
   }
 
   private async loadStateWithinTransaction(run: RunRecord): Promise<AudienceState> {
-    const questions = await this.db.questions.where("runId").equals(run.id).sortBy("openedAtOrdinal");
+    const questions = await this.db.questions
+      .where("runId")
+      .equals(run.id)
+      .sortBy("openedAtOrdinal");
     return {
       runId: runId(run.id),
       processedThroughOrdinal: run.committedThroughOrdinal,
@@ -124,7 +127,10 @@ export class RunRepository {
       async () => {
         const run = await this.requireRun(input.runId);
 
-        const existing = await this.db.runSteps.where("idempotencyKey").equals(input.idempotencyKey).first();
+        const existing = await this.db.runSteps
+          .where("idempotencyKey")
+          .equals(input.idempotencyKey)
+          .first();
         if (existing !== undefined) {
           if (existing.runId !== input.runId || existing.ordinal !== input.ordinal) {
             throw new Error("Idempotency key collision across run steps.");
@@ -133,12 +139,16 @@ export class RunRepository {
         }
 
         if (run.activeFence !== input.fence) {
-          throw new Error(`Stale run owner. Expected fence ${run.activeFence}, received ${input.fence}.`);
+          throw new Error(
+            `Stale run owner. Expected fence ${run.activeFence}, received ${input.fence}.`,
+          );
         }
 
         const expectedOrdinal = run.committedThroughOrdinal + 1;
         if (input.ordinal !== expectedOrdinal) {
-          throw new Error(`Run cursor mismatch. Expected ${expectedOrdinal}, received ${input.ordinal}.`);
+          throw new Error(
+            `Run cursor mismatch. Expected ${expectedOrdinal}, received ${input.ordinal}.`,
+          );
         }
 
         const current = await this.loadStateWithinTransaction(run);
@@ -147,7 +157,11 @@ export class RunRepository {
           staleAfterSegments: 3,
           segments: input.segments,
         });
-        const knowledge = applyKnowledgeEvents(withQuestions.facts, withQuestions.assumptions, input.knowledgeEvents);
+        const knowledge = applyKnowledgeEvents(
+          withQuestions.facts,
+          withQuestions.assumptions,
+          input.knowledgeEvents,
+        );
         const finalState: AudienceState = {
           ...withQuestions,
           processedThroughOrdinal: input.ordinal,
@@ -172,26 +186,31 @@ export class RunRepository {
           rawValidatedResponse: input.rawValidatedResponse,
           committedAt: input.now,
         };
-        const questionRecords: readonly QuestionEventRecord[] = input.questionEvents.map((event) => ({
-          operationId: event.operationId,
-          runId: input.runId,
-          questionId: event.type === "QUESTION_OPENED" ? event.question.id : event.questionId,
-          ordinal: input.ordinal,
-          event,
-          createdAt: input.now,
-        }));
-        const knowledgeRecords: readonly KnowledgeEventRecord[] = input.knowledgeEvents.map((event) => ({
-          operationId: event.operationId,
-          runId: input.runId,
-          ordinal: input.ordinal,
-          event,
-          createdAt: input.now,
-        }));
+        const questionRecords: readonly QuestionEventRecord[] =
+          input.questionEvents.map((event) => ({
+            operationId: event.operationId,
+            runId: input.runId,
+            questionId:
+              event.type === "QUESTION_OPENED" ? event.question.id : event.questionId,
+            ordinal: input.ordinal,
+            event,
+            createdAt: input.now,
+          }));
+        const knowledgeRecords: readonly KnowledgeEventRecord[] =
+          input.knowledgeEvents.map((event) => ({
+            operationId: event.operationId,
+            runId: input.runId,
+            ordinal: input.ordinal,
+            event,
+            createdAt: input.now,
+          }));
 
         await this.db.runSteps.add(stepRecord);
         await this.db.questions.bulkPut(finalState.questions);
-        if (questionRecords.length > 0) await this.db.questionEvents.bulkAdd(questionRecords);
-        if (knowledgeRecords.length > 0) await this.db.knowledgeEvents.bulkAdd(knowledgeRecords);
+        if (questionRecords.length > 0)
+          await this.db.questionEvents.bulkAdd(questionRecords);
+        if (knowledgeRecords.length > 0)
+          await this.db.knowledgeEvents.bulkAdd(knowledgeRecords);
         await this.db.runs.update(input.runId, {
           status: "running",
           committedThroughOrdinal: input.ordinal,
@@ -207,7 +226,11 @@ export class RunRepository {
         await this.db.auditEvents.add({
           runId: input.runId,
           type: "STEP_COMMITTED",
-          metadata: { ordinal: input.ordinal, requestId: input.requestId, fence: input.fence },
+          metadata: {
+            ordinal: input.ordinal,
+            requestId: input.requestId,
+            fence: input.fence,
+          },
           createdAt: input.now,
         });
         return finalState;
@@ -215,13 +238,19 @@ export class RunRepository {
     );
   }
 
-  public async setStatus(runIdValue: string, status: PersistentRunStatus, now: string, failure?: { readonly code: string; readonly message: string }): Promise<void> {
+  public async setStatus(
+    runIdValue: string,
+    status: PersistentRunStatus,
+    now: string,
+    failure?: { readonly code: string; readonly message: string },
+  ): Promise<void> {
     const changed = await this.db.runs.update(runIdValue, {
       status,
       failureCode: failure?.code ?? null,
       failureMessage: failure?.message ?? null,
       updatedAt: now,
-      completedAt: status === "completed" || status === "completed_with_warnings" ? now : null,
+      completedAt:
+        status === "completed" || status === "completed_with_warnings" ? now : null,
     });
     if (changed !== 1) throw new Error(`Run ${runIdValue} does not exist.`);
   }

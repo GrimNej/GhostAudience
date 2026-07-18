@@ -3,7 +3,11 @@ import { readTokenBudget } from "../budget/token-budget";
 import type { Bindings, RuntimeConfig } from "../env";
 import type { NarrativeModelProvider } from "../providers/model-provider";
 
-interface Variables { readonly requestId: string; readonly runtimeConfig: RuntimeConfig; readonly anonymousSessionId: string; }
+interface Variables {
+  readonly requestId: string;
+  readonly runtimeConfig: RuntimeConfig;
+  readonly anonymousSessionId: string;
+}
 type Environment = { readonly Bindings: Bindings; readonly Variables: Variables };
 
 export function capabilitiesHandler(provider: NarrativeModelProvider) {
@@ -18,7 +22,8 @@ export function capabilitiesHandler(provider: NarrativeModelProvider) {
       const config = context.get("runtimeConfig");
       return context.json({
         schemaVersion: "1.0",
-        liveAnalysisEnabled: config.providerMode === "live" && tokenBudget.remainingBeforeHardStop > 0,
+        liveAnalysisEnabled:
+          config.providerMode === "live" && tokenBudget.remainingBeforeHardStop > 0,
         providerMode: providerCapabilities.providerMode,
         providerId: providerCapabilities.providerId,
         modelId: providerCapabilities.modelId,

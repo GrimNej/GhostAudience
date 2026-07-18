@@ -7,10 +7,7 @@ export function useProofData() {
   const database = useDatabase();
   return useLiveQuery(
     async () => {
-      const runs = await database.runs
-        .orderBy("updatedAt")
-        .reverse()
-        .toArray();
+      const runs = await database.runs.orderBy("updatedAt").reverse().toArray();
       const run = runs[0];
       if (run === undefined) return null;
       const reads = new WorkspaceReadRepository(database);

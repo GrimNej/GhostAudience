@@ -18,10 +18,7 @@ export function normalizeEvidenceText(value: string): string {
     .trim();
 }
 
-export function validateEvidenceSpan(
-  span: EvidenceSpan,
-  segment: ScriptSegment,
-): void {
+export function validateEvidenceSpan(span: EvidenceSpan, segment: ScriptSegment): void {
   if (span.segmentId !== segment.id) {
     throw new EvidenceValidationError("Segment ID mismatch", {
       evidenceSegmentId: span.segmentId,
@@ -55,15 +52,9 @@ export function validateEvidenceSpan(
     });
   }
 
-  const actualQuote = segment.text.slice(
-    span.startOffset,
-    span.endOffset,
-  );
+  const actualQuote = segment.text.slice(span.startOffset, span.endOffset);
 
-  if (
-    normalizeEvidenceText(actualQuote) !==
-    normalizeEvidenceText(span.quote)
-  ) {
+  if (normalizeEvidenceText(actualQuote) !== normalizeEvidenceText(span.quote)) {
     throw new EvidenceValidationError("Quote does not match offsets", {
       expectedQuote: span.quote,
       actualQuote,
@@ -118,12 +109,9 @@ export function mergeEvidence(
   const byKey = new Map<string, EvidenceSpan>();
 
   for (const span of [...existing, ...additions]) {
-    const key = [
-      span.segmentId,
-      span.startOffset,
-      span.endOffset,
-      span.quote,
-    ].join(":");
+    const key = [span.segmentId, span.startOffset, span.endOffset, span.quote].join(
+      ":",
+    );
 
     byKey.set(key, span);
   }

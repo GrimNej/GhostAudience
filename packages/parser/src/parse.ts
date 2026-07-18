@@ -1,7 +1,7 @@
 import type { ScriptDocument } from "@ghost-audience/domain";
-import { buildSegments } from "./segment.js";
 import { sha256 } from "./hash.js";
 import { countWords, normalizeScriptText } from "./normalize.js";
+import { buildSegments } from "./segment.js";
 import { detectSourceFormat, extractSections } from "./structure.js";
 
 export interface ParseScriptInput {
@@ -21,9 +21,14 @@ export async function parseScript(input: ParseScriptInput): Promise<ScriptDocume
   const versioned = await buildSegments(sourceHash, sections);
 
   for (const segment of versioned.segments) {
-    const sourceSlice = normalizedText.slice(segment.globalStartOffset, segment.globalEndOffset);
+    const sourceSlice = normalizedText.slice(
+      segment.globalStartOffset,
+      segment.globalEndOffset,
+    );
     if (sourceSlice !== segment.text) {
-      throw new Error(`Segment ${segment.ordinal} failed source-offset round-trip validation.`);
+      throw new Error(
+        `Segment ${segment.ordinal} failed source-offset round-trip validation.`,
+      );
     }
   }
 

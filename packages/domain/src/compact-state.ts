@@ -6,11 +6,15 @@ export function buildCompactNarrativeState(
   state: Pick<AudienceState, "facts" | "assumptions" | "questions">,
 ): string {
   const activeQuestions = state.questions
-    .filter((question) => question.status === "open" || question.status === "partially_answered")
-    .sort((left, right) =>
-      severityRank[right.severity] - severityRank[left.severity]
-      || right.lastChangedAtOrdinal - left.lastChangedAtOrdinal
-      || left.id.localeCompare(right.id),
+    .filter(
+      (question) =>
+        question.status === "open" || question.status === "partially_answered",
+    )
+    .sort(
+      (left, right) =>
+        severityRank[right.severity] - severityRank[left.severity] ||
+        right.lastChangedAtOrdinal - left.lastChangedAtOrdinal ||
+        left.id.localeCompare(right.id),
     )
     .slice(0, 40)
     .map(({ id, text, status, severity }) => ({ id, text, status, severity }));

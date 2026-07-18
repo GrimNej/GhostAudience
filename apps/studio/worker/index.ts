@@ -4,8 +4,8 @@ import { analysisFinalizeHandler } from "./api/analysis-finalize";
 import { analysisStepHandler } from "./api/analysis-step";
 import { capabilitiesHandler } from "./api/capabilities";
 import { healthHandler } from "./api/health";
+import { type Bindings, type RuntimeConfig, readRuntimeConfig } from "./env";
 import { asApiError } from "./errors";
-import { readRuntimeConfig, type Bindings, type RuntimeConfig } from "./env";
 import { anonymousSessionMiddleware } from "./middleware/anonymous-session";
 import { bodyLimitMiddleware } from "./middleware/body-limit";
 import { originMiddleware } from "./middleware/origin";
@@ -23,7 +23,10 @@ interface Variables {
   readonly anonymousSessionId: string;
 }
 
-export type AppEnvironment = { readonly Bindings: Bindings; readonly Variables: Variables };
+export type AppEnvironment = {
+  readonly Bindings: Bindings;
+  readonly Variables: Variables;
+};
 const app = new Hono<AppEnvironment>();
 
 function createProvider(config: RuntimeConfig): NarrativeModelProvider {
@@ -39,45 +42,66 @@ app.use("*", async (context, next) => {
   await next();
 });
 app.use("/api/*", anonymousSessionMiddleware);
-app.use("/api/*", cors({
-  origin: (origin, context) => context.get("runtimeConfig").allowedOrigins.includes(origin) ? origin : "",
-  allowMethods: ["GET", "POST", "OPTIONS"],
-  allowHeaders: ["content-type", "x-request-id", "x-idempotency-key"],
-  exposeHeaders: ["x-request-id", "retry-after"],
-  maxAge: 600,
-  credentials: false,
-}));
+app.use(
+  "/api/*",
+  cors({
+    origin: (origin, context) =>
+      context.get("runtimeConfig").allowedOrigins.includes(origin) ? origin : "",
+    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowHeaders: ["content-type", "x-request-id", "x-idempotency-key"],
+    exposeHeaders: ["x-request-id", "retry-after"],
+    maxAge: 600,
+    credentials: false,
+  }),
+);
 app.use("/api/*", originMiddleware);
 app.use("/api/*", bodyLimitMiddleware);
 app.use("/api/v1/analysis/*", rateLimitMiddleware);
 
 app.get("/api/v1/health", healthHandler);
-app.get("/api/v1/capabilities", async (context) => capabilitiesHandler(createProvider(context.get("runtimeConfig")))(context));
-app.post("/api/v1/analysis/step", async (context) => analysisStepHandler(createProvider(context.get("runtimeConfig")))(context));
-app.post("/api/v1/analysis/finalize", async (context) => analysisFinalizeHandler(createProvider(context.get("runtimeConfig")))(context));
+app.get("/api/v1/capabilities", async (context) =>
+  capabilitiesHandler(createProvider(context.get("runtimeConfig")))(context),
+);
+app.post("/api/v1/analysis/step", async (context) =>
+  analysisStepHandler(createProvider(context.get("runtimeConfig")))(context),
+);
+app.post("/api/v1/analysis/finalize", async (context) =>
+  analysisFinalizeHandler(createProvider(context.get("runtimeConfig")))(context),
+);
 
 app.onError((error, context) => {
   const apiError = asApiError(error);
   const requestId = context.get("requestId") ?? crypto.randomUUID();
-  if (apiError.retryAfterSeconds !== undefined) context.header("retry-after", String(apiError.retryAfterSeconds));
-  return context.json({
-    error: {
-      code: apiError.code,
-      message: apiError.message,
-      requestId,
-      retryable: apiError.retryable,
-      ...(apiError.retryAfterSeconds === undefined ? {} : { retryAfterSeconds: apiError.retryAfterSeconds }),
+  if (apiError.retryAfterSeconds !== undefined)
+    context.header("retry-after", String(apiError.retryAfterSeconds));
+  return context.json(
+    {
+      error: {
+        code: apiError.code,
+        message: apiError.message,
+        requestId,
+        retryable: apiError.retryable,
+        ...(apiError.retryAfterSeconds === undefined
+          ? {}
+          : { retryAfterSeconds: apiError.retryAfterSeconds }),
+      },
     },
-  }, apiError.status);
+    apiError.status,
+  );
 });
 
-app.notFound((context) => context.json({
-  error: {
-    code: "INVALID_REQUEST",
-    message: "Route not found.",
-    requestId: context.get("requestId") ?? crypto.randomUUID(),
-    retryable: false,
-  },
-}, 404));
+app.notFound((context) =>
+  context.json(
+    {
+      error: {
+        code: "INVALID_REQUEST",
+        message: "Route not found.",
+        requestId: context.get("requestId") ?? crypto.randomUUID(),
+        retryable: false,
+      },
+    },
+    404,
+  ),
+);
 
 export default app;

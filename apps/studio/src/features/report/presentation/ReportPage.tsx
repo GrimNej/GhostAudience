@@ -5,7 +5,11 @@ import { useReportData } from "../data/use-report-data";
 
 export function ReportPage(): JSX.Element {
   const { projectId } = useParams();
-  const { workspace, report } = useReportData(projectId);
+  const { workspace, report } = useReportData(projectId ?? "");
+
+  if (projectId === undefined) {
+    throw new Error("Report route is missing projectId.");
+  }
 
   if (workspace === undefined || report === undefined) {
     return <div aria-busy="true">Loading report…</div>;
@@ -67,14 +71,13 @@ export function ReportPage(): JSX.Element {
       </div>
       <h3>Important findings</h3>
       <ul>
-        {[
-          ...report.blockingConfusions,
-          ...report.accidentalQuestions,
-        ].map((question) => (
-          <li key={question.id}>
-            <strong>{question.text}</strong> — {question.rationale}
-          </li>
-        ))}
+        {[...report.blockingConfusions, ...report.accidentalQuestions].map(
+          (question) => (
+            <li key={question.id}>
+              <strong>{question.text}</strong> — {question.rationale}
+            </li>
+          ),
+        )}
       </ul>
     </section>
   );

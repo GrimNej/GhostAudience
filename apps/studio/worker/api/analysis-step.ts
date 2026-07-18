@@ -1,7 +1,17 @@
-import { StepAnalysisInputSchema, StepAnalysisOutputSchema } from "@ghost-audience/contracts";
+import {
+  StepAnalysisInputSchema,
+  StepAnalysisOutputSchema,
+} from "@ghost-audience/contracts";
 import type { Context } from "hono";
-import { asApiError, ApiError } from "../errors";
+import {
+  estimateRequestTokens,
+  releaseTokenBudget,
+  reserveTokenBudget,
+  settleTokenBudget,
+  type TokenReservation,
+} from "../budget/token-budget";
 import type { Bindings, RuntimeConfig } from "../env";
+import { ApiError, asApiError } from "../errors";
 import {
   completeProviderRequest,
   failProviderRequest,
@@ -11,15 +21,12 @@ import { SafeLogger } from "../observability/logger";
 import { elapsedMilliseconds, nowMilliseconds } from "../observability/timings";
 import { promptManifest } from "../prompts/manifest";
 import type { NarrativeModelProvider } from "../providers/model-provider";
-import {
-  estimateRequestTokens,
-  releaseTokenBudget,
-  reserveTokenBudget,
-  settleTokenBudget,
-  type TokenReservation,
-} from "../budget/token-budget";
 
-interface Variables { readonly requestId: string; readonly runtimeConfig: RuntimeConfig; readonly anonymousSessionId: string; }
+interface Variables {
+  readonly requestId: string;
+  readonly runtimeConfig: RuntimeConfig;
+  readonly anonymousSessionId: string;
+}
 type Environment = { readonly Bindings: Bindings; readonly Variables: Variables };
 
 export function analysisStepHandler(provider: NarrativeModelProvider) {
@@ -30,7 +37,12 @@ export function analysisStepHandler(provider: NarrativeModelProvider) {
     const input = { ...parsedInput, requestId };
     const headerKey = context.req.header("x-idempotency-key");
     if (headerKey !== input.idempotencyKey) {
-      throw new ApiError("INVALID_REQUEST", 400, "The idempotency header does not match the signed request body.", false);
+      throw new ApiError(
+        "INVALID_REQUEST",
+        400,
+        "The idempotency header does not match the signed request body.",
+        false,
+      );
     }
 
     const logger = new SafeLogger({
@@ -59,7 +71,12 @@ export function analysisStepHandler(provider: NarrativeModelProvider) {
     try {
       if (context.get("runtimeConfig").providerMode === "live") {
         const estimated = estimateRequestTokens(JSON.stringify(input).length, 3_500);
-        tokenReservation = await reserveTokenBudget(context.env.CONTROL_DB, context.get("runtimeConfig"), estimated, nowSeconds);
+        tokenReservation = await reserveTokenBudget(
+          context.env.CONTROL_DB,
+          context.get("runtimeConfig"),
+          estimated,
+          nowSeconds,
+        );
       }
 
       const result = await provider.analyzeStep(input, controller.signal);
@@ -89,7 +106,11 @@ export function analysisStepHandler(provider: NarrativeModelProvider) {
     } catch (error: unknown) {
       const apiError = asApiError(error);
       if (tokenReservation !== null) {
-        await releaseTokenBudget(context.env.CONTROL_DB, tokenReservation, Math.floor(Date.now() / 1000));
+        await releaseTokenBudget(
+          context.env.CONTROL_DB,
+          tokenReservation,
+          Math.floor(Date.now() / 1000),
+        );
       }
       await failProviderRequest(
         context.env.CONTROL_DB,
@@ -98,7 +119,10 @@ export function analysisStepHandler(provider: NarrativeModelProvider) {
         apiError.code,
         Math.floor(Date.now() / 1000),
       );
-      logger.error("analysis_step_failed", { errorCode: apiError.code, latencyMs: elapsedMilliseconds(startedAt) });
+      logger.error("analysis_step_failed", {
+        errorCode: apiError.code,
+        latencyMs: elapsedMilliseconds(startedAt),
+      });
       throw error;
     } finally {
       clearTimeout(timer);

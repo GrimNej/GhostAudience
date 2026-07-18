@@ -4,50 +4,27 @@ import { useProject } from "../../project/presentation/useProject";
 import { useIntentActions } from "../data/use-intent-actions";
 import type { IntentFormValue } from "../domain/intent-form";
 
-function initialForm(
-  value: ReturnType<
-    typeof useProject
-  >,
-): IntentFormValue {
-  const contract =
-    value &&
-    value !== null
-      ? value.project.intentContract
-      : null;
+function initialForm(value: ReturnType<typeof useProject>): IntentFormValue {
+  const contract = value && value !== null ? value.project.intentContract : null;
 
   return {
     requiredKnowledgeText:
-      contract?.requiredKnowledge
-        .map((item) => item.statement)
-        .join("\n") ?? "",
+      contract?.requiredKnowledge.map((item) => item.statement).join("\n") ?? "",
     desiredQuestionsText:
-      contract?.desiredQuestions
-        .map((item) => item.question)
-        .join("\n") ?? "",
+      contract?.desiredQuestions.map((item) => item.question).join("\n") ?? "",
     forbiddenAssumptionsText:
-      contract?.forbiddenAssumptions
-        .map((item) => item.assumption)
-        .join("\n") ?? "",
-    intentionalMysteriesText:
-      contract?.intentionalMysteries.join(
-        "\n",
-      ) ?? "",
-    intendedEmotionalDirection:
-      contract?.intendedEmotionalDirection ??
-      "",
+      contract?.forbiddenAssumptions.map((item) => item.assumption).join("\n") ?? "",
+    intentionalMysteriesText: contract?.intentionalMysteries.join("\n") ?? "",
+    intendedEmotionalDirection: contract?.intendedEmotionalDirection ?? "",
     desiredUnresolvedQuestionsText:
-      contract?.desiredUnresolvedQuestions.join(
-        "\n",
-      ) ?? "",
+      contract?.desiredUnresolvedQuestions.join("\n") ?? "",
   };
 }
 
 export function IntentPage(): JSX.Element {
   const { projectId } = useParams();
   if (projectId === undefined) {
-    throw new Error(
-      "Intent route is missing projectId.",
-    );
+    throw new Error("Intent route is missing projectId.");
   }
 
   const projectValue = useProject(projectId);
@@ -72,58 +49,39 @@ export function IntentPage(): JSX.Element {
 
 interface IntentFormProps {
   readonly initialValue: IntentFormValue;
-  readonly onSave: (
-    value: IntentFormValue,
-  ) => Promise<void>;
+  readonly onSave: (value: IntentFormValue) => Promise<void>;
 }
 
-function IntentForm({
-  initialValue,
-  onSave,
-}: IntentFormProps): JSX.Element {
-  const [value, setValue] =
-    useState(initialValue);
-  const [saving, setSaving] =
-    useState(false);
-  const [message, setMessage] =
-    useState<string | null>(null);
+function IntentForm({ initialValue, onSave }: IntentFormProps): JSX.Element {
+  const [value, setValue] = useState(initialValue);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   const fields = [
     {
       key: "requiredKnowledgeText",
-      label:
-        "Audience should understand",
-      hint:
-        "One statement per line.",
+      label: "Audience should understand",
+      hint: "One statement per line.",
     },
     {
       key: "desiredQuestionsText",
-      label:
-        "Audience should wonder",
-      hint:
-        "Questions you deliberately want to create.",
+      label: "Audience should wonder",
+      hint: "Questions you deliberately want to create.",
     },
     {
       key: "forbiddenAssumptionsText",
-      label:
-        "Audience should not assume",
-      hint:
-        "Interpretations that would derail the intended meaning.",
+      label: "Audience should not assume",
+      hint: "Interpretations that would derail the intended meaning.",
     },
     {
       key: "intentionalMysteriesText",
-      label:
-        "Intentional mysteries",
-      hint:
-        "Ambiguities the system should protect.",
+      label: "Intentional mysteries",
+      hint: "Ambiguities the system should protect.",
     },
     {
-      key:
-        "desiredUnresolvedQuestionsText",
-      label:
-        "Questions allowed to remain unresolved",
-      hint:
-        "One question per line.",
+      key: "desiredUnresolvedQuestionsText",
+      label: "Questions allowed to remain unresolved",
+      hint: "One question per line.",
     },
   ] as const;
 
@@ -135,50 +93,34 @@ function IntentForm({
         setSaving(true);
         setMessage(null);
         void onSave(value)
-          .then(() =>
-            setMessage("Intent saved."),
-          )
+          .then(() => setMessage("Intent saved."))
           .catch((caught: unknown) =>
             setMessage(
-              caught instanceof Error
-                ? caught.message
-                : "Intent could not be saved.",
+              caught instanceof Error ? caught.message : "Intent could not be saved.",
             ),
           )
-          .finally(() =>
-            setSaving(false),
-          );
+          .finally(() => setSaving(false));
       }}
     >
       <div className="panel__header">
         <div>
-          <p className="eyebrow">
-            Creator authority
-          </p>
+          <p className="eyebrow">Creator authority</p>
           <h2>Intent contract</h2>
         </div>
       </div>
 
       <div className="panel__body form-stack">
         {fields.map((field) => (
-          <label
-            key={field.key}
-            className="field"
-          >
-            <span className="field__label">
-              {field.label}
-            </span>
-            <span className="field__hint">
-              {field.hint}
-            </span>
+          <label key={field.key} className="field">
+            <span className="field__label">{field.label}</span>
+            <span className="field__hint">{field.hint}</span>
             <textarea
               className="text-area"
               value={value[field.key]}
               onChange={(event) =>
                 setValue((current) => ({
                   ...current,
-                  [field.key]:
-                    event.target.value,
+                  [field.key]: event.target.value,
                 }))
               }
             />
@@ -186,36 +128,23 @@ function IntentForm({
         ))}
 
         <label className="field">
-          <span className="field__label">
-            Intended emotional direction
-          </span>
+          <span className="field__label">Intended emotional direction</span>
           <textarea
             className="text-area"
-            value={
-              value.intendedEmotionalDirection
-            }
+            value={value.intendedEmotionalDirection}
             onChange={(event) =>
               setValue((current) => ({
                 ...current,
-                intendedEmotionalDirection:
-                  event.target.value,
+                intendedEmotionalDirection: event.target.value,
               }))
             }
           />
         </label>
 
-        {message === null ? null : (
-          <p aria-live="polite">{message}</p>
-        )}
+        {message === null ? null : <p aria-live="polite">{message}</p>}
 
-        <button
-          type="submit"
-          className="button button--primary"
-          disabled={saving}
-        >
-          {saving
-            ? "Saving…"
-            : "Save intent"}
+        <button type="submit" className="button button--primary" disabled={saving}>
+          {saving ? "Saving…" : "Save intent"}
         </button>
       </div>
     </form>

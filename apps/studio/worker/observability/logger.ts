@@ -15,13 +15,9 @@ const SAFE_LOG_FIELDS = [
 
 type SafeLogField = (typeof SAFE_LOG_FIELDS)[number];
 type SafeLogValue = string | number | boolean | null;
-export type SafeLogMetadata = Partial<
-  Record<SafeLogField, SafeLogValue>
->;
+export type SafeLogMetadata = Partial<Record<SafeLogField, SafeLogValue>>;
 
-function projectSafeMetadata(
-  metadata: SafeLogMetadata,
-): SafeLogMetadata {
+function projectSafeMetadata(metadata: SafeLogMetadata): SafeLogMetadata {
   const projected: SafeLogMetadata = {};
   for (const key of SAFE_LOG_FIELDS) {
     const value = metadata[key];
@@ -31,14 +27,9 @@ function projectSafeMetadata(
 }
 
 export class SafeLogger {
-  public constructor(
-    private readonly base: SafeLogMetadata,
-  ) {}
+  public constructor(private readonly base: SafeLogMetadata) {}
 
-  public info(
-    event: string,
-    metadata: SafeLogMetadata = {},
-  ): void {
+  public info(event: string, metadata: SafeLogMetadata = {}): void {
     console.warn(
       JSON.stringify({
         level: "info",
@@ -49,10 +40,7 @@ export class SafeLogger {
     );
   }
 
-  public warn(
-    event: string,
-    metadata: SafeLogMetadata = {},
-  ): void {
+  public warn(event: string, metadata: SafeLogMetadata = {}): void {
     console.warn(
       JSON.stringify({
         level: "warn",
@@ -63,10 +51,7 @@ export class SafeLogger {
     );
   }
 
-  public error(
-    event: string,
-    metadata: SafeLogMetadata = {},
-  ): void {
+  public error(event: string, metadata: SafeLogMetadata = {}): void {
     console.error(
       JSON.stringify({
         level: "error",

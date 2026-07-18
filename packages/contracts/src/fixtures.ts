@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  IsoDateTimeSchema,
-  Sha256Schema,
-} from "./common.js";
+import { IsoDateTimeSchema, Sha256Schema } from "./common.js";
 import { StepAnalysisOutputSchema } from "./step-analysis.js";
 
 export const FixtureManifestSchema = z
@@ -20,5 +17,4 @@ export const FixtureManifestSchema = z
   })
   .strict();
 
-export const FixtureResponseSchema =
-  StepAnalysisOutputSchema;
+export const FixtureResponseSchema = StepAnalysisOutputSchema;

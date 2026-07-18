@@ -1,28 +1,18 @@
 import { ApiError } from "../errors";
 
-function stripCodeFence(
-  value: string,
-): string {
+function stripCodeFence(value: string): string {
   const trimmed = value.trim();
 
-  const fenced = trimmed.match(
-    /^```(?:json)?\s*([\s\S]*?)\s*```$/i,
-  );
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
 
   return fenced?.[1]?.trim() ?? trimmed;
 }
 
-function locateJsonObject(
-  value: string,
-): string {
+function locateJsonObject(value: string): string {
   const first = value.indexOf("{");
   const last = value.lastIndexOf("}");
 
-  if (
-    first === -1 ||
-    last === -1 ||
-    last < first
-  ) {
+  if (first === -1 || last === -1 || last < first) {
     throw new ApiError(
       "MODEL_OUTPUT_INVALID",
       502,
@@ -34,15 +24,10 @@ function locateJsonObject(
   return value.slice(first, last + 1);
 }
 
-export function parseJsonContent(
-  content: string,
-): unknown {
+export function parseJsonContent(content: string): unknown {
   const stripped = stripCodeFence(content);
 
-  const candidates = [
-    stripped,
-    locateJsonObject(stripped),
-  ];
+  const candidates = [stripped, locateJsonObject(stripped)];
 
   let finalError: unknown = null;
 

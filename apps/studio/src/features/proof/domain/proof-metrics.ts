@@ -38,9 +38,7 @@ export function buildProofMetrics(input: {
   ];
   const evidenceSpanCount = input.questions.reduce(
     (count, question) =>
-      count +
-      question.evidence.length +
-      question.answerEvidence.length,
+      count + question.evidence.length + question.answerEvidence.length,
     0,
   );
   return {
@@ -56,24 +54,17 @@ export function buildProofMetrics(input: {
     futureLeakDetectionCount: input.auditEvents.filter(
       (event) => event.type === "FUTURE_LEAK_DETECTED",
     ).length,
-    duplicateOperationCount:
-      operationIds.length - new Set(operationIds).size,
-    retryCount: input.auditEvents.filter(
-      (event) => event.type === "RUN_RETRIED",
-    ).length,
-    resumedAfterReload: input.auditEvents.some(
-      (event) => event.type === "RUN_RESUMED",
-    ),
+    duplicateOperationCount: operationIds.length - new Set(operationIds).size,
+    retryCount: input.auditEvents.filter((event) => event.type === "RUN_RETRIED")
+      .length,
+    resumedAfterReload: input.auditEvents.some((event) => event.type === "RUN_RESUMED"),
   };
 }
 
-export function evidenceValidityPercent(
-  metrics: ProofMetrics,
-): number | null {
+export function evidenceValidityPercent(metrics: ProofMetrics): number | null {
   if (metrics.evidenceSpanCount === 0) return null;
   return (
-    ((metrics.evidenceSpanCount -
-      metrics.invalidAcceptedEvidenceCount) /
+    ((metrics.evidenceSpanCount - metrics.invalidAcceptedEvidenceCount) /
       metrics.evidenceSpanCount) *
     100
   );

@@ -1,10 +1,6 @@
-import {
-  parseScript,
-} from "@ghost-audience/parser";
+import { parseScript } from "@ghost-audience/parser";
 
-import {
-  ProjectRepository,
-} from "../../../infrastructure/db/project-repository";
+import type { ProjectRepository } from "../../../infrastructure/db/project-repository";
 
 const demoSource = `
 INT. ABANDONED HOUSE - NIGHT
@@ -56,10 +52,7 @@ export async function createDemoProject(
     now,
   });
 
-  await repository.saveScript(
-    project.id,
-    script,
-  );
+  await repository.saveScript(project.id, script);
 
   await repository.updateIntent(
     project.id,
@@ -68,27 +61,20 @@ export async function createDemoProject(
       desiredQuestions: [
         {
           id: "desired-recognition",
-          question:
-            "Why does Mira recognize the house?",
+          question: "Why does Mira recognize the house?",
           openByOrdinal: 0,
-          resolveByOrdinal:
-            script.segments.length - 1,
+          resolveByOrdinal: script.segments.length - 1,
         },
       ],
       forbiddenAssumptions: [
         {
           id: "forbid-leo-fire",
-          assumption:
-            "Leo caused the archive fire.",
-          prohibitedThroughOrdinal:
-            script.segments.length - 1,
+          assumption: "Leo caused the archive fire.",
+          prohibitedThroughOrdinal: script.segments.length - 1,
         },
       ],
-      intentionalMysteries: [
-        "Who is the unnamed she?",
-      ],
-      intendedEmotionalDirection:
-        "Unease that becomes recognition rather than danger.",
+      intentionalMysteries: ["Who is the unnamed she?"],
+      intendedEmotionalDirection: "Unease that becomes recognition rather than danger.",
       desiredUnresolvedQuestions: [],
     },
     now,

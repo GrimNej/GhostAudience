@@ -1,9 +1,12 @@
-import { ApiError } from "../../errors";
 import type { LiveRuntimeConfig } from "../../env";
+import { ApiError } from "../../errors";
 import { getIamToken } from "./iam-token-cache";
 import { WatsonxModelCatalogSchema } from "./watsonx-schemas";
 
-export async function assertModelAvailable(config: LiveRuntimeConfig, signal: AbortSignal): Promise<void> {
+export async function assertModelAvailable(
+  config: LiveRuntimeConfig,
+  signal: AbortSignal,
+): Promise<void> {
   const token = await getIamToken(config.watsonxApiKey);
   const url = new URL("/ml/v1/foundation_model_specs", config.watsonxBaseUrl);
   url.searchParams.set("version", config.watsonxApiVersion);
@@ -14,10 +17,22 @@ export async function assertModelAvailable(config: LiveRuntimeConfig, signal: Ab
     signal,
   });
   if (!response.ok) {
-    throw new ApiError("PROVIDER_UNAVAILABLE", 502, "The watsonx.ai model catalog could not be checked.", response.status >= 500);
+    throw new ApiError(
+      "PROVIDER_UNAVAILABLE",
+      502,
+      "The watsonx.ai model catalog could not be checked.",
+      response.status >= 500,
+    );
   }
   const catalog = WatsonxModelCatalogSchema.parse(await response.json());
-  if (!catalog.resources.some((resource) => resource.model_id === config.watsonxModelId)) {
-    throw new ApiError("MODEL_NOT_AVAILABLE", 503, "The configured Granite model is unavailable to this account and endpoint.", false);
+  if (
+    !catalog.resources.some((resource) => resource.model_id === config.watsonxModelId)
+  ) {
+    throw new ApiError(
+      "MODEL_NOT_AVAILABLE",
+      503,
+      "The configured Granite model is unavailable to this account and endpoint.",
+      false,
+    );
   }
 }

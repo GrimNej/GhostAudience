@@ -1,7 +1,4 @@
-import {
-  emptyIntentContract,
-  type IntentContract,
-} from "@ghost-audience/domain";
+import { EMPTY_INTENT_CONTRACT, type IntentContract } from "@ghost-audience/domain";
 
 export interface IntentFormValue {
   readonly requiredKnowledgeText: string;
@@ -12,9 +9,7 @@ export interface IntentFormValue {
   readonly desiredUnresolvedQuestionsText: string;
 }
 
-function lines(
-  value: string,
-): readonly string[] {
+function lines(value: string): readonly string[] {
   return [
     ...new Set(
       value
@@ -25,50 +20,37 @@ function lines(
   ];
 }
 
-export function toIntentContract(
-  value: IntentFormValue,
-): IntentContract {
-  const requiredKnowledge =
-    lines(value.requiredKnowledgeText).map(
-      (statement, index) => ({
-        id: `knowledge-${index + 1}`,
-        statement,
-        dueByOrdinal: null,
-      }),
-    );
-
-  const desiredQuestions =
-    lines(value.desiredQuestionsText).map(
-      (question, index) => ({
-        id: `desired-question-${index + 1}`,
-        question,
-        shouldOpenByOrdinal: null,
-        shouldResolveByOrdinal: null,
-      }),
-    );
-
-  const forbiddenAssumptions =
-    lines(
-      value.forbiddenAssumptionsText,
-    ).map((statement, index) => ({
-      id: `forbidden-assumption-${index + 1}`,
+export function toIntentContract(value: IntentFormValue): IntentContract {
+  const requiredKnowledge = lines(value.requiredKnowledgeText).map(
+    (statement, index) => ({
+      id: `knowledge-${index + 1}`,
       statement,
-      forbiddenThroughOrdinal: null,
-    }));
+      targetOrdinal: null,
+    }),
+  );
+
+  const desiredQuestions = lines(value.desiredQuestionsText).map((question, index) => ({
+    id: `desired-question-${index + 1}`,
+    question,
+    openByOrdinal: null,
+    resolveByOrdinal: null,
+  }));
+
+  const forbiddenAssumptions = lines(value.forbiddenAssumptionsText).map(
+    (statement, index) => ({
+      id: `forbidden-assumption-${index + 1}`,
+      assumption: statement,
+      prohibitedThroughOrdinal: null,
+    }),
+  );
 
   return {
-    ...emptyIntentContract,
+    ...EMPTY_INTENT_CONTRACT,
     requiredKnowledge,
     desiredQuestions,
     forbiddenAssumptions,
-    intentionalMysteries: lines(
-      value.intentionalMysteriesText,
-    ),
-    intendedEmotionalDirection:
-      value.intendedEmotionalDirection
-        .trim() || null,
-    desiredUnresolvedQuestions: lines(
-      value.desiredUnresolvedQuestionsText,
-    ),
+    intentionalMysteries: lines(value.intentionalMysteriesText),
+    intendedEmotionalDirection: value.intendedEmotionalDirection.trim() || null,
+    desiredUnresolvedQuestions: lines(value.desiredUnresolvedQuestionsText),
   };
 }

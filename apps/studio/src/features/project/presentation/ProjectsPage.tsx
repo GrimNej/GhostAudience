@@ -1,54 +1,29 @@
-import {
-  Plus,
-  Sparkles,
-} from "lucide-react";
-import {
-  Link,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Plus, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-import {
-  createDemoProject,
-} from "../data/demo-project";
-import {
-  useProjectRepository,
-  useProjects,
-} from "../data/useProjects";
+import { createDemoProject } from "../data/demo-project";
+import { useProjectRepository, useProjects } from "../data/useProjects";
 
 export function ProjectsPage(): JSX.Element {
   const projects = useProjects();
-  const repository =
-    useProjectRepository();
+  const repository = useProjectRepository();
   const navigate = useNavigate();
-  const [searchParams] =
-    useSearchParams();
-  const handledInitialAction =
-    useRef(false);
-  const [error, setError] =
-    useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const handledInitialAction = useRef(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function createEmpty():
-    Promise<void> {
+  async function createEmpty(): Promise<void> {
     const project = await repository.create({
       name: "Untitled project",
       now: new Date().toISOString(),
     });
-    navigate(
-      `/project/${project.id}/script`,
-    );
+    await navigate(`/project/${project.id}/script`);
   }
 
-  async function createDemo():
-    Promise<void> {
-    const id =
-      await createDemoProject(repository);
-    navigate(`/project/${id}/intent`);
+  async function createDemo(): Promise<void> {
+    const id = await createDemoProject(repository);
+    await navigate(`/project/${id}/intent`);
   }
 
   useEffect(() => {
@@ -65,15 +40,9 @@ export function ProjectsPage(): JSX.Element {
           : null;
 
     if (action !== null) {
-      void action().catch(
-        (caught: unknown) => {
-          setError(
-            caught instanceof Error
-              ? caught.message
-              : "Project creation failed.",
-          );
-        },
-      );
+      void action().catch((caught: unknown) => {
+        setError(caught instanceof Error ? caught.message : "Project creation failed.");
+      });
     }
   });
 
@@ -81,14 +50,9 @@ export function ProjectsPage(): JSX.Element {
     <section className="projects-page">
       <header className="page-heading">
         <div>
-          <p className="eyebrow">
-            Local workspace
-          </p>
+          <p className="eyebrow">Local workspace</p>
           <h1>Projects</h1>
-          <p>
-            Projects stay in this browser
-            unless you export them.
-          </p>
+          <p>Projects stay in this browser unless you export them.</p>
         </div>
 
         <div className="page-actions">
@@ -96,42 +60,28 @@ export function ProjectsPage(): JSX.Element {
             type="button"
             className="button button--secondary"
             onClick={() => {
-              void createDemo().catch(
-                (caught: unknown) => {
-                  setError(
-                    caught instanceof Error
-                      ? caught.message
-                      : "Demo creation failed.",
-                  );
-                },
-              );
+              void createDemo().catch((caught: unknown) => {
+                setError(
+                  caught instanceof Error ? caught.message : "Demo creation failed.",
+                );
+              });
             }}
           >
-            <Sparkles
-              aria-hidden="true"
-              size={18}
-            />
+            <Sparkles aria-hidden="true" size={18} />
             Create demo
           </button>
           <button
             type="button"
             className="button button--primary"
             onClick={() => {
-              void createEmpty().catch(
-                (caught: unknown) => {
-                  setError(
-                    caught instanceof Error
-                      ? caught.message
-                      : "Project creation failed.",
-                  );
-                },
-              );
+              void createEmpty().catch((caught: unknown) => {
+                setError(
+                  caught instanceof Error ? caught.message : "Project creation failed.",
+                );
+              });
             }}
           >
-            <Plus
-              aria-hidden="true"
-              size={18}
-            />
+            <Plus aria-hidden="true" size={18} />
             New project
           </button>
         </div>
@@ -144,32 +94,19 @@ export function ProjectsPage(): JSX.Element {
       )}
 
       {projects === undefined ? (
-        <div aria-busy="true">
-          Loading projects…
-        </div>
+        <div aria-busy="true">Loading projects…</div>
       ) : projects.length === 0 ? (
         <div className="empty-state panel">
           <h2>No projects yet</h2>
-          <p>
-            Start with your own script or
-            create the deterministic demo.
-          </p>
+          <p>Start with your own script or create the deterministic demo.</p>
         </div>
       ) : (
         <ul className="project-grid">
           {projects.map((project) => (
             <li key={project.id}>
-              <Link
-                className="project-card panel"
-                to={`/project/${project.id}/script`}
-              >
+              <Link className="project-card panel" to={`/project/${project.id}/script`}>
                 <strong>{project.name}</strong>
-                <span>
-                  Updated{" "}
-                  {new Date(
-                    project.updatedAt,
-                  ).toLocaleString()}
-                </span>
+                <span>Updated {new Date(project.updatedAt).toLocaleString()}</span>
               </Link>
             </li>
           ))}

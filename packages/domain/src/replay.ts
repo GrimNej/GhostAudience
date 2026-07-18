@@ -16,19 +16,11 @@ export function replayQuestionEvents(
   options: ReplayOptions,
 ): AudienceState {
   const questionsById = new Map(
-    initialState.questions.map((question) => [
-      question.id,
-      question,
-    ]),
+    initialState.questions.map((question) => [question.id, question]),
   );
-  const appliedOperationIds = new Set(
-    initialState.appliedOperationIds,
-  );
+  const appliedOperationIds = new Set(initialState.appliedOperationIds);
   const segmentsById = new Map(
-    options.segments.map((segment) => [
-      segment.id,
-      segment,
-    ]),
+    options.segments.map((segment) => [segment.id, segment]),
   );
 
   for (const event of events) {
@@ -47,8 +39,7 @@ export function replayQuestionEvents(
 
   const questions = [...questionsById.values()].sort(
     (left, right) =>
-      left.openedAtOrdinal - right.openedAtOrdinal ||
-      left.id.localeCompare(right.id),
+      left.openedAtOrdinal - right.openedAtOrdinal || left.id.localeCompare(right.id),
   );
 
   const nextState: AudienceState = {
@@ -64,35 +55,25 @@ export function replayQuestionEvents(
   return nextState;
 }
 
-export function assertAudienceState(
-  state: AudienceState,
-): void {
+export function assertAudienceState(state: AudienceState): void {
   const questionIds = new Set<string>();
 
   for (const question of state.questions) {
     if (questionIds.has(question.id)) {
-      throw new StateInvariantError(
-        "Question IDs must be unique",
-        { questionId: question.id },
-      );
+      throw new StateInvariantError("Question IDs must be unique", {
+        questionId: question.id,
+      });
     }
 
     questionIds.add(question.id);
 
-    if (
-      question.status === "resolved" &&
-      question.resolvedAtOrdinal === null
-    ) {
-      throw new StateInvariantError(
-        "Resolved question requires resolved ordinal",
-        { questionId: question.id },
-      );
+    if (question.status === "resolved" && question.resolvedAtOrdinal === null) {
+      throw new StateInvariantError("Resolved question requires resolved ordinal", {
+        questionId: question.id,
+      });
     }
 
-    if (
-      question.status !== "resolved" &&
-      question.resolvedAtOrdinal !== null
-    ) {
+    if (question.status !== "resolved" && question.resolvedAtOrdinal !== null) {
       throw new StateInvariantError(
         "Non-resolved question cannot retain resolved ordinal",
         {
@@ -102,14 +83,10 @@ export function assertAudienceState(
       );
     }
 
-    if (
-      question.lastChangedAtOrdinal <
-      question.openedAtOrdinal
-    ) {
-      throw new StateInvariantError(
-        "Question changed before it opened",
-        { questionId: question.id },
-      );
+    if (question.lastChangedAtOrdinal < question.openedAtOrdinal) {
+      throw new StateInvariantError("Question changed before it opened", {
+        questionId: question.id,
+      });
     }
   }
 }

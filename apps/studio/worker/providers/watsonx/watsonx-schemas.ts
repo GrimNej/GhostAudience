@@ -27,27 +27,23 @@ export const WatsonxChatResponseSchema = z
                 content: z.string().min(1),
               })
               .passthrough(),
-            finish_reason:
-              z.string().nullable().optional(),
+            finish_reason: z.string().nullable().optional(),
           })
           .passthrough(),
       )
       .min(1),
     usage: z
       .object({
-        prompt_tokens:
-          z.number().int().nonnegative().optional(),
-        completion_tokens:
-          z.number().int().nonnegative().optional(),
-        total_tokens:
-          z.number().int().nonnegative().optional(),
+        prompt_tokens: z.number().int().nonnegative().optional(),
+        completion_tokens: z.number().int().nonnegative().optional(),
+        total_tokens: z.number().int().nonnegative().optional(),
       })
       .passthrough()
       .optional(),
   })
   .passthrough();
 
-export const WatsonxModelSpecSchema = z
+const WatsonxModelSpecSchema = z
   .object({
     model_id: z.string().min(1),
     label: z.string().optional(),
@@ -59,8 +55,7 @@ export const WatsonxModelSpecSchema = z
           .object({
             id: z.string(),
             start_date: z.string().optional(),
-            alternative_model_ids:
-              z.array(z.string()).optional(),
+            alternative_model_ids: z.array(z.string()).optional(),
           })
           .passthrough(),
       )
@@ -70,8 +65,6 @@ export const WatsonxModelSpecSchema = z
 
 export const WatsonxModelCatalogSchema = z
   .object({
-    resources: z
-      .array(WatsonxModelSpecSchema)
-      .default([]),
+    resources: z.array(WatsonxModelSpecSchema).default([]),
   })
   .passthrough();

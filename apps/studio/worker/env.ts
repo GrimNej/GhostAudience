@@ -27,17 +27,10 @@ const PositiveIntegerString = z
   .transform((value) => Number.parseInt(value, 10))
   .pipe(z.number().int().positive());
 
-const BooleanString = z
-  .enum(["true", "false"])
-  .transform((value) => value === "true");
+const BooleanString = z.enum(["true", "false"]).transform((value) => value === "true");
 
 const CommonFields = {
-  environment: z.enum([
-    "development",
-    "preview",
-    "production",
-    "test",
-  ]),
+  environment: z.enum(["development", "preview", "production", "test"]),
   allowedOrigins: z.array(z.string().url()).min(1),
   rateLimitWindowSeconds: z.number().int().positive(),
   rateLimitMaxRequests: z.number().int().positive(),
@@ -60,9 +53,7 @@ const LiveConfigSchema = z
       .url()
       .refine((value) => value.startsWith("https://")),
     watsonxModelId: z.string().min(3),
-    watsonxApiVersion: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/u),
+    watsonxApiVersion: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
   })
   .strict();
 
@@ -87,25 +78,17 @@ const RuntimeConfigSchema = z
     DisabledConfigSchema,
   ])
   .superRefine((value, context) => {
-    if (
-      value.tokenBudgetHardStop >=
-      value.monthlyTokenAllowance
-    ) {
+    if (value.tokenBudgetHardStop >= value.monthlyTokenAllowance) {
       context.addIssue({
         code: "custom",
         path: ["tokenBudgetHardStop"],
-        message:
-          "The hard stop must preserve a nonzero monthly safety reserve.",
+        message: "The hard stop must preserve a nonzero monthly safety reserve.",
       });
     }
   });
 
-export type RuntimeConfig = z.infer<
-  typeof RuntimeConfigSchema
->;
-export type LiveRuntimeConfig = z.infer<
-  typeof LiveConfigSchema
->;
+export type RuntimeConfig = z.infer<typeof RuntimeConfigSchema>;
+export type LiveRuntimeConfig = z.infer<typeof LiveConfigSchema>;
 
 function splitOrigins(value: string): readonly string[] {
   return value
@@ -114,9 +97,7 @@ function splitOrigins(value: string): readonly string[] {
     .filter(Boolean);
 }
 
-export function readRuntimeConfig(
-  bindings: Bindings,
-): RuntimeConfig {
+export function readRuntimeConfig(bindings: Bindings): RuntimeConfig {
   const common = {
     environment: bindings.ENVIRONMENT,
     providerMode: bindings.PROVIDER_MODE,
@@ -124,24 +105,15 @@ export function readRuntimeConfig(
     rateLimitWindowSeconds: PositiveIntegerString.parse(
       bindings.RATE_LIMIT_WINDOW_SECONDS,
     ),
-    rateLimitMaxRequests: PositiveIntegerString.parse(
-      bindings.RATE_LIMIT_MAX_REQUESTS,
-    ),
-    dailyRequestLimit: PositiveIntegerString.parse(
-      bindings.DAILY_REQUEST_LIMIT,
-    ),
+    rateLimitMaxRequests: PositiveIntegerString.parse(bindings.RATE_LIMIT_MAX_REQUESTS),
+    dailyRequestLimit: PositiveIntegerString.parse(bindings.DAILY_REQUEST_LIMIT),
     monthlyTokenAllowance: PositiveIntegerString.parse(
       bindings.MONTHLY_TOKEN_ALLOWANCE,
     ),
-    tokenBudgetHardStop: PositiveIntegerString.parse(
-      bindings.TOKEN_BUDGET_HARD_STOP,
-    ),
-    fixtureModeAvailable: BooleanString.parse(
-      bindings.FIXTURE_MODE_AVAILABLE,
-    ),
+    tokenBudgetHardStop: PositiveIntegerString.parse(bindings.TOKEN_BUDGET_HARD_STOP),
+    fixtureModeAvailable: BooleanString.parse(bindings.FIXTURE_MODE_AVAILABLE),
     rateLimitSalt: bindings.RATE_LIMIT_SALT,
-    sessionSigningSecret:
-      bindings.SESSION_SIGNING_SECRET,
+    sessionSigningSecret: bindings.SESSION_SIGNING_SECRET,
   };
 
   if (bindings.PROVIDER_MODE !== "live") {

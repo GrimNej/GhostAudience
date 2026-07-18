@@ -2,6 +2,7 @@ interface AnalysisProgressProps {
   readonly currentOrdinal: number;
   readonly totalSegments: number;
   readonly status:
+    | "draft"
     | "ready"
     | "running"
     | "waiting_retry"
@@ -20,19 +21,11 @@ export function AnalysisProgress({
   providerLabel,
   noFutureScenesSupplied,
 }: AnalysisProgressProps): JSX.Element {
-  const completed = Math.max(
-    0,
-    currentOrdinal + 1,
-  );
+  const completed = Math.max(0, currentOrdinal + 1);
   const percent =
     totalSegments === 0
       ? 0
-      : Math.min(
-          100,
-          Math.round(
-            (completed / totalSegments) * 100,
-          ),
-        );
+      : Math.min(100, Math.round((completed / totalSegments) * 100));
 
   return (
     <section
@@ -42,14 +35,9 @@ export function AnalysisProgress({
       <div className="panel__header">
         <div>
           <p className="eyebrow">Sequential run</p>
-          <h2 id="analysis-progress-title">
-            First-time audience analysis
-          </h2>
+          <h2 id="analysis-progress-title">First-time audience analysis</h2>
         </div>
-        <span
-          className="provider-chip"
-          data-provider={providerLabel}
-        >
+        <span className="provider-chip" data-provider={providerLabel}>
           {providerLabel}
         </span>
       </div>
@@ -57,40 +45,24 @@ export function AnalysisProgress({
       <div className="panel__body">
         <div className="progress-copy">
           <strong>
-            Segment {Math.min(
-              completed + 1,
-              totalSegments,
-            )} of {totalSegments}
+            Segment {Math.min(completed + 1, totalSegments)} of {totalSegments}
           </strong>
           <span>{percent}% committed</span>
         </div>
 
-        <progress
-          value={completed}
-          max={Math.max(totalSegments, 1)}
-        >
+        <progress value={completed} max={Math.max(totalSegments, 1)}>
           {percent}%
         </progress>
 
-        <p
-          className="analysis-invariant"
-          data-valid={noFutureScenesSupplied}
-        >
-          <span aria-hidden="true">
-            {noFutureScenesSupplied ? "✓" : "!"}
-          </span>
+        <p className="analysis-invariant" data-valid={noFutureScenesSupplied}>
+          <span aria-hidden="true">{noFutureScenesSupplied ? "✓" : "!"}</span>
           {noFutureScenesSupplied
             ? "No future scenes supplied to this step"
             : "Future-scene invariant failed"}
         </p>
 
-        <p
-          className="visually-hidden"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          Analysis status {status}. {completed} of{" "}
-          {totalSegments} segments committed.
+        <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+          Analysis status {status}. {completed} of {totalSegments} segments committed.
         </p>
       </div>
     </section>

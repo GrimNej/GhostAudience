@@ -13,17 +13,14 @@ export interface FountainBlock {
   readonly endOffset: number;
 }
 
-const SCENE_HEADING =
-  /^(?:\.)?(?:INT\.|EXT\.|INT\/EXT\.|INT\.\/EXT\.|I\/E\.)\s+/u;
+const SCENE_HEADING = /^(?:\.)?(?:INT\.|EXT\.|INT\/EXT\.|INT\.\/EXT\.|I\/E\.)\s+/u;
 const TRANSITION = /(?:TO:|FADE OUT\.|CUT TO BLACK\.)$/u;
 const SECTION = /^#{1,6}\s+/u;
 const PAGE_BREAK = /^={3,}$/u;
 const CHARACTER = /^[A-Z][A-Z0-9 ._'’()-]{1,50}$/u;
 const PARENTHETICAL = /^\(.+\)$/u;
 
-export function parseFountainBlocks(
-  text: string,
-): readonly FountainBlock[] {
+export function parseFountainBlocks(text: string): readonly FountainBlock[] {
   const blocks: FountainBlock[] = [];
   const paragraphs = splitParagraphsWithOffsets(text);
   let previousKind: FountainBlock["kind"] | null = null;
@@ -43,20 +40,11 @@ export function parseFountainBlocks(
       kind = "section";
     } else if (PAGE_BREAK.test(trimmed)) {
       kind = "page_break";
-    } else if (
-      trimmed.startsWith(">") ||
-      TRANSITION.test(trimmed)
-    ) {
+    } else if (trimmed.startsWith(">") || TRANSITION.test(trimmed)) {
       kind = "transition";
-    } else if (
-      CHARACTER.test(trimmed) &&
-      trimmed === trimmed.toUpperCase()
-    ) {
+    } else if (CHARACTER.test(trimmed) && trimmed === trimmed.toUpperCase()) {
       kind = "character";
-    } else if (
-      PARENTHETICAL.test(trimmed) &&
-      previousKind === "character"
-    ) {
+    } else if (PARENTHETICAL.test(trimmed) && previousKind === "character") {
       kind = "parenthetical";
     } else if (
       previousKind === "character" ||
@@ -86,9 +74,7 @@ interface ParagraphWithOffsets {
   readonly endOffset: number;
 }
 
-function splitParagraphsWithOffsets(
-  text: string,
-): readonly ParagraphWithOffsets[] {
+function splitParagraphsWithOffsets(text: string): readonly ParagraphWithOffsets[] {
   const paragraphs: ParagraphWithOffsets[] = [];
   const separator = /\n{2,}/gu;
   let cursor = 0;

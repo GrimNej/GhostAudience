@@ -5,15 +5,35 @@ import type {
   StepAnalysisOutput,
 } from "@ghost-audience/contracts";
 import { ApiError } from "../errors";
-import type { ModelCapabilities, NarrativeModelProvider, ProviderResult } from "./model-provider";
+import type {
+  ModelCapabilities,
+  NarrativeModelProvider,
+  ProviderResult,
+} from "./model-provider";
 
 export class DisabledProvider implements NarrativeModelProvider {
   public readonly providerId = "disabled";
-  public async analyzeStep(_input: StepAnalysisInput, _signal: AbortSignal): Promise<ProviderResult<StepAnalysisOutput>> {
-    throw new ApiError("PROVIDER_DISABLED", 503, "Live analysis is disabled for this deployment.", false);
+  public async analyzeStep(
+    _input: StepAnalysisInput,
+    _signal: AbortSignal,
+  ): Promise<ProviderResult<StepAnalysisOutput>> {
+    throw new ApiError(
+      "PROVIDER_DISABLED",
+      503,
+      "Live analysis is disabled for this deployment.",
+      false,
+    );
   }
-  public async finalizeRun(_input: FinalizeRunInput, _signal: AbortSignal): Promise<ProviderResult<FinalizeRunOutput>> {
-    throw new ApiError("PROVIDER_DISABLED", 503, "Live finalization is disabled for this deployment.", false);
+  public async finalizeRun(
+    _input: FinalizeRunInput,
+    _signal: AbortSignal,
+  ): Promise<ProviderResult<FinalizeRunOutput>> {
+    throw new ApiError(
+      "PROVIDER_DISABLED",
+      503,
+      "Live finalization is disabled for this deployment.",
+      false,
+    );
   }
   public async capabilities(): Promise<ModelCapabilities> {
     return {

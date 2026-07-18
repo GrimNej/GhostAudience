@@ -1,18 +1,13 @@
 import { useMemo } from "react";
 import { useDatabase } from "../../../app/database-context";
 import { ProjectRepository } from "../../../infrastructure/db/project-repository";
-import {
-  toIntentContract,
-  type IntentFormValue,
-} from "../domain/intent-form";
+import { type IntentFormValue, toIntentContract } from "../domain/intent-form";
 
 export interface IntentActions {
   readonly save: (value: IntentFormValue) => Promise<void>;
 }
 
-export function useIntentActions(
-  projectId: string,
-): IntentActions {
+export function useIntentActions(projectId: string): IntentActions {
   const database = useDatabase();
   return useMemo(() => {
     const repository = new ProjectRepository(database);

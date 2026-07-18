@@ -13,7 +13,9 @@ export function ProofPage(): JSX.Element {
       <p className="eyebrow">Judge-facing evidence</p>
       <h1>Proof lab</h1>
       <p className="page-lede">
-        Runtime metrics are derived from the latest committed run. Repository test reports provide differential-prefix, parser, rate-limit, and deployed-header evidence.
+        Runtime metrics are derived from the latest committed run. Repository test
+        reports provide differential-prefix, parser, rate-limit, and deployed-header
+        evidence.
       </p>
       {value === null ? (
         <p>Complete a run to populate runtime metrics.</p>
@@ -40,10 +42,24 @@ export function ProofPage(): JSX.Element {
             />
           </div>
           <dl className="question-facts">
-            <div><dt>Provider</dt><dd>{value.providerMode}</dd></div>
-            <div><dt>Model</dt><dd>{value.modelId}</dd></div>
-            <div><dt>Prompt</dt><dd>{value.promptVersion}</dd></div>
-            <div><dt>Segments committed</dt><dd>{value.committedStepCount}/{value.segmentCount}</dd></div>
+            <div>
+              <dt>Provider</dt>
+              <dd>{value.providerMode}</dd>
+            </div>
+            <div>
+              <dt>Model</dt>
+              <dd>{value.modelId}</dd>
+            </div>
+            <div>
+              <dt>Prompt</dt>
+              <dd>{value.promptVersion}</dd>
+            </div>
+            <div>
+              <dt>Segments committed</dt>
+              <dd>
+                {value.committedStepCount}/{value.segmentCount}
+              </dd>
+            </div>
           </dl>
         </>
       )}
