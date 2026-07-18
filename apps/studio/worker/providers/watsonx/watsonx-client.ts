@@ -24,6 +24,10 @@ function isGptOssModel(modelId: string): boolean {
   return modelId.startsWith("openai/gpt-oss-");
 }
 
+function usesNativeJsonObject(modelId: string): boolean {
+  return modelId.startsWith("ibm/granite-");
+}
+
 function mapProviderFailure(status: number): ApiError {
   if (status === 401 || status === 403)
     return new ApiError(
@@ -84,7 +88,9 @@ async function execute(
           }
         : {
             max_tokens: input.maxTokens,
-            response_format: { type: "json_object" },
+            ...(usesNativeJsonObject(config.watsonxModelId)
+              ? { response_format: { type: "json_object" } }
+              : {}),
           }),
     }),
     signal,
