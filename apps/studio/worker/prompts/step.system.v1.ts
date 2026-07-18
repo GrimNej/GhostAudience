@@ -33,6 +33,4 @@ OUTPUT
 - Respect operation limits.
 - Include every required output array, even when it is empty.
 - If an operation cannot meet every required field and exact evidence offset, omit it and add a short warning instead.
-- Do not return every result array empty when the segment contains explicit story information. Add an explicit fact whenever a concrete event, statement, action, or setting is present.
-- Open at least one audience question when the current segment creates a grounded unresolved identity, motivation, causality, knowledge, or stakes question. Do not invent a question where the segment resolves all relevant uncertainty.
 `.trim();
