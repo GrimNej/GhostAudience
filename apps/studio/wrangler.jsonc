@@ -31,6 +31,12 @@
   "env": {
     "production": {
       "name": "ghost-audience",
+      "routes": [
+        {
+          "pattern": "audience.grimnej.com",
+          "custom_domain": true
+        }
+      ],
       "d1_databases": [
         {
           "binding": "CONTROL_DB",
@@ -45,7 +51,7 @@
         "WATSONX_BASE_URL": "https://us-south.ml.cloud.ibm.com",
         "WATSONX_API_VERSION": "2025-10-25",
         "WATSONX_MODEL_ID": "openai/gpt-oss-120b",
-        "ALLOWED_ORIGINS": "https://ghost-audience.ginejneupane123.workers.dev",
+        "ALLOWED_ORIGINS": "https://audience.grimnej.com,https://ghost-audience.ginejneupane123.workers.dev",
         "RATE_LIMIT_WINDOW_SECONDS": "600",
         "RATE_LIMIT_MAX_REQUESTS": "30",
         "DAILY_REQUEST_LIMIT": "150",
