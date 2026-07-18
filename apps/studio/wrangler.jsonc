@@ -1,0 +1,37 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "ghost-audience",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-07-18",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "CONTROL_DB",
+      "database_name": "ghost-audience-control",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "../../migrations"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production",
+    "PROVIDER_MODE": "live",
+    "WATSONX_BASE_URL": "https://us-south.ml.cloud.ibm.com",
+    "WATSONX_API_VERSION": "2024-10-08",
+    "WATSONX_MODEL_ID": "ibm/granite-4-h-small",
+    "ALLOWED_ORIGINS": "https://REPLACE_WITH_DEPLOYED_ORIGIN",
+    "RATE_LIMIT_WINDOW_SECONDS": "600",
+    "RATE_LIMIT_MAX_REQUESTS": "30",
+    "DAILY_REQUEST_LIMIT": "150",
+    "MONTHLY_TOKEN_ALLOWANCE": "300000",
+    "TOKEN_BUDGET_HARD_STOP": "240000",
+    "FIXTURE_MODE_AVAILABLE": "true"
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}

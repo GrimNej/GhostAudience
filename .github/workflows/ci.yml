@@ -1,0 +1,162 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.14.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.0
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Placeholder scan
+        run: pnpm check:placeholders
+
+      - name: Future-key scan
+        run: pnpm check:future-keys
+
+      - name: Fixture manifests
+        run: pnpm check:fixtures
+
+      - name: Format and lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Dependency boundaries
+        run: pnpm check:boundaries
+
+      - name: Dead code
+        run: pnpm check:dead-code
+
+      - name: Unit and integration tests
+        run: pnpm test:coverage
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript-coverage
+          path: |
+            coverage
+            apps/**/coverage
+            packages/**/coverage
+          if-no-files-found: ignore
+          retention-days: 7
+
+  python:
+    name: Python evaluation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: tools/evaluation
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.29"
+          python-version: "3.13.14"
+          enable-cache: true
+
+      - name: Sync
+        run: uv sync --frozen
+
+      - name: Ruff check
+        run: uv run ruff check .
+
+      - name: Ruff format
+        run: uv run ruff format --check .
+
+      - name: Mypy
+        run: uv run mypy .
+
+      - name: Pytest
+        run: uv run pytest
+
+  e2e-smoke:
+    name: Chromium smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs:
+      - typescript
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.14.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.0
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build
+        run: pnpm build
+
+      - name: Smoke tests
+        run: >
+          pnpm exec playwright test
+          --project=chromium-desktop
+          --grep @smoke
+
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke
+          path: |
+            apps/studio/playwright-report
+            apps/studio/test-results
+          if-no-files-found: ignore
+          retention-days: 7

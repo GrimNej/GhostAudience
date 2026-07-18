@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@design/*": ["src/design-system/*"],
+      "@features/*": ["src/features/*"],
+      "@infra/*": ["src/infrastructure/*"],
+      "@shared/*": ["src/shared/*"]
+    },
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": ["src", "tests", "vite.config.ts", "playwright.config.ts"]
+}

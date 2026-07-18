@@ -1,0 +1,29 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "apps/studio": {
+      "entry": [
+        "src/main.tsx",
+        "worker/index.ts",
+        "vite.config.ts",
+        "playwright.config.ts"
+      ],
+      "project": ["src/**/*.{ts,tsx}", "worker/**/*.ts", "tests/**/*.{ts,tsx}"]
+    },
+    "packages/domain": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts", "tests/**/*.ts"]
+    },
+    "packages/contracts": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts", "tests/**/*.ts"]
+    },
+    "packages/parser": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts", "tests/**/*.ts"]
+    }
+  },
+  "ignoreDependencies": [
+    "@cloudflare/workers-types"
+  ]
+}

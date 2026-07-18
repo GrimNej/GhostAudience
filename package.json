@@ -1,0 +1,50 @@
+{
+  "name": "ghost-audience",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.14.0",
+  "engines": {
+    "node": ">=24.18.0 <25",
+    "pnpm": "11.14.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @ghost-audience/studio dev",
+    "build": "pnpm -r --if-present build",
+    "preview": "pnpm --filter @ghost-audience/studio preview",
+    "deploy": "pnpm --filter @ghost-audience/studio deploy",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "test": "pnpm -r --if-present test",
+    "test:coverage": "pnpm -r --if-present test:coverage",
+    "test:e2e": "pnpm --filter @ghost-audience/studio test:e2e",
+    "test:e2e:smoke": "pnpm --filter @ghost-audience/studio test:e2e:smoke",
+    "check:boundaries": "dependency-cruiser --config dependency-cruiser.cjs apps packages",
+    "check:dead-code": "knip --config knip.json",
+    "check:placeholders": "node tools/repository/check-placeholders.mjs",
+    "check:future-keys": "node tools/repository/verify-no-future-keys.mjs",
+    "check:fixtures": "node tools/repository/verify-fixture-manifests.mjs",
+    "check": "pnpm check:placeholders && pnpm check:future-keys && pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm check:dead-code && pnpm test",
+    "ci": "pnpm install --frozen-lockfile && pnpm check && pnpm build",
+    "prepare": "simple-git-hooks"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.4",
+    "@types/node": "24.10.9",
+    "dependency-cruiser": "18.1.0",
+    "knip": "6.27.0",
+    "lint-staged": "17.0.8",
+    "simple-git-hooks": "2.13.1",
+    "typescript": "7.0.2"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged",
+    "pre-push": "pnpm check"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,json,jsonc,css,md,yml,yaml}": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
+  }
+}

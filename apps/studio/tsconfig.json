@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.worker.json" },
+    { "path": "../../packages/domain" },
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/parser" }
+  ]
+}
