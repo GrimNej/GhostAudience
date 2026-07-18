@@ -39,7 +39,7 @@ function mapProviderFailure(status: number): ApiError {
     return new ApiError(
       "MODEL_NOT_AVAILABLE",
       503,
-      "The configured Granite model is unavailable.",
+      "The configured watsonx.ai model is unavailable.",
       false,
     );
   return new ApiError(

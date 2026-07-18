@@ -41,7 +41,7 @@
       ],
       "vars": {
         "ENVIRONMENT": "production",
-        "PROVIDER_MODE": "watsonx",
+        "PROVIDER_MODE": "live",
         "WATSONX_BASE_URL": "https://us-south.ml.cloud.ibm.com",
         "WATSONX_API_VERSION": "2024-10-08",
         "WATSONX_MODEL_ID": "openai/gpt-oss-120b",

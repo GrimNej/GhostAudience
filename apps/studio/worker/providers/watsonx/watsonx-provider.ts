@@ -104,7 +104,7 @@ export class WatsonxProvider implements NarrativeModelProvider {
         throw new ApiError(
           "MODEL_OUTPUT_INVALID",
           502,
-          "The Granite response failed validation after one bounded repair attempt.",
+          "The watsonx.ai response failed validation after one bounded repair attempt.",
           false,
         );
       }
@@ -137,7 +137,7 @@ export class WatsonxProvider implements NarrativeModelProvider {
       throw new ApiError(
         "MODEL_OUTPUT_INVALID",
         502,
-        "The Granite final summary failed validation.",
+        "The watsonx.ai final summary failed validation.",
         false,
       );
     }
