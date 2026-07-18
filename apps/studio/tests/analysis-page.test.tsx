@@ -72,7 +72,7 @@ describe("AnalysisPage", () => {
     latestRun = null;
     projectWorkspace = {
       project: { id: "project_test", name: "Test", intentContract: {} },
-      script: { id: "script_test" },
+      script: { id: "script_test", wordCount: 120 },
       segments: [{ id: "segment_test" }],
       latestRun,
     };
@@ -82,11 +82,11 @@ describe("AnalysisPage", () => {
     cancel.mockClear();
   });
 
-  it("binds the reliable demo button to the controller", async () => {
+  it("starts the available audience analysis with one primary action", async () => {
     renderAnalysisPage();
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Run reliable demo",
+        name: /start audience analysis/i,
       }),
     );
     await waitFor(() => {
@@ -106,7 +106,7 @@ describe("AnalysisPage", () => {
     setLatestRun(latestRun);
     renderAnalysisPage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Resume analysis" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue analysis" }));
     await waitFor(() => {
       expect(resume).toHaveBeenCalledWith("run_test");
     });
@@ -115,7 +115,7 @@ describe("AnalysisPage", () => {
   it("covers unavailable, live, failed, and active analysis states", async () => {
     projectWorkspace = undefined;
     renderAnalysisPage();
-    expect(screen.getByText(/loading analysis/i)).toBeVisible();
+    expect(screen.getByText(/preparing the audience read/i)).toBeVisible();
   });
 
   it("requires a script before analysis", () => {
@@ -126,7 +126,9 @@ describe("AnalysisPage", () => {
       latestRun: null,
     };
     renderAnalysisPage();
-    expect(screen.getByRole("heading", { name: /add a script first/i })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: /add your content first/i }),
+    ).toBeVisible();
   });
 
   it("starts live analysis when verified capabilities permit it", async () => {
@@ -140,7 +142,7 @@ describe("AnalysisPage", () => {
       },
     };
     renderAnalysisPage();
-    fireEvent.click(screen.getByRole("button", { name: "Run live watsonx.ai" }));
+    fireEvent.click(screen.getByRole("button", { name: /start audience analysis/i }));
     await waitFor(() => {
       expect(start).toHaveBeenCalledWith({
         projectId: "project_test",
@@ -154,7 +156,7 @@ describe("AnalysisPage", () => {
   it("shows a start failure and lets an active run be cancelled", async () => {
     start.mockRejectedValueOnce(new Error("Fixture unavailable"));
     renderAnalysisPage();
-    fireEvent.click(screen.getByRole("button", { name: "Run reliable demo" }));
+    fireEvent.click(screen.getByRole("button", { name: /start audience analysis/i }));
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent("Fixture unavailable");
     });
@@ -169,8 +171,8 @@ describe("AnalysisPage", () => {
     };
     setLatestRun(latestRun);
     renderAnalysisPage();
-    fireEvent.click(screen.getByRole("button", { name: "Cancel analysis" }));
+    fireEvent.click(screen.getByRole("button", { name: "Stop this analysis" }));
     expect(cancel).toHaveBeenCalledWith("run_active");
-    expect(screen.getByText(/another tab owns this run/i)).toBeVisible();
+    expect(screen.getByText(/listening for questions/i)).toBeVisible();
   });
 });

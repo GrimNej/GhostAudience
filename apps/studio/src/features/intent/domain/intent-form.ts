@@ -9,6 +9,23 @@ export interface IntentFormValue {
   readonly desiredUnresolvedQuestionsText: string;
 }
 
+export function fromIntentContract(contract: IntentContract): IntentFormValue {
+  return {
+    requiredKnowledgeText: contract.requiredKnowledge
+      .map((item) => item.statement)
+      .join("\n"),
+    desiredQuestionsText: contract.desiredQuestions
+      .map((item) => item.question)
+      .join("\n"),
+    forbiddenAssumptionsText: contract.forbiddenAssumptions
+      .map((item) => item.assumption)
+      .join("\n"),
+    intentionalMysteriesText: contract.intentionalMysteries.join("\n"),
+    intendedEmotionalDirection: contract.intendedEmotionalDirection ?? "",
+    desiredUnresolvedQuestionsText: contract.desiredUnresolvedQuestions.join("\n"),
+  };
+}
+
 function lines(value: string): readonly string[] {
   return [
     ...new Set(

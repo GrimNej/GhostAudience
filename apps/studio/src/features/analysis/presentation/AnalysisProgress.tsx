@@ -1,3 +1,5 @@
+import { Check, LoaderCircle } from "lucide-react";
+
 interface AnalysisProgressProps {
   readonly currentOrdinal: number;
   readonly totalSegments: number;
@@ -26,45 +28,55 @@ export function AnalysisProgress({
     totalSegments === 0
       ? 0
       : Math.min(100, Math.round((completed / totalSegments) * 100));
+  const isComplete = status === "completed" || status === "completed_with_warnings";
 
   return (
-    <section
-      className="analysis-progress panel"
-      aria-labelledby="analysis-progress-title"
-    >
-      <div className="panel__header">
-        <div>
-          <p className="eyebrow">Sequential run</p>
-          <h2 id="analysis-progress-title">First-time audience analysis</h2>
-        </div>
-        <span className="provider-chip" data-provider={providerLabel}>
-          {providerLabel}
-        </span>
+    <section className="analysis-progress" aria-labelledby="analysis-progress-title">
+      <div className="analysis-progress__orb" data-complete={isComplete}>
+        {isComplete ? (
+          <Check aria-hidden="true" size={34} />
+        ) : (
+          <LoaderCircle aria-hidden="true" size={34} />
+        )}
       </div>
-
-      <div className="panel__body">
+      <div className="analysis-progress__copy">
+        <p className="eyebrow">
+          {isComplete ? "Read complete" : "Audience read in progress"}
+        </p>
+        <h2 id="analysis-progress-title">
+          {isComplete
+            ? "Your results are ready."
+            : "Listening for questions, assumptions, and clarity risks."}
+        </h2>
+        <p>
+          {isComplete
+            ? `All ${totalSegments} sections were read in story order.`
+            : `Reading section ${Math.min(completed + 1, totalSegments)} of ${totalSegments}. You can leave this tab open while the read continues.`}
+        </p>
+      </div>
+      <div className="analysis-progress__meter">
         <div className="progress-copy">
           <strong>
-            Segment {Math.min(completed + 1, totalSegments)} of {totalSegments}
+            {completed} of {totalSegments} sections complete
           </strong>
-          <span>{percent}% committed</span>
+          <span>{percent}%</span>
         </div>
-
         <progress value={completed} max={Math.max(totalSegments, 1)}>
           {percent}%
         </progress>
-
-        <p className="analysis-invariant" data-valid={noFutureScenesSupplied}>
-          <span aria-hidden="true">{noFutureScenesSupplied ? "✓" : "!"}</span>
-          {noFutureScenesSupplied
-            ? "No future scenes supplied to this step"
-            : "Future-scene invariant failed"}
-        </p>
-
-        <p className="visually-hidden" aria-live="polite" aria-atomic="true">
-          Analysis status {status}. {completed} of {totalSegments} segments committed.
-        </p>
+        <div className="analysis-progress__notes">
+          <span>
+            <Check aria-hidden="true" size={15} /> Reads in story order
+          </span>
+          <span>
+            <Check aria-hidden="true" size={15} /> Grounds findings in your words
+          </span>
+        </div>
       </div>
+      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+        Analysis status {status}. {completed} of {totalSegments} sections complete.{" "}
+        {providerLabel}. Future content excluded: {String(noFutureScenesSupplied)}.
+      </p>
     </section>
   );
 }

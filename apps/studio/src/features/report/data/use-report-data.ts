@@ -20,7 +20,7 @@ export function useReportData(projectId: string) {
       }
       const questions = await reads.questions(workspace.latestRun.id);
       return buildReportModel({
-        title: `${workspace.project.name} — Audience Question Report`,
+        title: `${workspace.project.name}: Audience Question Report`,
         generatedAt: new Date().toISOString(),
         providerLabel:
           workspace.latestRun.providerMode === "fixture"

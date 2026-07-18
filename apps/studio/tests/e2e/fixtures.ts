@@ -15,12 +15,12 @@ export const test = base.extend<AppFixtures>({
       await waitForWorkspace(page);
       await page
         .getByRole("link", {
-          name: /try the demo/i,
+          name: /explore a sample/i,
         })
         .click();
       await expect(
         page.getByRole("heading", {
-          name: /demo/i,
+          name: /your draft is ready for its first audience/i,
         }),
       ).toBeVisible();
     });

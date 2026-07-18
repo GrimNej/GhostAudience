@@ -1,43 +1,37 @@
 import AxeBuilder from "@axe-core/playwright";
-
 import { expect, test } from "./fixtures";
+
+async function expectNoSeriousViolations(page: import("@playwright/test").Page) {
+  await expect(page.getByRole("main")).toBeVisible();
+  const result = await new AxeBuilder({ page }).analyze();
+  expect(
+    result.violations.filter(
+      (violation) => violation.impact === "critical" || violation.impact === "serious",
+    ),
+  ).toEqual([]);
+}
 
 test("primary views have no automatically detectable serious violations", async ({
   page,
   startDemoProject,
 }) => {
+  await page.goto("/");
+  await expectNoSeriousViolations(page);
+
   await startDemoProject();
+  await expectNoSeriousViolations(page);
 
-  for (const route of [
-    "script",
-    "intent",
-    "analyze",
-    "timeline",
-    "mindboard",
-    "report",
-  ]) {
-    await page.goto(
-      page
-        .url()
-        .replace(/\/(script|intent|analyze|timeline|mindboard|report)$/u, `/${route}`),
-    );
+  await page.getByRole("link", { name: "Content", exact: true }).click();
+  await expectNoSeriousViolations(page);
 
-    await expect(page.getByRole("main")).toBeVisible();
+  await page.getByRole("link", { name: "Analysis", exact: true }).click();
+  await page.getByRole("button", { name: /start audience analysis/i }).click();
+  await expect(page.getByText(/audience read complete/i)).toBeVisible();
+  await expectNoSeriousViolations(page);
 
-    const result = await new AxeBuilder({
-      page,
-    })
-      .disableRules([
-        // Keep empty. A rule may be disabled only
-        // through a dated ADR with manual evidence.
-      ])
-      .analyze();
+  await page.getByRole("button", { name: /questions \(/i }).click();
+  await expectNoSeriousViolations(page);
 
-    expect(
-      result.violations.filter(
-        (violation) =>
-          violation.impact === "critical" || violation.impact === "serious",
-      ),
-    ).toEqual([]);
-  }
+  await page.getByRole("button", { name: /what landed/i }).click();
+  await expectNoSeriousViolations(page);
 });

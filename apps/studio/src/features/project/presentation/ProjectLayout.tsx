@@ -1,14 +1,12 @@
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { Check, FileText, MessageCircleQuestion, Sparkles } from "lucide-react";
+import { Navigate, NavLink, Outlet, useParams } from "react-router-dom";
 
 import { useProject } from "./useProject";
 
 const tabs = [
-  ["script", "Script"],
-  ["intent", "Intent"],
-  ["analyze", "Analyze"],
-  ["timeline", "Timeline"],
-  ["mindboard", "Mindboard"],
-  ["report", "Report"],
+  ["script", "Content", FileText],
+  ["analyze", "Analysis", Sparkles],
+  ["results", "Results", MessageCircleQuestion],
 ] as const;
 
 export function ProjectLayout(): JSX.Element {
@@ -46,18 +44,53 @@ export function ProjectLayout(): JSX.Element {
           <h1>{value.project.name}</h1>
         </div>
 
-        <p className="privacy-chip">Stored in this browser</p>
+        <p className="privacy-chip">Private to this browser</p>
       </header>
 
       <nav className="project-tabs" aria-label="Project sections">
-        {tabs.map(([path, label]) => (
-          <NavLink key={path} to={path}>
-            {label}
-          </NavLink>
-        ))}
+        {tabs.map(([path, label, Icon], index) => {
+          const isDone =
+            index === 0
+              ? value.script !== null
+              : index === 1
+                ? value.latestRun?.status === "completed" ||
+                  value.latestRun?.status === "completed_with_warnings"
+                : false;
+          return (
+            <NavLink key={path} to={path}>
+              <span className="project-tabs__step" aria-hidden="true">
+                {isDone ? <Check size={14} /> : index + 1}
+              </span>
+              <Icon aria-hidden="true" size={17} />
+              <span>{label}</span>
+            </NavLink>
+          );
+        })}
       </nav>
 
       <Outlet />
     </section>
   );
+}
+
+export function ProjectHome(): JSX.Element {
+  const { projectId } = useParams();
+  if (projectId === undefined) throw new Error("Project route is missing projectId.");
+  const value = useProject(projectId);
+  if (value === undefined)
+    return (
+      <div className="loading-state" aria-busy="true">
+        Opening project...
+      </div>
+    );
+  if (value === null) return <Navigate replace to="/projects" />;
+  const completed =
+    value.latestRun?.status === "completed" ||
+    value.latestRun?.status === "completed_with_warnings";
+  const destination = completed
+    ? "results"
+    : value.script === null
+      ? "script"
+      : "analyze";
+  return <Navigate replace to={destination} />;
 }

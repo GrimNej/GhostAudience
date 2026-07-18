@@ -96,6 +96,7 @@ export class ProjectRepository {
         }
         await this.db.projects.update(projectIdValue, {
           activeScriptId: script.id,
+          name: script.title,
           updatedAt: script.updatedAt,
         });
         await this.db.auditEvents.add({

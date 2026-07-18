@@ -42,7 +42,7 @@ export async function createDemoProject(
 ): Promise<string> {
   const now = new Date().toISOString();
   const project = await repository.create({
-    name: "The House at the Gate — Demo",
+    name: "The House at the Gate Demo",
     now,
   });
   const script = await parseScript({

@@ -23,7 +23,7 @@ export function ProjectsPage(): JSX.Element {
 
   async function createDemo(): Promise<void> {
     const id = await createDemoProject(repository);
-    await navigate(`/project/${id}/intent`);
+    await navigate(`/project/${id}/analyze`);
   }
 
   useEffect(() => {
@@ -50,9 +50,9 @@ export function ProjectsPage(): JSX.Element {
     <section className="projects-page">
       <header className="page-heading">
         <div>
-          <p className="eyebrow">Local workspace</p>
-          <h1>Projects</h1>
-          <p>Projects stay in this browser unless you export them.</p>
+          <p className="eyebrow">Your private workspace</p>
+          <h1>Your audience reads</h1>
+          <p>Continue an existing draft or invite a fresh audience to something new.</p>
         </div>
 
         <div className="page-actions">
@@ -68,7 +68,7 @@ export function ProjectsPage(): JSX.Element {
             }}
           >
             <Sparkles aria-hidden="true" size={18} />
-            Create demo
+            Explore sample
           </button>
           <button
             type="button"
@@ -82,7 +82,7 @@ export function ProjectsPage(): JSX.Element {
             }}
           >
             <Plus aria-hidden="true" size={18} />
-            New project
+            New audience read
           </button>
         </div>
       </header>
@@ -94,19 +94,40 @@ export function ProjectsPage(): JSX.Element {
       )}
 
       {projects === undefined ? (
-        <div aria-busy="true">Loading projects…</div>
+        <div className="loading-state" aria-busy="true">
+          Opening your workspace...
+        </div>
       ) : projects.length === 0 ? (
         <div className="empty-state panel">
-          <h2>No projects yet</h2>
-          <p>Start with your own script or create the deterministic demo.</p>
+          <span className="empty-state__icon">
+            <Sparkles aria-hidden="true" size={25} />
+          </span>
+          <h2>Your first audience is ready when you are.</h2>
+          <p>
+            Paste a draft, start the read, and see what a first-time audience notices.
+          </p>
+          <button
+            type="button"
+            className="button button--primary"
+            onClick={() => void createEmpty()}
+          >
+            <Plus aria-hidden="true" size={18} />
+            Start your first read
+          </button>
         </div>
       ) : (
         <ul className="project-grid">
           {projects.map((project) => (
             <li key={project.id}>
-              <Link className="project-card panel" to={`/project/${project.id}/script`}>
-                <strong>{project.name}</strong>
-                <span>Updated {new Date(project.updatedAt).toLocaleString()}</span>
+              <Link className="project-card" to={`/project/${project.id}`}>
+                <span className="project-card__mark" aria-hidden="true">
+                  {project.name.slice(0, 1).toUpperCase()}
+                </span>
+                <span className="project-card__copy">
+                  <strong>{project.name}</strong>
+                  <small>Updated {new Date(project.updatedAt).toLocaleString()}</small>
+                </span>
+                <span className="project-card__action">Open</span>
               </Link>
             </li>
           ))}

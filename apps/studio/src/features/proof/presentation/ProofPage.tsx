@@ -5,17 +5,20 @@ import { MetricCard } from "./MetricCard";
 export function ProofPage(): JSX.Element {
   const value = useProofData();
   if (value === undefined) {
-    return <div aria-busy="true">Loading proof lab…</div>;
+    return (
+      <div className="loading-state" aria-busy="true">
+        Loading method details...
+      </div>
+    );
   }
   const evidence = value === null ? null : evidenceValidityPercent(value);
   return (
     <section className="proof-page">
-      <p className="eyebrow">Judge-facing evidence</p>
-      <h1>Proof lab</h1>
+      <p className="eyebrow">How Ghost Audience earns trust</p>
+      <h1>Method and evidence</h1>
       <p className="page-lede">
-        Runtime metrics are derived from the latest committed run. Repository test
-        reports provide differential-prefix, parser, rate-limit, and deployed-header
-        evidence.
+        Every finding must cite your content. Each section is analyzed without future
+        story information, and committed runs expose their validation metrics here.
       </p>
       {value === null ? (
         <p>Complete a run to populate runtime metrics.</p>

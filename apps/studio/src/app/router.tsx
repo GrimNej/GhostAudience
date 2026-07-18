@@ -1,16 +1,20 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 
 import { AppShell } from "../design-system/layout/AppShell";
 import { AnalysisPage } from "../features/analysis/presentation/AnalysisPage";
-import { IntentPage } from "../features/intent/presentation/IntentPage";
 import { LandingPage } from "../features/landing/presentation/LandingPage";
-import { MindboardPage } from "../features/mindboard/presentation/MindboardPage";
-import { ProjectLayout } from "../features/project/presentation/ProjectLayout";
+import {
+  ProjectHome,
+  ProjectLayout,
+} from "../features/project/presentation/ProjectLayout";
 import { ProjectsPage } from "../features/project/presentation/ProjectsPage";
 import { ProofPage } from "../features/proof/presentation/ProofPage";
-import { ReportPage } from "../features/report/presentation/ReportPage";
+import {
+  LegacyIntentRedirect,
+  LegacyResultsRedirect,
+  ResultsPage,
+} from "../features/results/presentation/ResultsPage";
 import { ScriptPage } from "../features/script/presentation/ScriptPage";
-import { TimelinePage } from "../features/timeline/presentation/TimelinePage";
 import { RouteErrorPage } from "./route-error-page";
 
 export const router = createBrowserRouter([
@@ -33,7 +37,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="script" replace />,
+            element: <ProjectHome />,
           },
           {
             path: "script",
@@ -41,23 +45,27 @@ export const router = createBrowserRouter([
           },
           {
             path: "intent",
-            element: <IntentPage />,
+            element: <LegacyIntentRedirect />,
           },
           {
             path: "analyze",
             element: <AnalysisPage />,
           },
           {
+            path: "results",
+            element: <ResultsPage />,
+          },
+          {
             path: "timeline",
-            element: <TimelinePage />,
+            element: <LegacyResultsRedirect view="journey" />,
           },
           {
             path: "mindboard",
-            element: <MindboardPage />,
+            element: <LegacyResultsRedirect view="understanding" />,
           },
           {
             path: "report",
-            element: <ReportPage />,
+            element: <LegacyResultsRedirect view="overview" />,
           },
         ],
       },

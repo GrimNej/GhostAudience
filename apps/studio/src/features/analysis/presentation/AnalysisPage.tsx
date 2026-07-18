@@ -1,20 +1,168 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import {
+  CheckCircle2,
+  Clock3,
+  FileSearch,
+  MessageCircleQuestion,
+  RefreshCw,
+  Sparkles,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import type { RunRecord } from "../../../infrastructure/db/records";
 import { useProject } from "../../project/presentation/useProject";
+import type { AnalysisController } from "../data/analysis-controller";
 import { useAnalysisController } from "../data/use-analysis-controller";
 import { useCapabilities } from "../data/use-capabilities";
 import { AnalysisProgress } from "./AnalysisProgress";
 
-const RESUMABLE_STATUSES = new Set([
-  "ready",
-  "running",
-  "waiting_retry",
-  "cancelled",
-  "failed",
-]);
-
 function isActiveRunStatus(status: string): boolean {
-  return ["running", "waiting_retry"].includes(status);
+  return status === "running" || status === "waiting_retry";
+}
+
+function friendlyFailure(message: string | null): string {
+  if (message === null) return "The audience read was interrupted before it finished.";
+  if (/validation|model output|response failed/iu.test(message)) {
+    return "The audience model sent back an unusual response. Your completed sections are safe, and you can continue from where it stopped.";
+  }
+  if (/network|fetch|timeout|timed out/iu.test(message)) {
+    return "The connection was interrupted. Your completed sections are safe.";
+  }
+  return message;
+}
+
+function ActiveAnalysis({
+  run,
+  projectId,
+  totalSegments,
+  controller,
+}: {
+  readonly run: RunRecord;
+  readonly projectId: string;
+  readonly totalSegments: number;
+  readonly controller: AnalysisController;
+}): JSX.Element {
+  const navigate = useNavigate();
+  const ensuredRun = useRef<string | null>(null);
+  const [working, setWorking] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const active = isActiveRunStatus(run.status);
+  const completed =
+    run.status === "completed" || run.status === "completed_with_warnings";
+
+  useEffect(() => {
+    if (!active || ensuredRun.current === run.id) return;
+    ensuredRun.current = run.id;
+    void controller.resume(run.id).catch((error: unknown) => {
+      setActionError(error instanceof Error ? error.message : "Unable to continue.");
+    });
+  }, [active, controller, run.id]);
+
+  useEffect(() => {
+    if (!completed) return;
+    const timeout = window.setTimeout(() => {
+      void navigate(`/project/${projectId}/results`, { replace: true });
+    }, 650);
+    return () => window.clearTimeout(timeout);
+  }, [completed, navigate, projectId]);
+
+  async function retry(): Promise<void> {
+    if (working) return;
+    setWorking(true);
+    setActionError(null);
+    try {
+      await controller.resume(run.id);
+    } catch (error: unknown) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "The audience read could not continue.",
+      );
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  return (
+    <section className="analysis-experience">
+      <AnalysisProgress
+        currentOrdinal={run.committedThroughOrdinal}
+        totalSegments={totalSegments}
+        status={run.status}
+        providerLabel={
+          run.providerMode === "fixture" ? "Local preview" : "Connected audience model"
+        }
+        noFutureScenesSupplied
+      />
+
+      {run.status === "failed" || run.status === "cancelled" ? (
+        <section className="analysis-recovery panel">
+          <RefreshCw aria-hidden="true" size={24} />
+          <div>
+            <h3>Let&apos;s continue the audience read.</h3>
+            <p>{friendlyFailure(run.failureMessage)}</p>
+          </div>
+          <button
+            type="button"
+            className="button button--primary"
+            disabled={working}
+            onClick={() => void retry()}
+          >
+            {working ? "Continuing..." : "Continue analysis"}
+          </button>
+        </section>
+      ) : null}
+
+      {completed ? (
+        <section className="analysis-complete panel" aria-live="polite">
+          <CheckCircle2 aria-hidden="true" size={25} />
+          <div>
+            <h3>Your audience read is ready.</h3>
+            <p>Opening the questions, clarity risks, and audience understanding now.</p>
+          </div>
+          <Link className="button button--primary" to="../results">
+            Open results
+          </Link>
+        </section>
+      ) : null}
+
+      {active ? (
+        <button
+          type="button"
+          className="text-button text-button--danger"
+          onClick={() => controller.cancel(run.id)}
+        >
+          Stop this analysis
+        </button>
+      ) : null}
+
+      {actionError === null ? null : (
+        <p role="alert" className="error-message">
+          {actionError}
+        </p>
+      )}
+
+      <details className="technical-details technical-details--centered">
+        <summary>How this read works</summary>
+        <p>
+          Each section is read in order. The audience model receives the current section
+          and only what the audience could already know. Creator context is compared
+          afterward in this browser.
+        </p>
+        <dl>
+          <div>
+            <dt>Analysis source</dt>
+            <dd>
+              {run.providerMode === "fixture" ? "Local preview" : "Connected model"}
+            </dd>
+          </div>
+          <div>
+            <dt>Model</dt>
+            <dd>{run.modelId}</dd>
+          </div>
+        </dl>
+      </details>
+    </section>
+  );
 }
 
 export function AnalysisPage(): JSX.Element {
@@ -24,171 +172,125 @@ export function AnalysisPage(): JSX.Element {
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
 
-  if (projectId === undefined) {
-    throw new Error("Analysis route is missing projectId.");
-  }
-
+  if (projectId === undefined) throw new Error("Analysis route is missing projectId.");
+  const requiredProjectId = projectId;
   const value = useProject(projectId);
 
   if (value === undefined || capabilities.isLoading) {
-    return <div aria-busy="true">Loading analysis…</div>;
+    return (
+      <div className="loading-state" aria-busy="true">
+        Preparing the audience read...
+      </div>
+    );
   }
-
   if (value === null || value.script === null) {
     return (
-      <section>
-        <h2>Add a script first</h2>
-        <p>Analysis requires a saved and segmented script.</p>
+      <section className="result-empty panel">
+        <FileSearch aria-hidden="true" size={28} />
+        <h2>Add your content first</h2>
+        <p>
+          Paste a draft or import a supported file, then start the read in one click.
+        </p>
+        <Link className="button button--primary" to="../script">
+          Add content
+        </Link>
       </section>
     );
   }
 
-  const run = value.latestRun;
+  if (value.latestRun !== null) {
+    return (
+      <ActiveAnalysis
+        run={value.latestRun}
+        projectId={requiredProjectId}
+        totalSegments={value.segments.length}
+        controller={controller}
+      />
+    );
+  }
+
   const capability = capabilities.data;
-  const fixtureAvailable = capability?.fixtureModeAvailable ?? true;
   const liveAvailable =
     capability?.liveAnalysisEnabled === true &&
     capability.providerMode === "watsonx" &&
     capability.modelId !== null &&
     capability.tokenBudget.remainingBeforeHardStop > 0;
+  const fixtureAvailable = capability?.fixtureModeAvailable ?? true;
 
-  if (run === null) {
-    const start = async (providerMode: "watsonx" | "fixture"): Promise<void> => {
-      if (starting) return;
-      setStarting(true);
-      setStartError(null);
-      try {
-        await controller.start({
-          projectId,
-          providerMode,
-          modelId:
-            providerMode === "fixture" ? "fixture-v1" : (capability?.modelId ?? ""),
-          promptVersion: providerMode === "fixture" ? "fixture-v1" : "step-v1",
-        });
-      } catch (error: unknown) {
-        setStartError(
-          error instanceof Error ? error.message : "Unable to start analysis.",
-        );
-      } finally {
-        setStarting(false);
-      }
-    };
-
-    return (
-      <section className="analysis-start panel">
-        <div className="panel__body">
-          <p className="eyebrow">Ready</p>
-          <h2>Analyze {value.segments.length} segments sequentially</h2>
-          <p>
-            Neutral step requests contain only prior accepted audience state and the
-            current segment. Creator intent is evaluated locally afterward.
-          </p>
-          <div className="button-row">
-            <button
-              type="button"
-              className="button button--primary"
-              disabled={!fixtureAvailable || starting}
-              onClick={() => {
-                void start("fixture");
-              }}
-            >
-              {starting ? "Starting…" : "Run reliable demo"}
-            </button>
-            <button
-              type="button"
-              className="button button--secondary"
-              disabled={!liveAvailable || starting}
-              onClick={() => {
-                void start("watsonx");
-              }}
-            >
-              Run live watsonx.ai
-            </button>
-          </div>
-          {!liveAvailable ? (
-            <p className="field__hint">
-              Live watsonx.ai is unavailable, disabled, or inside the protected token
-              reserve. Fixture mode remains available.
-            </p>
-          ) : null}
-          {startError === null ? null : (
-            <p role="alert" className="error-message">
-              {startError}
-            </p>
-          )}
-        </div>
-      </section>
-    );
-  }
-
-  const activeRun = isActiveRunStatus(run.status);
-  const canResume = RESUMABLE_STATUSES.has(run.status);
-
-  const resume = async (): Promise<void> => {
+  async function start(): Promise<void> {
     if (starting) return;
+    const providerMode = liveAvailable ? "watsonx" : "fixture";
     setStarting(true);
     setStartError(null);
     try {
-      await controller.resume(run.id);
+      await controller.start({
+        projectId: requiredProjectId,
+        providerMode,
+        modelId:
+          providerMode === "watsonx" ? (capability?.modelId ?? "") : "fixture-v1",
+        promptVersion: providerMode === "fixture" ? "fixture-v1" : "step-v1",
+      });
     } catch (error: unknown) {
       setStartError(
-        error instanceof Error ? error.message : "Unable to resume analysis.",
+        error instanceof Error ? error.message : "Unable to start analysis.",
       );
     } finally {
       setStarting(false);
     }
-  };
+  }
 
   return (
-    <section>
-      <AnalysisProgress
-        currentOrdinal={run.committedThroughOrdinal}
-        totalSegments={value.segments.length}
-        status={run.status}
-        providerLabel={
-          run.providerMode === "fixture"
-            ? "Fixture mode"
-            : `IBM watsonx.ai · ${run.modelId}`
-        }
-        noFutureScenesSupplied
-      />
-      {activeRun ? (
+    <section className="analysis-ready">
+      <div className="analysis-ready__visual" aria-hidden="true">
+        <span>
+          <Sparkles size={24} />
+        </span>
+        <i />
+        <span>
+          <FileSearch size={24} />
+        </span>
+        <i />
+        <span>
+          <MessageCircleQuestion size={24} />
+        </span>
+      </div>
+      <div className="analysis-ready__copy">
+        <p className="eyebrow">Ready to listen</p>
+        <h2>Your draft is ready for its first audience.</h2>
+        <p>
+          We found {value.segments.length}{" "}
+          {value.segments.length === 1 ? "section" : "sections"} in{" "}
+          {value.script.wordCount.toLocaleString()} words. The read follows the story in
+          order so later reveals cannot influence earlier reactions.
+        </p>
+        <div className="analysis-ready__meta">
+          <span>
+            <Clock3 aria-hidden="true" size={17} /> Usually a few minutes
+          </span>
+          <span>
+            <CheckCircle2 aria-hidden="true" size={17} /> Evidence included
+          </span>
+        </div>
         <button
           type="button"
-          className="button button--danger"
-          onClick={() => controller.cancel(run.id)}
+          className="button button--primary button--large"
+          disabled={starting || (!liveAvailable && !fixtureAvailable)}
+          onClick={() => void start()}
         >
-          Cancel analysis
+          {starting ? "Starting the read..." : "Start audience analysis"}
+          <Sparkles aria-hidden="true" size={19} />
         </button>
-      ) : null}
-      {canResume ? (
-        <button
-          type="button"
-          className="button button--primary"
-          disabled={starting}
-          onClick={() => {
-            void resume();
-          }}
-        >
-          {starting ? "Resuming…" : "Resume analysis"}
-        </button>
-      ) : null}
-      {activeRun ? (
-        <p className="field__hint">
-          If another tab owns this run, it will remain the only tab allowed to commit a
-          step.
-        </p>
-      ) : null}
-      {run.failureMessage === null ? null : (
-        <p role="alert" className="error-message">
-          {run.failureMessage}
-        </p>
-      )}
-      {startError === null ? null : (
-        <p role="alert" className="error-message">
-          {startError}
-        </p>
-      )}
+        {!liveAvailable && fixtureAvailable ? (
+          <p className="field__hint">
+            The connected model is unavailable, so this run will use the local preview.
+          </p>
+        ) : null}
+        {startError === null ? null : (
+          <p role="alert" className="error-message">
+            {startError}
+          </p>
+        )}
+      </div>
     </section>
   );
 }
