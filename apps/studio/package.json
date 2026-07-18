@@ -9,7 +9,7 @@
     "build:production": "vite build --mode cloudflare-production",
     "preview": "vite preview",
     "preview:test": "pnpm db:migrate:local && pnpm preview --host 127.0.0.1",
-    "deploy": "pnpm build:production && wrangler deploy",
+    "deploy": "pnpm build:production && wrangler deploy --env production",
     "db:migrate:local": "wrangler d1 migrations apply CONTROL_DB --local",
     "typecheck": "tsc -b --pretty false",
     "test": "vitest run --exclude \"tests/e2e/**\" --exclude \"dist/**\"",
