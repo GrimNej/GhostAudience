@@ -23,4 +23,6 @@ for (const [, relativePath, contents] of files) {
   await writeFile(outputPath, contents, { encoding: "utf8", flag: force ? "w" : "wx" });
 }
 
-process.stdout.write(`Extracted ${files.length} canonical files from ${blueprintPath}.\n`);
+process.stdout.write(
+  `Extracted ${files.length} canonical files from ${blueprintPath}.\n`,
+);

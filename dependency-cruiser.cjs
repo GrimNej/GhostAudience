@@ -8,8 +8,7 @@ module.exports = {
       severity: "error",
       from: { path: "^packages/domain/src" },
       to: {
-        path:
-          "^(apps/|packages/contracts|packages/parser|react|xstate|zod|dexie|hono|@cloudflare)",
+        path: "^(apps/|packages/contracts|packages/parser|react|xstate|zod|dexie|hono|@cloudflare)",
       },
     },
     {

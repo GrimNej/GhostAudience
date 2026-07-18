@@ -27,5 +27,5 @@ if (violations.length > 0) {
   );
   process.exitCode = 1;
 } else {
-  console.log("No-hindsight request-key scan passed.");
+  process.stdout.write("No-hindsight request-key scan passed.\n");
 }

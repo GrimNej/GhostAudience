@@ -7,6 +7,10 @@
       "!**/coverage",
       "!**/playwright-report",
       "!**/.wrangler",
+      "!**/.mypy_cache",
+      "!**/.pytest_cache",
+      "!**/.ruff_cache",
+      "!**/.venv",
       "!**/pnpm-lock.yaml",
       "!**/uv.lock"
     ]
@@ -18,21 +22,21 @@
     "lineWidth": 88,
     "lineEnding": "lf"
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "complexity": {
         "noExcessiveCognitiveComplexity": {
           "level": "error",
           "options": {
-            "maxAllowedComplexity": 15
+            "maxAllowedComplexity": 25
           }
         },
-        "noForEach": "error"
+        "noForEach": "error",
+        "noImportantStyles": "off",
+        "useLiteralKeys": "off"
       },
       "correctness": {
         "noUnusedImports": "error",

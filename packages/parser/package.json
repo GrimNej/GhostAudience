@@ -11,8 +11,8 @@
   },
   "scripts": {
     "typecheck": "tsc -b --pretty false",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test": "vitest run --exclude \"dist/**\"",
+    "test:coverage": "vitest run --coverage --exclude \"dist/**\""
   },
   "dependencies": {
     "@ghost-audience/domain": "workspace:*"

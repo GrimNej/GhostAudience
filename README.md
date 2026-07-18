@@ -36,7 +36,7 @@ Human test readers remain essential, but they often arrive late and can be expen
 - **IBM Bob:** primary development environment for planning, implementation, testing, debugging, security review, accessibility review, and deployment validation.
 - **IBM watsonx.ai / Granite:** bounded sequential script analysis.
 - **React, TypeScript, and Vite:** local-first creator workspace.
-- **XState:** deterministic analysis workflow.
+- **Analysis controller and locks:** deterministic, resumable analysis workflow.
 - **IndexedDB through Dexie:** local script and result persistence.
 - **Cloudflare Worker and Hono:** credential-protecting model gateway.
 - **Zod:** shared runtime contracts.
@@ -44,7 +44,7 @@ Human test readers remain essential, but they often arrive late and can be expen
 
 ## How IBM Bob was used
 
-IBM Bob is the required primary development tool for Ghost Audience. The repository preserves verifiable Bob activity under `docs/bob/`, including:
+IBM Bob is the required primary development tool for Ghost Audience. Before submission, the project owner must preserve genuine, verifiable Bob activity under `docs/BOB/`, including:
 
 - architecture review;
 - repository bootstrap;

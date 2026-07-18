@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
+    "outDir": "./dist/types/worker",
     "types": ["@cloudflare/workers-types", "vite/client"],
     "lib": ["ES2023", "WebWorker"]
   },

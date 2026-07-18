@@ -25,6 +25,7 @@
     "check:placeholders": "node tools/repository/check-placeholders.mjs",
     "check:future-keys": "node tools/repository/verify-no-future-keys.mjs",
     "check:fixtures": "node tools/repository/verify-fixture-manifests.mjs",
+    "extract:blueprint": "node tools/repository/extract-blueprint.mjs",
     "check": "pnpm check:placeholders && pnpm check:future-keys && pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm check:dead-code && pnpm test",
     "ci": "pnpm install --frozen-lockfile && pnpm check && pnpm build",
     "prepare": "simple-git-hooks"
@@ -36,7 +37,7 @@
     "knip": "6.27.0",
     "lint-staged": "17.0.8",
     "simple-git-hooks": "2.13.1",
-    "typescript": "7.0.2"
+    "typescript": "6.0.3"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged",

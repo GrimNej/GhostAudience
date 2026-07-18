@@ -4,6 +4,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+.playwright-cli/
 .wrangler/
 .dev.vars
 .dev.vars.*
@@ -21,6 +22,7 @@ __pycache__/
 *.pyc
 tools/**/.venv/
 tools/**/.python-version
+tools/evaluation/.coverage
 apps/studio/.wrangler/
 docs/model-evaluation/raw-private/
 docs/submission/private/

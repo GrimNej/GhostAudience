@@ -17,18 +17,43 @@
     }
   ],
   "vars": {
-    "ENVIRONMENT": "production",
-    "PROVIDER_MODE": "live",
-    "WATSONX_BASE_URL": "https://us-south.ml.cloud.ibm.com",
-    "WATSONX_API_VERSION": "2024-10-08",
-    "WATSONX_MODEL_ID": "ibm/granite-4-h-small",
-    "ALLOWED_ORIGINS": "https://REPLACE_WITH_DEPLOYED_ORIGIN",
+    "ENVIRONMENT": "development",
+    "PROVIDER_MODE": "fixture",
+    "ALLOWED_ORIGINS": "http://127.0.0.1:4173,http://localhost:4173",
     "RATE_LIMIT_WINDOW_SECONDS": "600",
     "RATE_LIMIT_MAX_REQUESTS": "30",
     "DAILY_REQUEST_LIMIT": "150",
     "MONTHLY_TOKEN_ALLOWANCE": "300000",
     "TOKEN_BUDGET_HARD_STOP": "240000",
-    "FIXTURE_MODE_AVAILABLE": "true"
+    "FIXTURE_MODE_AVAILABLE": "true",
+    "RATE_LIMIT_SALT": "local-fixture-rate-limit-salt-not-for-production",
+    "SESSION_SIGNING_SECRET": "local-fixture-session-secret-not-for-production"
+  },
+  "env": {
+    "production": {
+      "d1_databases": [
+        {
+          "binding": "CONTROL_DB",
+          "database_name": "ghost-audience-control",
+          "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+          "migrations_dir": "../../migrations"
+        }
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+        "PROVIDER_MODE": "live",
+        "WATSONX_BASE_URL": "https://us-south.ml.cloud.ibm.com",
+        "WATSONX_API_VERSION": "2024-10-08",
+        "WATSONX_MODEL_ID": "ibm/granite-4-h-small",
+        "ALLOWED_ORIGINS": "https://REPLACE_WITH_DEPLOYED_ORIGIN",
+        "RATE_LIMIT_WINDOW_SECONDS": "600",
+        "RATE_LIMIT_MAX_REQUESTS": "30",
+        "DAILY_REQUEST_LIMIT": "150",
+        "MONTHLY_TOKEN_ALLOWANCE": "300000",
+        "TOKEN_BUDGET_HARD_STOP": "240000",
+        "FIXTURE_MODE_AVAILABLE": "true"
+      }
+    }
   },
   "observability": {
     "enabled": true,

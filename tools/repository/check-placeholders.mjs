@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { extname, join, relative } from "node:path";
 import process from "node:process";
 
@@ -17,7 +17,11 @@ const INCLUDED_EXTENSIONS = new Set([
 
 const EXCLUDED_DIRECTORIES = new Set([
   ".git",
+  ".mypy_cache",
   ".pnpm-store",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".playwright-cli",
   ".venv",
   ".wrangler",
   "coverage",
@@ -37,9 +41,7 @@ const FORBIDDEN_PATTERNS = [
   /@ts-nocheck/u,
 ];
 
-const ALLOWED_FILES = new Set([
-  "tools/repository/check-placeholders.mjs",
-]);
+const ALLOWED_FILES = new Set(["tools/repository/check-placeholders.mjs"]);
 
 async function collectFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -93,5 +95,5 @@ if (violations.length > 0) {
   }
   process.exitCode = 1;
 } else {
-  console.log("Placeholder scan passed.");
+  process.stdout.write("Placeholder scan passed.\n");
 }
