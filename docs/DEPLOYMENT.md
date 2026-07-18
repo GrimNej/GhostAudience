@@ -23,7 +23,7 @@ When changing `PROVIDER_MODE` from `fixture` to `live`, also set `WATSONX_API_KE
 Update `ALLOWED_ORIGINS` in the production section of `apps/studio/wrangler.jsonc` to the exact deployed HTTPS origin. The app's tracked `.env.production` selects the production Cloudflare environment during the Vite build; do not add `--env production` to the deployment command. Then apply the D1 migration remotely and deploy:
 
 ```powershell
-pnpm exec wrangler d1 migrations apply CONTROL_DB --env production
+pnpm exec wrangler d1 migrations apply CONTROL_DB --env production --remote
 pnpm deploy
 ```
 
