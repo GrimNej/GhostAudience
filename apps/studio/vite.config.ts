@@ -14,7 +14,12 @@ export default defineConfig(({ mode }) => {
       ...(isTest
         ? []
         : [
-            cloudflare(),
+            cloudflare({
+              // Development and browser tests use the fixture provider, so every
+              // binding stays local. Production bindings are resolved by Wrangler
+              // during deployment and never need to be exposed to CI.
+              remoteBindings: false,
+            }),
             VitePWA({
               registerType: "prompt",
               injectRegister: "auto",
