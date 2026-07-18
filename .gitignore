@@ -11,7 +11,7 @@ test-results/
 .env
 .env.*
 !.env.example
-!apps/studio/.env.production
+!apps/studio/.env.cloudflare-production
 !apps/studio/.dev.vars.example
 *.tsbuildinfo
 .DS_Store

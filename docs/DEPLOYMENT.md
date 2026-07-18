@@ -20,7 +20,7 @@ pnpm exec wrangler secret put SESSION_SIGNING_SECRET --env production
 
 When changing `PROVIDER_MODE` from `fixture` to `live`, also set `WATSONX_API_KEY` and `WATSONX_PROJECT_ID` as production secrets and confirm the configured Granite model is available to that watsonx.ai project.
 
-Update `ALLOWED_ORIGINS` in the production section of `apps/studio/wrangler.jsonc` to the exact deployed HTTPS origin. The app's tracked `.env.production` selects the production Cloudflare environment during the Vite build; do not add `--env production` to the deployment command. Then apply the D1 migration remotely and deploy:
+Update `ALLOWED_ORIGINS` in the production section of `apps/studio/wrangler.jsonc` to the exact deployed HTTPS origin. The app's tracked `.env.cloudflare-production` selects the production Cloudflare environment only for the deployment build; do not add `--env production` to the deployment command. Then apply the D1 migration remotely and deploy:
 
 ```powershell
 pnpm exec wrangler d1 migrations apply CONTROL_DB --env production --remote
