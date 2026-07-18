@@ -31,7 +31,7 @@ After steps 1 and 2, Codex will:
 
 1. Generate and store the two Worker secrets without exposing them in Git.
 2. Apply `migrations/0001_rate_limits.sql` to the configured D1 database.
-3. Deploy the validated fixture-mode Worker at `https://ghost-audience.ginejneupane123.workers.dev`.
+3. Deploy the validated fixture-mode Worker at `https://ghost-audience-production.ginejneupane123.workers.dev`.
 4. Verify health, capability, security-header, and browser smoke endpoints.
 5. Commit and push the final deployment configuration and verification record.
 

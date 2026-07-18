@@ -4,6 +4,7 @@
   "main": "./worker/index.ts",
   "compatibility_date": "2026-07-18",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
   "assets": {
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
@@ -43,7 +44,7 @@
         "WATSONX_BASE_URL": "https://us-south.ml.cloud.ibm.com",
         "WATSONX_API_VERSION": "2024-10-08",
         "WATSONX_MODEL_ID": "ibm/granite-4-h-small",
-        "ALLOWED_ORIGINS": "https://ghost-audience.ginejneupane123.workers.dev",
+        "ALLOWED_ORIGINS": "https://ghost-audience-production.ginejneupane123.workers.dev",
         "RATE_LIMIT_WINDOW_SECONDS": "600",
         "RATE_LIMIT_MAX_REQUESTS": "30",
         "DAILY_REQUEST_LIMIT": "150",
