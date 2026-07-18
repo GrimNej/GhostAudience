@@ -8,7 +8,6 @@ const validInput = {
   requestId: "request_00000001",
   idempotencyKey: hash,
   runId: "run_00000001",
-  scriptHash: hash,
   currentOrdinal: 0,
   priorPrefixHash: hash,
   expectedNextPrefixHash: hash,
@@ -22,16 +21,13 @@ const validInput = {
     processedThroughOrdinal: -1,
     facts: [],
     assumptions: [],
-    compactNarrativeState:
-      "No information has been revealed.",
+    compactNarrativeState: "No information has been revealed.",
   },
-  intentContract: {
-    requiredKnowledge: [],
-    desiredQuestions: [],
-    forbiddenAssumptions: [],
-    intentionalMysteries: [],
-    intendedEmotionalDirection: null,
-    desiredUnresolvedQuestions: [],
+  analysisPolicy: {
+    preservePlausibleAmbiguity: true,
+    avoidAudienceProbabilities: true,
+    requireEvidence: true,
+    ignoreExternalStoryKnowledge: true,
   },
   activeQuestions: [],
   limits: {
@@ -42,9 +38,7 @@ const validInput = {
 
 describe("StepAnalysisInputSchema", () => {
   it("accepts the legal no-hindsight shape", () => {
-    expect(
-      StepAnalysisInputSchema.parse(validInput),
-    ).toEqual(validInput);
+    expect(StepAnalysisInputSchema.parse(validInput)).toEqual(validInput);
   });
 
   it.each([
@@ -54,6 +48,8 @@ describe("StepAnalysisInputSchema", () => {
     "ending",
     "globalSummary",
     "futureCharacters",
+    "scriptHash",
+    "intentContract",
   ])("rejects forbidden extra key %s", (key) => {
     expect(() =>
       StepAnalysisInputSchema.parse({

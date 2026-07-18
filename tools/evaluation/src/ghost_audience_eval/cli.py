@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Annotated, TypeVar
+from typing import Annotated
 
 import typer
 from pydantic import TypeAdapter
@@ -20,19 +20,12 @@ app = typer.Typer(
 console = Console()
 
 
-T = TypeVar("T")
-
-
-def _read_model(
+def _read_model[T](
     path: Path,
     model_type: type[T],
 ) -> T:
-    payload = json.loads(
-        path.read_text(encoding="utf-8")
-    )
-    return TypeAdapter(model_type).validate_python(
-        payload
-    )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return TypeAdapter(model_type).validate_python(payload)
 
 
 @app.command()
@@ -64,16 +57,12 @@ def score(
     )
 
     if fixture.fixture_id != run.fixture_id:
-        raise typer.BadParameter(
-            "Fixture IDs do not match."
-        )
+        raise typer.BadParameter("Fixture IDs do not match.")
 
     metrics = calculate_metrics(fixture, run)
     gates = evaluate_gates(metrics)
 
-    table = Table(
-        title=f"Evaluation: {fixture.fixture_id}"
-    )
+    table = Table(title=f"Evaluation: {fixture.fixture_id}")
     table.add_column("Metric")
     table.add_column("Value", justify="right")
     table.add_row(
@@ -104,9 +93,7 @@ def score(
 
     if not gates.passed:
         for failure in gates.failures:
-            console.print(
-                f"[red]FAIL[/red] {failure}"
-            )
+            console.print(f"[red]FAIL[/red] {failure}")
         raise typer.Exit(code=1)
 
     console.print("[green]PASS[/green]")

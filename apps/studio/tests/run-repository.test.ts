@@ -5,12 +5,7 @@ import {
   runId,
   segmentId,
 } from "@ghost-audience/domain";
-import {
-  afterEach,
-  describe,
-  expect,
-  it,
-} from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { GhostAudienceDatabase } from "../src/infrastructure/db/database";
 import { RunRepository } from "../src/infrastructure/db/run-repository";
 
@@ -42,9 +37,7 @@ describe("RunRepository", () => {
   });
 
   it("commits the accepted step atomically and replays a duplicate before cursor validation", async () => {
-    const database = new GhostAudienceDatabase(
-      `test-${crypto.randomUUID()}`,
-    );
+    const database = new GhostAudienceDatabase(`test-${crypto.randomUUID()}`);
     databases.push(database);
     const repository = new RunRepository(database);
     const now = new Date().toISOString();
@@ -124,9 +117,7 @@ describe("RunRepository", () => {
   });
 
   it("rejects a stale fencing token", async () => {
-    const database = new GhostAudienceDatabase(
-      `test-${crypto.randomUUID()}`,
-    );
+    const database = new GhostAudienceDatabase(`test-${crypto.randomUUID()}`);
     databases.push(database);
     const repository = new RunRepository(database);
     const created = await repository.create({
@@ -170,5 +161,42 @@ describe("RunRepository", () => {
         now: new Date().toISOString(),
       }),
     ).rejects.toThrow(/fence/iu);
+  });
+
+  it("records terminal and failed statuses while rejecting a missing run", async () => {
+    const database = new GhostAudienceDatabase(`test-${crypto.randomUUID()}`);
+    databases.push(database);
+    const repository = new RunRepository(database);
+    const created = await repository.create({
+      projectId: "project_00000003",
+      scriptId: "script_00000003",
+      scriptHash: hash,
+      segmentManifestHash: manifestHash,
+      intentSnapshot: EMPTY_INTENT_CONTRACT,
+      prefixHashes: [hash],
+      providerMode: "fixture",
+      modelId: "fixture-v1",
+      promptVersion: "fixture-v1",
+      now: "2026-07-18T00:00:00.000Z",
+    });
+
+    await repository.setStatus(created.id, "completed", "2026-07-18T00:01:00.000Z");
+    expect((await database.runs.get(created.id))?.completedAt).toBe(
+      "2026-07-18T00:01:00.000Z",
+    );
+
+    await repository.setStatus(created.id, "failed", "2026-07-18T00:02:00.000Z", {
+      code: "NETWORK",
+      message: "Temporary network interruption.",
+    });
+    expect(await database.runs.get(created.id)).toMatchObject({
+      completedAt: null,
+      failureCode: "NETWORK",
+      failureMessage: "Temporary network interruption.",
+    });
+
+    await expect(
+      repository.setStatus("run_missing", "ready", "2026-07-18T00:03:00.000Z"),
+    ).rejects.toThrow(/does not exist/iu);
   });
 });

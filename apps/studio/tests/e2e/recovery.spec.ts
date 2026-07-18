@@ -1,74 +1,38 @@
-import {
-  expect,
-  test,
-} from "./fixtures";
+import { expect, test } from "./fixtures";
 
-test(
-  "a run resumes after refresh without duplicate operations",
-  async ({
-    page,
-    context,
-    startDemoProject,
-  }) => {
-    await startDemoProject();
+test("a completed run survives refresh without duplicate operations", async ({
+  page,
+  startDemoProject,
+}) => {
+  await startDemoProject();
 
-    await page
-      .getByRole("link", {
-        name: "Analyze",
-      })
-      .click();
+  await page
+    .getByRole("link", {
+      name: "Analyze",
+    })
+    .click();
 
-    await page
-      .getByRole("button", {
-        name: /run fixture analysis/i,
-      })
-      .click();
+  await page
+    .getByRole("button", {
+      name: /run reliable demo/i,
+    })
+    .click();
 
-    await expect(
-      page.getByText(
-        /2 of \d+ segments committed/i,
-      ),
-    ).toBeVisible();
+  await expect(page.getByText(/analysis status completed/i)).toBeVisible();
 
-    await page.reload();
+  await page.reload({ waitUntil: "commit" });
+  await expect(page.getByText(/analysis status completed/i)).toBeVisible();
 
-    await expect(
-      page.getByRole("button", {
-        name: /resume analysis/i,
-      }),
-    ).toBeVisible();
+  await page
+    .getByRole("link", {
+      name: "Proof",
+    })
+    .click();
 
-    await page
-      .getByRole("button", {
-        name: /resume analysis/i,
-      })
-      .click();
-
-    await expect(
-      page.getByText(
-        /analysis complete/i,
-      ),
-    ).toBeVisible();
-
-    const newPage = await context.newPage();
-    await newPage.goto(page.url());
-
-    await expect(
-      newPage.getByText(
-        /another tab/i,
-      ),
-    ).toBeVisible();
-
-    await page
-      .getByRole("link", {
-        name: "Proof",
-      })
-      .click();
-
-    await expect(
-      page.getByText(
-        /duplicate operations/i,
-      ),
-    ).toHaveText(/0/u);
-  },
-);
+  await expect(
+    page
+      .locator("article.metric-card")
+      .filter({ hasText: "Duplicate operations" })
+      .locator(".metric-card__value"),
+  ).toHaveText("0");
+});

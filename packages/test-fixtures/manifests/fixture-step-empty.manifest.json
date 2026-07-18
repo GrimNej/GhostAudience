@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "fixtureId": "fixture-step-empty",
+  "mode": "fixture",
+  "inputSha256": "722d4e752f83d44c69ed4f9ee52044c99cfc1adb9f9c2d91ff3d3d7efa9ecccd",
+  "responseSha256": "061564754404cccef1cab4a74d35148e08dec4970efb9e7c06df5765d4f0fd0c",
+  "promptVersion": "fixture-v1",
+  "modelId": "fixture-v1",
+  "generatedAt": "2026-07-18T00:00:00Z",
+  "reviewedBy": "repository-fixture-gate",
+  "validationPassed": true
+}

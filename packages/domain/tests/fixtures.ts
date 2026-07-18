@@ -1,10 +1,10 @@
 import {
+  type AudienceQuestionDraft,
   operationId,
   questionId,
   runId,
-  segmentId,
-  type AudienceQuestionDraft,
   type ScriptSegment,
+  segmentId,
 } from "../src/index.js";
 
 export const SEGMENT: ScriptSegment = {
@@ -21,8 +21,7 @@ export const SEGMENT: ScriptSegment = {
 export const QUESTION_DRAFT: AudienceQuestionDraft = {
   id: questionId("question_00000001"),
   runId: runId("run_00000001"),
-  semanticKey:
-    "motivation|mira|recognizes|house",
+  semanticKey: "motivation|mira|recognizes|house",
   text: "Why does Mira appear to recognize the house?",
   kind: "motivation",
   severity: "curiosity",
@@ -36,8 +35,7 @@ export const QUESTION_DRAFT: AudienceQuestionDraft = {
       quote: SEGMENT.text,
     },
   ],
-  rationale:
-    "Her reaction implies prior experience that has not been explained.",
+  rationale: "Her reaction implies prior experience that has not been explained.",
   minimalClarification: null,
 };
 

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "requestId": "request_fixture_0001",
+  "idempotencyKey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "runId": "run_fixture_0001",
+  "currentOrdinal": 0,
+  "priorPrefixHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "expectedNextPrefixHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "currentSegment": {
+    "id": "segment_fixture_0001",
+    "heading": "Opening",
+    "text": "Not again.",
+    "sha256": "403e9acdf51cc70cb8441dec945fd06bc7b6b58b1e57e6211383a321d14a3d12"
+  },
+  "priorAudienceState": {
+    "processedThroughOrdinal": -1,
+    "facts": [],
+    "assumptions": [],
+    "compactNarrativeState": "No narrative information has been revealed yet."
+  },
+  "activeQuestions": [],
+  "analysisPolicy": {
+    "preservePlausibleAmbiguity": true,
+    "avoidAudienceProbabilities": true,
+    "requireEvidence": true,
+    "ignoreExternalStoryKnowledge": true
+  },
+  "limits": {
+    "maxNewQuestions": 3,
+    "maxOperations": 8
+  }
+}

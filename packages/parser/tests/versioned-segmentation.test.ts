@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { sha256 } from "../src/hash.js";
-import { buildSegments } from "../src/segment.js";
 import { parseScript } from "../src/index.js";
+import { buildSegments } from "../src/segment.js";
 
-const source = [
-  "Alpha one two three four five.",
-  "Beta one two three four five.",
-].join("\n\n");
+const source = ["Alpha one two three four five.", "Beta one two three four five."].join(
+  "\n\n",
+);
 
 const sections = [
   {
@@ -33,12 +32,8 @@ describe("immutable script versions", () => {
       hardMaximumWords: 8,
       maximumUtf8Bytes: 9_000,
     });
-    expect(oneChunk.scriptVersionId).not.toBe(
-      splitChunks.scriptVersionId,
-    );
-    expect(oneChunk.segmentManifestHash).not.toBe(
-      splitChunks.segmentManifestHash,
-    );
+    expect(oneChunk.scriptVersionId).not.toBe(splitChunks.scriptVersionId);
+    expect(oneChunk.segmentManifestHash).not.toBe(splitChunks.segmentManifestHash);
   });
 
   it("creates unique IDs for duplicate segment text", async () => {
@@ -48,10 +43,9 @@ describe("immutable script versions", () => {
       text: "# One\nSame text.\n\n# Two\nSame text.",
       now: "2026-07-18T00:00:00.000Z",
     });
-    expect(
-      new Set(parsed.segments.map((segment) => segment.id))
-        .size,
-    ).toBe(parsed.segments.length);
+    expect(new Set(parsed.segments.map((segment) => segment.id)).size).toBe(
+      parsed.segments.length,
+    );
   });
 
   it("round trips every evidence slice to normalized source", async () => {
@@ -63,10 +57,7 @@ describe("immutable script versions", () => {
     });
     for (const segment of parsed.segments) {
       expect(
-        parsed.normalizedText.slice(
-          segment.globalStartOffset,
-          segment.globalEndOffset,
-        ),
+        parsed.normalizedText.slice(segment.globalStartOffset, segment.globalEndOffset),
       ).toBe(segment.text);
     }
   });

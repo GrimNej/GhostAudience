@@ -8,14 +8,9 @@ import { SEGMENT } from "./fixtures.js";
 
 describe("evidence validation", () => {
   it("accepts an exact quote and offset", () => {
-    const span = locateUniqueEvidenceQuote(
-      SEGMENT,
-      "Not again.",
-    );
+    const span = locateUniqueEvidenceQuote(SEGMENT, "Not again.");
 
-    expect(() =>
-      validateEvidenceSpan(span, SEGMENT),
-    ).not.toThrow();
+    expect(() => validateEvidenceSpan(span, SEGMENT)).not.toThrow();
   });
 
   it("rejects a mismatching quote", () => {
@@ -39,8 +34,8 @@ describe("evidence validation", () => {
       globalEndOffset: 11,
     };
 
-    expect(() =>
-      locateUniqueEvidenceQuote(segment, "Wait."),
-    ).toThrow(EvidenceValidationError);
+    expect(() => locateUniqueEvidenceQuote(segment, "Wait.")).toThrow(
+      EvidenceValidationError,
+    );
   });
 });
