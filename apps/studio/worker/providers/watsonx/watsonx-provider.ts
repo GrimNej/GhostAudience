@@ -41,6 +41,23 @@ function validationMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown validation failure.";
 }
 
+function assertUsefulStepOutput(output: StepAnalysisOutput): void {
+  const additions =
+    output.factsAdded.length +
+    output.assumptionsAdded.length +
+    output.assumptionUpdates.length +
+    output.questionOperations.length;
+
+  if (additions === 0) {
+    throw new ApiError(
+      "MODEL_OUTPUT_INVALID",
+      502,
+      "The model returned an empty audience state for a non-empty segment.",
+      false,
+    );
+  }
+}
+
 export class WatsonxProvider implements NarrativeModelProvider {
   public readonly providerId = "watsonx";
   public constructor(private readonly config: LiveRuntimeConfig) {}
@@ -64,11 +81,13 @@ export class WatsonxProvider implements NarrativeModelProvider {
     );
 
     try {
+      const output = validateStepOutput(
+        input,
+        normalizeStepOutput(input, parseJsonContent(first.content)),
+      );
+      assertUsefulStepOutput(output);
       return {
-        output: validateStepOutput(
-          input,
-          normalizeStepOutput(input, parseJsonContent(first.content)),
-        ),
+        output,
         usage: usageOf(first),
       };
     } catch (firstError: unknown) {
@@ -93,6 +112,7 @@ export class WatsonxProvider implements NarrativeModelProvider {
           input,
           normalizeStepOutput(input, parseJsonContent(repaired.content)),
         );
+        assertUsefulStepOutput(output);
         const totalTokens = (first.totalTokens ?? 0) + (repaired.totalTokens ?? 0);
         return {
           output,
