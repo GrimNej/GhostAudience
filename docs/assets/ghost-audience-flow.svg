@@ -2,132 +2,109 @@
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 1280 300"
   role="img"
-  aria-labelledby="title description"
+  aria-labelledby="gtitle gdesc"
 >
-  <title id="title">Ghost Audience — no-hindsight analysis flow</title>
-  <desc id="description">
-    An animated flow in warm forest tones showing how Ghost Audience processes creator text
-    segment by segment, each step seeing only what the audience has read so far.
-  </desc>
+  <title id="gtitle">Ghost Audience no-hindsight analysis flow</title>
+  <desc id="gdesc">Animated flow showing how Ghost Audience processes creator text segment by segment, each step seeing only what the audience has read so far.</desc>
   <defs>
-    <linearGradient id="flowBg" x1="0" y1="0" x2="1280" y2="300" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0f1a17" />
-      <stop offset="1" stop-color="#1a2b27" />
+    <linearGradient id="flowBg" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#0f1a17"/>
+      <stop offset="1" stop-color="#1a2b27"/>
     </linearGradient>
-    <!-- Warm signal: teal → violet → coral -->
-    <linearGradient id="flowSignal" x1="105" y1="0" x2="1175" y2="0" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#6fc5b9" />
-      <stop offset=".3"  stop-color="#a08de0" />
-      <stop offset=".7"  stop-color="#ec6f55" />
-      <stop offset="1"   stop-color="#efb860" />
-    </linearGradient>
-    <filter id="flowGlow" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
-      <feMerge>
-        <feMergeNode in="blur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
     <style>
-      .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
-      .mono  { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-      .sans  { font-family: Aptos, Inter, "Segoe UI", system-ui, sans-serif; }
-      .edge  { stroke-dasharray: 8 10; animation: edge 11s linear infinite; }
-      .ring  { animation: ring 2.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
-      .ring2 { animation: ring 2.6s ease-out infinite; animation-delay: -0.9s; transform-box: fill-box; transform-origin: center; }
-      .ring3 { animation: ring 2.6s ease-out infinite; animation-delay: -1.8s; transform-box: fill-box; transform-origin: center; }
-      @keyframes edge { to { stroke-dashoffset: -180; } }
-      @keyframes ring {
-        0%,  20% { opacity: .55; transform: scale(.45); }
-        80%, 100% { opacity: 0;  transform: scale(1.45); }
-      }
-      @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+      .serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+      .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+      .sans{font-family:Aptos,Inter,"Segoe UI",system-ui,sans-serif}
     </style>
   </defs>
 
   <!-- Background -->
-  <rect width="1280" height="300" rx="24" fill="url(#flowBg)" />
-  <rect x="1" y="1" width="1278" height="298" rx="23"
-    fill="none" stroke="#f5f2e9" stroke-opacity=".08" stroke-width="2" />
+  <rect width="1280" height="300" rx="24" fill="url(#flowBg)"/>
+  <rect x="1" y="1" width="1278" height="298" rx="23" fill="none" stroke="#f5f2e9" stroke-opacity=".08" stroke-width="2"/>
 
-  <!-- Header labels -->
+  <!-- Header -->
   <text x="48" y="47" class="mono" fill="#6fc5b9" font-size="10" letter-spacing="1.8">FROM CREATOR TEXT TO EVIDENCE REPORT — SEGMENT BY SEGMENT</text>
   <text x="1232" y="47" class="mono" fill="#53605c" font-size="8" text-anchor="end">FUTURE TEXT STRUCTURALLY ABSENT</text>
 
-  <!-- Animated flow line -->
-  <path id="mf" d="M120 154 H1160" fill="none" stroke="url(#flowSignal)" stroke-width="2" class="edge" />
-  <!-- Travelling dots -->
-  <circle r="7" fill="#f5f1e8" filter="url(#flowGlow)">
-    <animateMotion dur="7.2s" repeatCount="indefinite"><mpath href="#mf" /></animateMotion>
+  <!-- Animated flow line (SMIL stroke-dashoffset) -->
+  <path d="M120 154H1160" fill="none" stroke="#3a6b5f" stroke-width="2" stroke-opacity=".6" stroke-dasharray="8 10">
+    <animate attributeName="stroke-dashoffset" from="0" to="-180" dur="11s" repeatCount="indefinite"/>
+  </path>
+  <!-- Travelling dot (animateTransform translate — safe SMIL) -->
+  <circle r="6" fill="#f5f1e8">
+    <animateTransform attributeName="transform" type="translate"
+      values="120 154;640 154;1160 154"
+      dur="7.2s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.5;1"/>
   </circle>
-  <circle r="5" fill="#ec6f55" filter="url(#flowGlow)">
-    <animateMotion dur="7.2s" begin="-2.4s" repeatCount="indefinite"><mpath href="#mf" /></animateMotion>
+  <circle r="4" fill="#ec6f55">
+    <animateTransform attributeName="transform" type="translate"
+      values="640 154;1160 154;120 154"
+      dur="7.2s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.33;1"/>
   </circle>
-  <circle r="4" fill="#6fc5b9" filter="url(#flowGlow)">
-    <animateMotion dur="7.2s" begin="-4.8s" repeatCount="indefinite"><mpath href="#mf" /></animateMotion>
+  <circle r="4" fill="#6fc5b9">
+    <animateTransform attributeName="transform" type="translate"
+      values="1160 154;120 154;640 154"
+      dur="7.2s" repeatCount="indefinite" calcMode="linear" keyTimes="0;0.66;1"/>
   </circle>
 
-  <!-- ── Step 01: Creator input ── -->
-  <g transform="translate(120 154)">
-    <circle r="36" fill="#172b25" stroke="#6fc5b9" stroke-opacity=".65" />
-    <circle r="46" fill="none" stroke="#6fc5b9" stroke-opacity=".2" class="ring" />
-    <!-- Pencil / page icon -->
-    <path d="M-9-11h18M-9-3h14M-9 5h16M-9 13h10" stroke="#6fc5b9" stroke-width="2.5" stroke-linecap="round" />
-    <text y="72" class="mono" fill="#6fc5b9" font-size="8" text-anchor="middle" letter-spacing="1">01 / INPUT</text>
-    <text y="91" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">Creator text</text>
-    <text y="108" class="sans"  fill="#53605c" font-size="9" text-anchor="middle">Paste or import file</text>
-  </g>
+  <!-- Step 01: Creator input -->
+  <circle cx="120" cy="154" r="36" fill="#172b25" stroke="#6fc5b9" stroke-width="2" stroke-opacity=".65"/>
+  <circle cx="120" cy="154" r="46" fill="none" stroke="#6fc5b9" stroke-width="1.5" stroke-opacity=".18">
+    <animate attributeName="r" values="40;50;40" dur="2.6s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-opacity" values=".4;0;.4" dur="2.6s" repeatCount="indefinite"/>
+  </circle>
+  <path d="M111 143h18M111 151h14M111 159h16M111 167h10" stroke="#6fc5b9" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="120" y="226" class="mono" fill="#6fc5b9" font-size="8" text-anchor="middle" letter-spacing="1">01 / INPUT</text>
+  <text x="120" y="245" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">Creator text</text>
+  <text x="120" y="262" class="sans" fill="#53605c" font-size="9" text-anchor="middle">Paste or import file</text>
 
-  <!-- ── Step 02: Auto-segment ── -->
-  <g transform="translate(384 154)">
-    <circle r="36" fill="#1e1a2e" stroke="#a08de0" stroke-opacity=".72" />
-    <circle r="46" fill="none" stroke="#a08de0" stroke-opacity=".2" class="ring2" />
-    <!-- Segment/split icon -->
-    <path d="M-14 0h10M4 0h10" stroke="#a08de0" stroke-width="2.5" stroke-linecap="round" />
-    <path d="M0-12v8M0 4v8"    stroke="#a08de0" stroke-width="2.5" stroke-linecap="round" />
-    <circle r="5" fill="none" stroke="#a08de0" stroke-width="2" />
-    <text y="72" class="mono" fill="#a08de0" font-size="8" text-anchor="middle" letter-spacing="1">02 / SEGMENT</text>
-    <text y="91" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">Auto-split</text>
-    <text y="108" class="sans"  fill="#53605c" font-size="9" text-anchor="middle">Bounded chunks, ordered</text>
-  </g>
+  <!-- Step 02: Auto-segment -->
+  <circle cx="384" cy="154" r="36" fill="#1e1a2e" stroke="#a08de0" stroke-width="2" stroke-opacity=".72"/>
+  <circle cx="384" cy="154" r="46" fill="none" stroke="#a08de0" stroke-width="1.5" stroke-opacity=".18">
+    <animate attributeName="r" values="40;50;40" dur="2.6s" begin="-0.9s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-opacity" values=".4;0;.4" dur="2.6s" begin="-0.9s" repeatCount="indefinite"/>
+  </circle>
+  <path d="M370 154h10M388 154h10" stroke="#a08de0" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M384 142v8M384 158v8" stroke="#a08de0" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="384" cy="154" r="5" fill="none" stroke="#a08de0" stroke-width="2"/>
+  <text x="384" y="226" class="mono" fill="#a08de0" font-size="8" text-anchor="middle" letter-spacing="1">02 / SEGMENT</text>
+  <text x="384" y="245" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">Auto-split</text>
+  <text x="384" y="262" class="sans" fill="#53605c" font-size="9" text-anchor="middle">Bounded chunks, ordered</text>
 
-  <!-- ── Step 03: Bounded analysis (core, largest ring) ── -->
-  <g transform="translate(640 154)">
-    <circle r="38" fill="#271a12" stroke="#ec6f55" stroke-opacity=".78" />
-    <circle r="50" fill="none" stroke="#ec6f55" stroke-opacity=".2" class="ring3" />
-    <!-- Blocked-eye / no-hindsight icon -->
-    <ellipse rx="13" ry="8" fill="none" stroke="#ec6f55" stroke-width="2.5" />
-    <circle r="4.5" fill="#ec6f55" />
-    <!-- "Future blocked" strikethrough -->
-    <path d="M15-14L22-7M17-7L24-14" stroke="#ec6f55" stroke-opacity=".55" stroke-width="2" stroke-linecap="round" />
-    <text y="72" class="mono" fill="#ec6f55" font-size="8" text-anchor="middle" letter-spacing="1">03 / ANALYSE</text>
-    <text y="91" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">Bounded view only</text>
-    <text y="108" class="sans"  fill="#53605c" font-size="9" text-anchor="middle">IBM watsonx.ai · no future text</text>
-  </g>
+  <!-- Step 03: Bounded analysis (largest) -->
+  <circle cx="640" cy="154" r="38" fill="#271a12" stroke="#ec6f55" stroke-width="2.5" stroke-opacity=".78"/>
+  <circle cx="640" cy="154" r="50" fill="none" stroke="#ec6f55" stroke-width="1.5" stroke-opacity=".2">
+    <animate attributeName="r" values="44;56;44" dur="2.6s" begin="-1.8s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-opacity" values=".4;0;.4" dur="2.6s" begin="-1.8s" repeatCount="indefinite"/>
+  </circle>
+  <ellipse cx="640" cy="154" rx="13" ry="8" fill="none" stroke="#ec6f55" stroke-width="2.5"/>
+  <circle cx="640" cy="154" r="4.5" fill="#ec6f55"/>
+  <path d="M655 140L662 147M657 147L664 140" stroke="#ec6f55" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>
+  <text x="640" y="226" class="mono" fill="#ec6f55" font-size="8" text-anchor="middle" letter-spacing="1">03 / ANALYSE</text>
+  <text x="640" y="245" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">Bounded view only</text>
+  <text x="640" y="262" class="sans" fill="#53605c" font-size="9" text-anchor="middle">IBM watsonx.ai · no future text</text>
 
-  <!-- ── Step 04: Audience state accumulates ── -->
-  <g transform="translate(896 154)">
-    <circle r="36" fill="#1a1f18" stroke="#efb860" stroke-opacity=".65" />
-    <circle r="46" fill="none" stroke="#efb860" stroke-opacity=".2" class="ring" />
-    <!-- Layered stack icon -->
-    <rect x="-12" y="-14" width="24" height="8" rx="2.5" fill="#2e2d1a" stroke="#efb860" stroke-opacity=".6" stroke-width="1.5" />
-    <rect x="-12" y="-4"  width="24" height="8" rx="2.5" fill="#252415" stroke="#efb860" stroke-opacity=".4" stroke-width="1.5" />
-    <rect x="-12" y="6"   width="24" height="8" rx="2.5" fill="#1e1c10" stroke="#efb860" stroke-opacity=".25" stroke-width="1.5" />
-    <text y="72" class="mono" fill="#efb860" font-size="8" text-anchor="middle" letter-spacing="1">04 / ACCUMULATE</text>
-    <text y="91" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">State grows</text>
-    <text y="108" class="sans"  fill="#53605c" font-size="9" text-anchor="middle">Prior state feeds next segment</text>
-  </g>
+  <!-- Step 04: State accumulates -->
+  <circle cx="896" cy="154" r="36" fill="#1a1f18" stroke="#efb860" stroke-width="2" stroke-opacity=".65"/>
+  <circle cx="896" cy="154" r="46" fill="none" stroke="#efb860" stroke-width="1.5" stroke-opacity=".18">
+    <animate attributeName="r" values="40;50;40" dur="2.6s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-opacity" values=".4;0;.4" dur="2.6s" repeatCount="indefinite"/>
+  </circle>
+  <rect x="884" y="140" width="24" height="8" rx="2.5" fill="#2e2d1a" stroke="#efb860" stroke-opacity=".6" stroke-width="1.5"/>
+  <rect x="884" y="150" width="24" height="8" rx="2.5" fill="#252415" stroke="#efb860" stroke-opacity=".4" stroke-width="1.5"/>
+  <rect x="884" y="160" width="24" height="8" rx="2.5" fill="#1e1c10" stroke="#efb860" stroke-opacity=".25" stroke-width="1.5"/>
+  <text x="896" y="226" class="mono" fill="#efb860" font-size="8" text-anchor="middle" letter-spacing="1">04 / ACCUMULATE</text>
+  <text x="896" y="245" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">State grows</text>
+  <text x="896" y="262" class="sans" fill="#53605c" font-size="9" text-anchor="middle">Prior state feeds next segment</text>
 
-  <!-- ── Step 05: Evidence results ── -->
-  <g transform="translate(1160 154)">
-    <circle r="36" fill="#122820" stroke="#6fc5b9" stroke-opacity=".72" />
-    <circle r="46" fill="none" stroke="#6fc5b9" stroke-opacity=".2" class="ring2" />
-    <!-- Check mark -->
-    <path d="M-14 1-5 11 16-12"
-      fill="none" stroke="#6fc5b9" stroke-width="3.5"
-      stroke-linecap="round" stroke-linejoin="round" />
-    <text y="72" class="mono" fill="#6fc5b9" font-size="8" text-anchor="middle" letter-spacing="1">05 / RESULTS</text>
-    <text y="91" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">Evidence report</text>
-    <text y="108" class="sans"  fill="#53605c" font-size="9" text-anchor="middle">Questions · risks · intent review</text>
-  </g>
+  <!-- Step 05: Results -->
+  <circle cx="1160" cy="154" r="36" fill="#122820" stroke="#6fc5b9" stroke-width="2" stroke-opacity=".72"/>
+  <circle cx="1160" cy="154" r="46" fill="none" stroke="#6fc5b9" stroke-width="1.5" stroke-opacity=".18">
+    <animate attributeName="r" values="40;50;40" dur="2.6s" begin="-0.9s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-opacity" values=".4;0;.4" dur="2.6s" begin="-0.9s" repeatCount="indefinite"/>
+  </circle>
+  <path d="M1146 155L1155 165 1176 142" fill="none" stroke="#6fc5b9" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1160" y="226" class="mono" fill="#6fc5b9" font-size="8" text-anchor="middle" letter-spacing="1">05 / RESULTS</text>
+  <text x="1160" y="245" class="serif" fill="#f5f1e8" font-size="14" font-weight="600" text-anchor="middle">Evidence report</text>
+  <text x="1160" y="262" class="sans" fill="#53605c" font-size="9" text-anchor="middle">Questions · risks · intent review</text>
 </svg>

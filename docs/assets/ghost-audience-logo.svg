@@ -2,84 +2,36 @@
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 256 256"
   role="img"
-  aria-labelledby="title description"
+  aria-labelledby="gtitle gdesc"
 >
-  <title id="title">Ghost Audience logo</title>
-  <desc id="description">
-    A dark rotated square mark containing a speech-bubble question-mark icon,
-    with a coral accent dot — matching the in-product brand mark.
-  </desc>
+  <title id="gtitle">Ghost Audience logo</title>
+  <desc id="gdesc">A dark rotated square mark with a speech-bubble question-mark icon and a coral accent dot — matching the in-product brand mark.</desc>
   <defs>
-    <linearGradient id="frame" x1="32" y1="24" x2="224" y2="232" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1e2c29" />
-      <stop offset="1" stop-color="#0f1a17" />
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1e2c29"/>
+      <stop offset="1" stop-color="#0f1a17"/>
     </linearGradient>
-    <filter id="shadow" x="-25%" y="-25%" width="155%" height="155%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="9" result="blur" />
-      <feOffset dy="10" result="off" />
-      <feColorMatrix in="off" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.44 0" />
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
-      <feGaussianBlur stdDeviation="5" result="blur" />
-      <feMerge>
-        <feMergeNode in="blur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
   </defs>
 
-  <!-- Outer parchment ring to ground the mark -->
-  <circle cx="128" cy="128" r="104" fill="#f5f2e9" opacity=".08" />
+  <!-- Subtle outer ring to ground the mark -->
+  <circle cx="128" cy="128" r="104" fill="#f5f2e9" fill-opacity=".06"/>
 
-  <!-- The rotated square card (matches .brand__mark in CSS: border-radius 0.7rem 0.7rem 0.7rem 0.2rem, rotate -3deg) -->
-  <g transform="translate(128 128) rotate(-6)" filter="url(#shadow)">
-    <rect x="-72" y="-72" width="144" height="144"
-      rx="22" ry="22"
-      fill="url(#frame)"
-      stroke="#3d4f4a"
-      stroke-width="2.5"
-    />
-    <!-- Bottom-right corner sharper, matching the product's asymmetric radius -->
-    <!-- MessageCircleQuestion icon rendered as SVG paths (speech bubble + question mark) -->
+  <!-- Rotated card -->
+  <g transform="translate(128 128) rotate(-6)">
+    <rect x="-72" y="-72" width="144" height="144" rx="22" fill="url(#frame)" stroke="#3d4f4a" stroke-width="2.5"/>
+
     <!-- Speech bubble body -->
-    <path
-      d="M-24 -34
-         a14 14 0 0 1 14-14
-         h28
-         a14 14 0 0 1 14 14
-         v28
-         a14 14 0 0 1 -14 14
-         h-10
-         l-8 12
-         l-8 -12
-         h-2
-         a14 14 0 0 1 -14-14
-         Z"
-      fill="none"
-      stroke="#f5f2e9"
-      stroke-width="5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-    <!-- Question mark stem + dot -->
-    <path
-      d="M0 -12
-         a12 12 0 0 1 12-12
-         a12 12 0 0 1 8 20
-         c-4 4 -8 6 -8 10"
-      fill="none"
-      stroke="#f5f2e9"
-      stroke-width="5"
-      stroke-linecap="round"
-    />
-    <circle cx="0" cy="27" r="3.5" fill="#f5f2e9" />
+    <path d="M-24-34a14 14 0 0 1 14-14h28a14 14 0 0 1 14 14v28a14 14 0 0 1-14 14h-10l-8 12-8-12h-2a14 14 0 0 1-14-14Z"
+      fill="none" stroke="#f5f2e9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
 
-    <!-- Coral accent dot (bottom-right badge, matching ::after in CSS) -->
-    <circle cx="58" cy="58" r="13" fill="#f5f2e9" />
-    <circle cx="58" cy="58" r="10" fill="#b94731" filter="url(#glow)" />
+    <!-- Question mark arc -->
+    <path d="M0-12a12 12 0 0 1 12-12 12 12 0 0 1 8 20c-4 4-8 6-8 10"
+      fill="none" stroke="#f5f2e9" stroke-width="5" stroke-linecap="round"/>
+    <!-- Question mark dot -->
+    <circle cx="0" cy="27" r="3.5" fill="#f5f2e9"/>
+
+    <!-- Coral accent dot (bottom-right) -->
+    <circle cx="58" cy="58" r="12" fill="#0f1a17"/>
+    <circle cx="58" cy="58" r="9" fill="#b94731"/>
   </g>
 </svg>
