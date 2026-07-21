@@ -36,9 +36,6 @@
       .serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
       .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
       .sans{font-family:Aptos,Inter,"Segoe UI",system-ui,sans-serif}
-      .signal-dash{stroke-dasharray:9 11}
-      .signal-dash animate{attributeName:stroke-dashoffset;from:0;to:-200;dur:14s;repeatCount:indefinite}
-      @media(prefers-reduced-motion:reduce){.signal-dash animate,.dot-a,.dot-b,.pulse-ring{animation:none!important;display:none}}
     </style>
   </defs>
 
