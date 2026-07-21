@@ -6,189 +6,217 @@
 >
   <title id="title">Ghost Audience — meet your audience before you present, publish, or perform</title>
   <desc id="description">
-    A cinematic Ghost Audience product banner showing a creator's text flowing through
-    segment-by-segment AI analysis to a simulated audience response.
+    A cinematic Ghost Audience banner in warm forest-dark tones showing the editorial brand mark,
+    product headline in a serif display font, and an animated audience-read preview panel.
   </desc>
   <defs>
+    <!-- Warm dark forest gradient (matches #172522 / #0f1a17 from product CSS) -->
     <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="440" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#080A10" />
-      <stop offset=".55" stop-color="#0C0E16" />
-      <stop offset="1" stop-color="#10111A" />
+      <stop stop-color="#0f1a17" />
+      <stop offset=".52" stop-color="#152220" />
+      <stop offset="1" stop-color="#1a2b27" />
     </linearGradient>
-    <linearGradient id="signal" x1="680" y1="92" x2="1196" y2="335" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#7C6FFF" />
-      <stop offset=".5" stop-color="#B09BFF" />
-      <stop offset="1" stop-color="#6EE7FF" />
-    </linearGradient>
-    <radialGradient
-      id="halo"
-      cx="0" cy="0" r="1"
-      gradientTransform="translate(1020 218) rotate(90) scale(210 300)"
+    <!-- Coral glow (matches accent #b94731 / ec6f55 glow from product) -->
+    <radialGradient id="coralHalo" cx="0" cy="0" r="1"
+      gradientTransform="translate(1032 190) rotate(90) scale(200 280)"
       gradientUnits="userSpaceOnUse"
     >
-      <stop stop-color="#7C6FFF" stop-opacity=".12" />
-      <stop offset="1" stop-color="#7C6FFF" stop-opacity="0" />
+      <stop stop-color="#ec6f55" stop-opacity=".18" />
+      <stop offset="1" stop-color="#ec6f55" stop-opacity="0" />
     </radialGradient>
-    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-      <path d="M32 0H0v32" fill="none" stroke="#FFFFFF" stroke-opacity=".03" />
+    <!-- Teal glow (top-left, matches teal #226b63) -->
+    <radialGradient id="tealHalo" cx="0" cy="0" r="1"
+      gradientTransform="translate(160 60) rotate(90) scale(180 220)"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop stop-color="#226b63" stop-opacity=".14" />
+      <stop offset="1" stop-color="#226b63" stop-opacity="0" />
+    </radialGradient>
+    <!-- Signal line gradient: teal → coral -->
+    <linearGradient id="signal" x1="680" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#226b63" />
+      <stop offset=".45" stop-color="#6a50a7" />
+      <stop offset="1" stop-color="#ec6f55" />
+    </linearGradient>
+    <!-- Subtle warm grid -->
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M36 0H0v36" fill="none" stroke="#f5f2e9" stroke-opacity=".025" />
     </pattern>
-    <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
       <feGaussianBlur stdDeviation="5" result="blur" />
       <feMerge>
         <feMergeNode in="blur" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
-    <filter id="panelShadow" x="-20%" y="-30%" width="150%" height="170%">
-      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#000000" flood-opacity=".55" />
+    <filter id="panelShadow" x="-20%" y="-30%" width="150%" height="175%">
+      <feDropShadow dx="0" dy="28" stdDeviation="28" flood-color="#000" flood-opacity=".6" />
+    </filter>
+    <filter id="markShadow" x="-30%" y="-30%" width="165%" height="165%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity=".45" />
     </filter>
     <style>
-      .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-      .sans { font-family: Inter, Arial, sans-serif; }
-      .signal-path { stroke-dasharray: 8 10; animation: dash 13s linear infinite; }
-      .orbit { transform-origin: 1020px 220px; animation: spin 32s linear infinite; }
-      .pulse { animation: pulse 2.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+      .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+      .mono  { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+      .sans  { font-family: Aptos, Inter, "Segoe UI", system-ui, sans-serif; }
+
+      /* Dashed animated signal line */
+      .signal { stroke-dasharray: 9 11; animation: dash 14s linear infinite; }
+
+      /* Travelling dot on the preview panel progress bar */
+      .progress-fill { animation: growBar 4s ease-in-out infinite alternate; }
+
+      /* Floating preview cards */
       .float-a { animation: floatA 7s ease-in-out infinite; }
-      .float-b { animation: floatB 8s ease-in-out infinite; }
-      .blink { animation: blink 3.5s ease-in-out infinite; }
-      @keyframes dash { to { stroke-dashoffset: -180; } }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      @keyframes pulse {
-        0%, 30% { opacity: 0.7; transform: scale(0.35); }
+      .float-b { animation: floatB 9s ease-in-out infinite; }
+
+      /* Soft pulse on the "reading" badge */
+      .badge-pulse { animation: pulse 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+
+      @keyframes dash    { to { stroke-dashoffset: -200; } }
+      @keyframes growBar { from { width: 38%; } to { width: 68%; } }
+      @keyframes floatA  { 50% { transform: translate(6px, -9px); } }
+      @keyframes floatB  { 50% { transform: translate(-5px, 8px); } }
+      @keyframes pulse   {
+        0%, 25% { opacity: .7; transform: scale(.5); }
         80%, 100% { opacity: 0; transform: scale(1.5); }
-      }
-      @keyframes floatA { 50% { transform: translate(7px, -8px); } }
-      @keyframes floatB { 50% { transform: translate(-5px, 7px); } }
-      @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
       }
       @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
     </style>
   </defs>
 
-  <!-- Background -->
+  <!-- ── Background ── -->
   <rect width="1280" height="440" rx="28" fill="url(#bg)" />
-  <rect x="1" y="1" width="1278" height="438" rx="27" fill="none" stroke="#FFFFFF" stroke-opacity=".1" stroke-width="2" />
-  <path d="M640 0v440" stroke="#FFFFFF" stroke-opacity=".045" />
-  <rect x="640" width="640" height="440" fill="url(#grid)" />
-  <rect x="700" y="0" width="580" height="440" fill="url(#halo)" />
+  <rect width="1280" height="440" rx="28" fill="url(#grid)" />
+  <!-- Halos -->
+  <rect x="640" width="640" height="440" fill="url(#coralHalo)" />
+  <rect x="0"   width="380" height="440" fill="url(#tealHalo)" />
+  <!-- Border -->
+  <rect x="1" y="1" width="1278" height="438" rx="27" fill="none"
+    stroke="#f5f2e9" stroke-opacity=".09" stroke-width="2" />
+  <!-- Divider -->
+  <path d="M640 0v440" stroke="#f5f2e9" stroke-opacity=".04" />
 
-  <!-- Logo mark -->
-  <g transform="translate(66 58)">
-    <rect width="58" height="58" rx="16" fill="#12141E" stroke="#2E3150" />
-    <!-- Ghost silhouette mark: concentric waveforms -->
-    <circle cx="29" cy="27" r="18" fill="none" stroke="#7C6FFF" stroke-width="3" />
-    <circle cx="29" cy="27" r="11" fill="none" stroke="#B09BFF" stroke-width="2.5" />
-    <circle cx="29" cy="27" r="4.5" fill="#6EE7FF" filter="url(#softGlow)" />
-    <!-- Audience arc below -->
-    <path d="M14 44 Q29 37 44 44" fill="none" stroke="#B09BFF" stroke-width="2" stroke-linecap="round" />
+  <!-- ── Brand mark (rotated dark square with speech-bubble Q icon) ── -->
+  <g transform="translate(66 52)">
+    <rect width="60" height="60" rx="16" ry="16" fill="#18211f" stroke="#3d4f4a" stroke-width="1.5" filter="url(#markShadow)"
+      transform="rotate(-4, 30, 30)" />
+    <!-- Speech bubble -->
+    <path
+      d="M12 14 a9 9 0 0 1 9-9 h18 a9 9 0 0 1 9 9 v16 a9 9 0 0 1 -9 9 h-6 l-5 8 -5-8 h-2 a9 9 0 0 1 -9-9 Z"
+      fill="none" stroke="#f5f2e9" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
+    />
+    <!-- Question mark -->
+    <path d="M30 21 a7 7 0 1 1 0 .01 M30 37 v.5"
+      fill="none" stroke="#f5f2e9" stroke-width="3.5" stroke-linecap="round" />
+    <!-- Coral dot badge -->
+    <circle cx="49" cy="49" r="8" fill="#18211f" />
+    <circle cx="49" cy="49" r="6" fill="#b94731" filter="url(#glow)" />
   </g>
 
-  <!-- Product name -->
-  <text x="142" y="93" class="sans" fill="#F0EEF9" font-size="25" font-weight="700" letter-spacing="-1">GHOST AUDIENCE</text>
-  <text x="67" y="148" class="mono" fill="#6EE7FF" font-size="10" letter-spacing="2">SIMULATED AUDIENCE / NO HINDSIGHT</text>
+  <!-- ── Product name ── -->
+  <text x="146" y="91" class="sans" fill="#f5f2e9" font-size="23" font-weight="780" letter-spacing="-0.5">GHOST AUDIENCE</text>
+  <!-- Eyebrow -->
+  <text x="67" y="145" class="mono" fill="#6fc5b9" font-size="9.5" letter-spacing="2.2">NO-HINDSIGHT AUDIENCE READ</text>
 
-  <!-- Hero headline -->
-  <text x="66" y="218" class="sans" fill="#F0EEF9" font-size="52" font-weight="650" letter-spacing="-2.8">Meet your audience</text>
-  <text x="66" y="272" class="sans" fill="#F0EEF9" font-size="52" font-weight="650" letter-spacing="-2.8">before you share.</text>
-  <text x="66" y="326" class="sans" fill="#7C6FFF" font-size="52" font-weight="650" letter-spacing="-2.8">With evidence.</text>
+  <!-- ── Hero headline (serif — matches product h1/h2) ── -->
+  <text x="66" y="215" class="serif" fill="#f5f1e8" font-size="54" font-weight="600" letter-spacing="-2.2">Meet your audience</text>
+  <text x="66" y="271" class="serif" fill="#f5f1e8" font-size="54" font-weight="600" letter-spacing="-2.2">before you share.</text>
+  <!-- Coral accent line -->
+  <text x="66" y="325" class="serif" fill="#ec6f55" font-size="54" font-weight="600" letter-spacing="-2.2">With evidence.</text>
 
-  <!-- Attribute pills -->
-  <g class="mono" font-size="9" letter-spacing="1">
-    <circle cx="70" cy="378" r="4" fill="#6EE7FF" />
-    <text x="82" y="382" fill="#888DA0">EXACT EVIDENCE</text>
-    <circle cx="229" cy="378" r="4" fill="#B09BFF" />
-    <text x="241" y="382" fill="#888DA0">FIRST-TIME READ</text>
-    <circle cx="378" cy="378" r="4" fill="#7C6FFF" />
-    <text x="390" y="382" fill="#888DA0">YOU DECIDE INTENT</text>
+  <!-- Attribute dots (warm muted tone) -->
+  <g class="mono" font-size="9" letter-spacing=".9">
+    <circle cx="70" cy="376" r="4" fill="#6fc5b9" />
+    <text x="82" y="380" fill="#8e9c96">EXACT EVIDENCE</text>
+    <circle cx="225" cy="376" r="4" fill="#87500d" />
+    <text x="237" y="380" fill="#8e9c96">FIRST-TIME ONLY</text>
+    <circle cx="375" cy="376" r="4" fill="#b94731" />
+    <text x="387" y="380" fill="#8e9c96">YOU MARK INTENT</text>
   </g>
 
-  <!-- Orbit rings (right panel) -->
-  <g class="orbit" fill="none" stroke="#FFFFFF" stroke-opacity=".06">
-    <ellipse cx="1020" cy="220" rx="224" ry="168" />
-    <ellipse cx="1020" cy="220" rx="168" ry="124" />
-    <ellipse cx="1020" cy="220" rx="110" ry="82" />
-  </g>
-
-  <!-- Signal path + animated dots -->
-  <path
-    id="flowPath"
-    d="M704 222C790 135 842 296 924 207s135-97 270 8"
-    fill="none"
-    stroke="url(#signal)"
-    stroke-width="2"
-    class="signal-path"
-    filter="url(#softGlow)"
-  />
-  <circle r="6" fill="#7C6FFF" filter="url(#softGlow)">
-    <animateMotion dur="5.6s" repeatCount="indefinite"><mpath href="#flowPath" /></animateMotion>
+  <!-- ── Animated signal path ── -->
+  <path id="fp"
+    d="M690 222 C772 140 830 298 918 210 s138-100 276 6"
+    fill="none" stroke="url(#signal)" stroke-width="2" class="signal"
+    filter="url(#glow)" />
+  <!-- Travelling dots -->
+  <circle r="6" fill="#ec6f55" filter="url(#glow)">
+    <animateMotion dur="5.8s" repeatCount="indefinite"><mpath href="#fp" /></animateMotion>
   </circle>
-  <circle r="4" fill="#6EE7FF" filter="url(#softGlow)">
-    <animateMotion dur="5.6s" begin="-2.8s" repeatCount="indefinite"><mpath href="#flowPath" /></animateMotion>
+  <circle r="4" fill="#6fc5b9" filter="url(#glow)">
+    <animateMotion dur="5.8s" begin="-2.9s" repeatCount="indefinite"><mpath href="#fp" /></animateMotion>
   </circle>
 
-  <!-- Panel: Creator text input -->
-  <g filter="url(#panelShadow)">
-    <g transform="translate(722 163)">
-      <rect width="158" height="116" rx="16" fill="#14151F" stroke="#FFFFFF" stroke-opacity=".16" />
-      <circle cx="27" cy="30" r="10" fill="#1A1D35" stroke="#7C6FFF" stroke-opacity=".7" />
-      <circle cx="27" cy="30" r="3.5" fill="#7C6FFF" />
-      <circle cx="27" cy="30" r="17" fill="none" stroke="#7C6FFF" stroke-opacity=".3" class="pulse" />
-      <text x="46" y="27" class="mono" fill="#696D82" font-size="7" letter-spacing="1">CREATOR TEXT</text>
-      <text x="46" y="42" class="sans" fill="#F0EEF9" font-size="11" font-weight="700">Speech · Script</text>
-      <!-- Text lines -->
-      <rect x="18" y="62" width="48" height="5" rx="2" fill="#2A2D42" />
-      <rect x="18" y="73" width="36" height="5" rx="2" fill="#2A2D42" />
-      <rect x="18" y="84" width="52" height="5" rx="2" fill="#2A2D42" />
-      <rect x="72" y="62" width="24" height="5" rx="2" fill="#3A3D55" />
-      <text x="18" y="104" class="mono" fill="#565A70" font-size="6">SEGMENTS AUTO-SPLIT</text>
-    </g>
+  <!-- ── Preview card (warm parchment, matches .preview-sheet) ── -->
+  <g filter="url(#panelShadow)" transform="translate(706 118)">
+    <!-- Outer dark preview container (.audience-preview background #172522) -->
+    <rect width="538" height="282" rx="36" fill="#172522" stroke="#f5f2e9" stroke-opacity=".07" />
 
-    <!-- Panel: Analysis (middle) -->
-    <g transform="translate(900 118)">
-      <rect width="182" height="202" rx="20" fill="#14151F" stroke="#7C6FFF" stroke-opacity=".5" />
-      <text x="20" y="30" class="mono" fill="#7C6FFF" font-size="7" letter-spacing="1.2">NO HINDSIGHT ANALYSIS</text>
-      <text x="20" y="62" class="sans" fill="#F0EEF9" font-size="22" font-weight="650">Segment 2</text>
-      <text x="20" y="81" class="sans" fill="#888DA0" font-size="9">Sees only what audience has read</text>
-      <path d="M20 107h142" stroke="#FFFFFF" stroke-opacity=".1" />
-      <g class="mono" font-size="7">
-        <circle cx="29" cy="130" r="5" fill="#7C6FFF" />
-        <text x="43" y="133" fill="#C4C4D0">3 questions raised</text>
-        <circle cx="29" cy="152" r="5" fill="#B09BFF" />
-        <text x="43" y="155" fill="#C4C4D0">2 clarity risks</text>
-        <circle cx="29" cy="174" r="5" fill="#6EE7FF" />
-        <text x="43" y="177" fill="#C4C4D0">audience understands</text>
-      </g>
-    </g>
+    <!-- Inner parchment sheet (.preview-sheet background #fffdf8) -->
+    <g transform="translate(28 28)">
+      <rect width="482" height="226" rx="18" fill="#fffdf8" stroke="#e2ddd3" />
 
-    <!-- Panel: Results -->
-    <g transform="translate(1102 166)">
-      <rect width="150" height="117" rx="16" fill="#14151F" stroke="#6EE7FF" stroke-opacity=".45" />
-      <circle cx="28" cy="30" r="12" fill="#172B2A" stroke="#6EE7FF" stroke-opacity=".55" />
-      <path d="m22 30 4 4 8-9" fill="none" stroke="#6EE7FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      <text x="49" y="27" class="mono" fill="#696D82" font-size="7" letter-spacing="1">RESULTS READY</text>
-      <text x="49" y="42" class="sans" fill="#F0EEF9" font-size="11" font-weight="700">Evidence attached</text>
-      <path d="M18 60h114" stroke="#FFFFFF" stroke-opacity=".1" />
-      <text x="18" y="80" class="mono" fill="#6EE7FF" font-size="7">6 QUESTIONS</text>
-      <text x="18" y="95" class="mono" fill="#B09BFF" font-size="7">4 CLARITY RISKS</text>
-      <text x="18" y="111" class="mono" fill="#666A7E" font-size="6">INTENT REVIEW AVAILABLE</text>
+      <!-- Header row -->
+      <!-- Sheet mark icon (.preview-sheet__mark: teal bg) -->
+      <rect x="14" y="14" width="32" height="32" rx="9" fill="#e4f1ed" />
+      <!-- Quote icon placeholder lines -->
+      <path d="M26 24h8M26 30h6" stroke="#226b63" stroke-width="2.5" stroke-linecap="round" />
+
+      <text x="58" y="26" class="sans" fill="#18211f" font-size="11" font-weight="780">First audience read</text>
+      <text x="58" y="40" class="sans" fill="#5f6b67" font-size="8.5">Section 4 of 7</text>
+
+      <!-- "Reading" badge (.preview-live) -->
+      <rect x="400" y="14" width="64" height="20" rx="10" fill="#fbe6df" />
+      <text x="432" y="28" class="mono" fill="#a93624" font-size="7.5" font-weight="800" text-anchor="middle">READING</text>
+      <!-- Pulse ring on badge -->
+      <circle cx="432" cy="24" r="16" fill="none" stroke="#b94731" stroke-opacity=".28" class="badge-pulse" />
+
+      <!-- Progress bar (.preview-progress) -->
+      <rect x="14" y="62" width="454" height="6" rx="3" fill="#eee9de" />
+      <rect x="14" y="62" height="6" rx="3" fill="#d6573d" class="progress-fill">
+        <animate attributeName="width" values="170;310;170" dur="4s" repeatCount="indefinite" />
+      </rect>
+
+      <!-- Label -->
+      <text x="14" y="91" class="mono" fill="#67736e" font-size="8" font-weight="800" letter-spacing=".9">THE AUDIENCE IS WONDERING</text>
+
+      <!-- Primary question card (violet tint, .preview-question--primary) -->
+      <rect x="14" y="100" width="220" height="58" rx="12" fill="#f7f3fd" stroke="#d8cde9" />
+      <rect x="22" y="108" width="60" height="14" rx="7" fill="#eee8fa" />
+      <text x="52" y="119" class="mono" fill="#6a50a7" font-size="7" font-weight="800" text-anchor="middle">HEALTHY CURIOSITY</text>
+      <text x="22" y="140" class="serif" fill="#18211f" font-size="12" font-weight="600">Why does Kaelen believe</text>
+      <text x="22" y="153" class="serif" fill="#18211f" font-size="12" font-weight="600">the fortress can still hold?</text>
+
+      <!-- Secondary question card (amber, .preview-question) -->
+      <rect x="248" y="100" width="220" height="58" rx="12" fill="#fffefa" stroke="#ded8cc" />
+      <rect x="256" y="108" width="52" height="14" rx="7" fill="#fff1d6" />
+      <text x="282" y="119" class="mono" fill="#8b570e" font-size="7" font-weight="800" text-anchor="middle">CLARITY RISK</text>
+      <text x="256" y="140" class="serif" fill="#18211f" font-size="12" font-weight="600">Where are the remaining</text>
+      <text x="256" y="153" class="serif" fill="#18211f" font-size="12" font-weight="600">defenders positioned?</text>
+
+      <!-- Stats footer -->
+      <path d="M14 170h454" stroke="#e2ddd3" />
+      <text x="80"  y="196" class="serif" fill="#18211f" font-size="20" font-weight="650" text-anchor="middle">12</text>
+      <text x="80"  y="211" class="mono"  fill="#5f6b67" font-size="7.5" text-anchor="middle">CLEAR SIGNALS</text>
+      <text x="241" y="196" class="serif" fill="#18211f" font-size="20" font-weight="650" text-anchor="middle">4</text>
+      <text x="241" y="211" class="mono"  fill="#5f6b67" font-size="7.5" text-anchor="middle">QUESTIONS</text>
+      <text x="402" y="196" class="serif" fill="#18211f" font-size="20" font-weight="650" text-anchor="middle">1</text>
+      <text x="402" y="211" class="mono"  fill="#5f6b67" font-size="7.5" text-anchor="middle">CLARITY RISK</text>
     </g>
   </g>
 
-  <!-- Floating badges -->
-  <g class="float-a" transform="translate(1052 54)">
-    <rect width="156" height="48" rx="12" fill="#171A28" stroke="#FFFFFF" stroke-opacity=".14" />
-    <circle cx="22" cy="24" r="4" fill="#6EE7FF" />
-    <text x="36" y="21" class="mono" fill="#696D82" font-size="6" letter-spacing=".7">IBM WATSONX.AI</text>
-    <text x="36" y="34" class="sans" fill="#ECEAF5" font-size="8" font-weight="700">Llama 3.3 70B primary</text>
+  <!-- Floating note chips (match .preview-note style: dark glass) -->
+  <g class="float-a" transform="translate(1054 56)">
+    <rect width="172" height="44" rx="22" fill="#1e302c" stroke="#f5f2e9" stroke-opacity=".14" />
+    <circle cx="21" cy="22" r="5" fill="#6fc5b9" />
+    <text x="35" y="19" class="mono" fill="#7a8883" font-size="7" letter-spacing=".6">LOCAL-FIRST</text>
+    <text x="35" y="33" class="sans" fill="#f5f1e8" font-size="9" font-weight="700">Stays in your browser</text>
   </g>
-  <g class="float-b" transform="translate(780 324)">
-    <rect width="174" height="48" rx="12" fill="#171A28" stroke="#FFFFFF" stroke-opacity=".14" />
-    <text x="18" y="21" class="mono" fill="#696D82" font-size="6" letter-spacing=".7">LOCAL-FIRST</text>
-    <text x="18" y="34" class="sans" fill="#ECEAF5" font-size="8" font-weight="700">Projects saved in your browser</text>
+  <g class="float-b" transform="translate(708 374)">
+    <rect width="192" height="44" rx="22" fill="#1e302c" stroke="#f5f2e9" stroke-opacity=".14" />
+    <circle cx="21" cy="22" r="5" fill="#b94731" />
+    <text x="35" y="19" class="mono" fill="#7a8883" font-size="7" letter-spacing=".6">IBM WATSONX.AI</text>
+    <text x="35" y="33" class="sans" fill="#f5f1e8" font-size="9" font-weight="700">Llama 3.3 70B primary</text>
   </g>
-
-  <!-- Blinking cursor on last text line -->
-  <rect x="66" y="340" width="3" height="36" rx="1" fill="#7C6FFF" class="blink" />
 </svg>

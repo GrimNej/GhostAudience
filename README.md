@@ -15,14 +15,14 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/IBM_watsonx.ai-0B1114?style=for-the-badge&logo=ibm&logoColor=7C6FFF" alt="IBM watsonx.ai" />
-  <img src="https://img.shields.io/badge/Cloudflare_Workers-0B1114?style=for-the-badge&logo=cloudflareworkers&logoColor=F38020" alt="Cloudflare Workers" />
-  <img src="https://img.shields.io/badge/React_19-0B1114?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19" />
-  <img src="https://img.shields.io/badge/TypeScript-0B1114?style=for-the-badge&logo=typescript&logoColor=4E6CFF" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Vite-0B1114?style=for-the-badge&logo=vite&logoColor=B09BFF" alt="Vite" />
-  <img src="https://img.shields.io/badge/Hono-0B1114?style=for-the-badge&logo=hono&logoColor=FF5838" alt="Hono" />
-  <img src="https://img.shields.io/badge/Zod-0B1114?style=for-the-badge&logo=zod&logoColor=6EE7FF" alt="Zod" />
-  <img src="https://img.shields.io/badge/Dexie%2FIndexedDB-0B1114?style=for-the-badge&logo=googlechrome&logoColor=B09BFF" alt="Dexie" />
+  <img src="https://img.shields.io/badge/IBM_watsonx.ai-172522?style=for-the-badge&logo=ibm&logoColor=ec6f55" alt="IBM watsonx.ai" />
+  <img src="https://img.shields.io/badge/Cloudflare_Workers-172522?style=for-the-badge&logo=cloudflareworkers&logoColor=F38020" alt="Cloudflare Workers" />
+  <img src="https://img.shields.io/badge/React_19-172522?style=for-the-badge&logo=react&logoColor=6fc5b9" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-172522?style=for-the-badge&logo=typescript&logoColor=b9cfc8" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-172522?style=for-the-badge&logo=vite&logoColor=efb860" alt="Vite" />
+  <img src="https://img.shields.io/badge/Hono-172522?style=for-the-badge&logo=hono&logoColor=ec6f55" alt="Hono" />
+  <img src="https://img.shields.io/badge/Zod-172522?style=for-the-badge&logo=zod&logoColor=c0a6fa" alt="Zod" />
+  <img src="https://img.shields.io/badge/Dexie%2FIndexedDB-172522?style=for-the-badge&logo=googlechrome&logoColor=6fc5b9" alt="Dexie" />
 </p>
 
 <p align="center">
