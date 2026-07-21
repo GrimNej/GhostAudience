@@ -2,36 +2,56 @@
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 256 256"
   role="img"
-  aria-labelledby="gtitle gdesc"
+  aria-labelledby="title description"
 >
-  <title id="gtitle">Ghost Audience logo</title>
-  <desc id="gdesc">A dark rotated square mark with a speech-bubble question-mark icon and a coral accent dot — matching the in-product brand mark.</desc>
+  <title id="title">Ghost Audience logo</title>
+  <desc id="description">
+    A dark rotated square mark with a speech-bubble question-mark icon and coral accent dot,
+    matching the in-product brand mark.
+  </desc>
   <defs>
-    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#1e2c29"/>
-      <stop offset="1" stop-color="#0f1a17"/>
+    <linearGradient id="frame" x1="24" y1="16" x2="232" y2="244" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1e2c29" />
+      <stop offset="1" stop-color="#0f1a17" />
     </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur" />
+      <feOffset dy="8" result="offset" />
+      <feColorMatrix in="offset" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .48 0" />
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="7" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
   </defs>
 
-  <!-- Subtle outer ring to ground the mark -->
-  <circle cx="128" cy="128" r="104" fill="#f5f2e9" fill-opacity=".06"/>
+  <!-- Card background — rotated like the in-product .brand__mark -->
+  <rect x="12" y="12" width="232" height="232" rx="52" fill="url(#frame)" stroke="#3d4f4a" stroke-width="2" filter="url(#shadow)" transform="rotate(-4 128 128)" />
 
-  <!-- Rotated card -->
-  <g transform="translate(128 128) rotate(-6)">
-    <rect x="-72" y="-72" width="144" height="144" rx="22" fill="url(#frame)" stroke="#3d4f4a" stroke-width="2.5"/>
+  <!-- Crosshair ticks -->
+  <path d="M29 128H12M244 128h-17M128 29V12m0 232v-17" stroke="#3a5250" stroke-width="2" stroke-linecap="round" />
 
-    <!-- Speech bubble body -->
-    <path d="M-24-34a14 14 0 0 1 14-14h28a14 14 0 0 1 14 14v28a14 14 0 0 1-14 14h-10l-8 12-8-12h-2a14 14 0 0 1-14-14Z"
-      fill="none" stroke="#f5f2e9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Speech bubble body (MessageCircleQuestion) -->
+  <path d="M50 90 a42 42 0 0 1 42-42 h72 a42 42 0 0 1 42 42 v56 a42 42 0 0 1 -42 42 h-28 l-22 28 -22-28 h-2 a42 42 0 0 1 -42-42 Z"
+    fill="none" stroke="#f5f2e9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
 
-    <!-- Question mark arc -->
-    <path d="M0-12a12 12 0 0 1 12-12 12 12 0 0 1 8 20c-4 4-8 6-8 10"
-      fill="none" stroke="#f5f2e9" stroke-width="5" stroke-linecap="round"/>
-    <!-- Question mark dot -->
-    <circle cx="0" cy="27" r="3.5" fill="#f5f2e9"/>
+  <!-- Question mark arc -->
+  <path d="M128 112 a24 24 0 0 1 24-24 24 24 0 0 1 16 41 c-8 8 -16 12 -16 20"
+    fill="none" stroke="#f5f2e9" stroke-width="10" stroke-linecap="round" />
+  <!-- Question mark dot -->
+  <circle cx="128" cy="172" r="7" fill="#f5f2e9" />
 
-    <!-- Coral accent dot (bottom-right) -->
-    <circle cx="58" cy="58" r="12" fill="#0f1a17"/>
-    <circle cx="58" cy="58" r="9" fill="#b94731"/>
-  </g>
+  <!-- Coral accent dot (bottom-right badge, matching ::after in product CSS) -->
+  <circle cx="202" cy="202" r="22" fill="#18211f" />
+  <circle cx="202" cy="202" r="17" fill="#b94731" filter="url(#glow)" />
+
+  <!-- Specular arc -->
+  <path d="M57 80a82 82 0 0 1 38-32M198 176a82 82 0 0 1-36 27" fill="none" stroke="#f5f1e8" stroke-width="3" stroke-linecap="round" opacity=".55" />
 </svg>
