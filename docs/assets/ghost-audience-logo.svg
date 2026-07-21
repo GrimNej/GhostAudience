@@ -1,0 +1,63 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 256 256"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Ghost Audience logo</title>
+  <desc id="description">
+    Concentric violet, lavender, and cyan signal rings with an audience arc on a deep navy rounded square.
+  </desc>
+  <defs>
+    <linearGradient id="frame" x1="24" y1="16" x2="232" y2="244" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#181A2A" />
+      <stop offset="1" stop-color="#080A10" />
+    </linearGradient>
+    <linearGradient id="outer" x1="42" y1="44" x2="215" y2="214" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7C6FFF" />
+      <stop offset="0.55" stop-color="#B09BFF" />
+      <stop offset="1" stop-color="#6EE7FF" />
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur" />
+      <feOffset dy="8" result="offset" />
+      <feColorMatrix in="offset" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .48 0" />
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="7" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Card background -->
+  <rect x="12" y="12" width="232" height="232" rx="58" fill="url(#frame)" stroke="#2E3150" stroke-width="2" filter="url(#shadow)" />
+
+  <!-- Crosshair ticks -->
+  <path d="M29 128H12M244 128h-17M128 29V12m0 232v-17" stroke="#3A3D5C" stroke-width="2" stroke-linecap="round" />
+
+  <!-- Outer gradient ring -->
+  <circle cx="128" cy="118" r="78" fill="none" stroke="url(#outer)" stroke-width="9" />
+
+  <!-- Middle ring -->
+  <circle cx="128" cy="118" r="55" fill="none" stroke="#7C6FFF" stroke-width="5" opacity=".88" />
+
+  <!-- Inner ring -->
+  <circle cx="128" cy="118" r="34" fill="none" stroke="#B09BFF" stroke-width="5" opacity=".9" />
+
+  <!-- Core dot -->
+  <circle cx="128" cy="118" r="13" fill="#6EE7FF" filter="url(#glow)" />
+  <circle cx="128" cy="118" r="4.5" fill="#080A10" />
+
+  <!-- Audience arc below center — represents the "audience row" -->
+  <path d="M76 172 Q128 155 180 172" fill="none" stroke="#B09BFF" stroke-width="4" stroke-linecap="round" opacity=".85" />
+
+  <!-- Specular arc -->
+  <path d="M57 80a82 82 0 0 1 38-32M200 168a82 82 0 0 1-36 27" fill="none" stroke="#F0EEF9" stroke-width="3" stroke-linecap="round" opacity=".65" />
+</svg>

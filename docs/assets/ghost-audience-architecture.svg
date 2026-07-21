@@ -1,0 +1,199 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1280 660"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Ghost Audience system architecture</title>
+  <desc id="description">
+    A high-level view of the Ghost Audience creator workspace, Cloudflare Worker gateway,
+    AI providers, and local persistence layer.
+  </desc>
+  <defs>
+    <linearGradient id="archBg" x1="0" y1="0" x2="1280" y2="660" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F7FA" />
+      <stop offset="1" stop-color="#EEEEF5" />
+    </linearGradient>
+    <pattern id="archGrid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0v28" fill="none" stroke="#14101E" stroke-opacity=".03" />
+    </pattern>
+    <filter id="archShadow" x="-20%" y="-30%" width="150%" height="170%">
+      <feDropShadow dx="4" dy="6" stdDeviation="0" flood-color="#14101E" flood-opacity=".12" />
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0l8 4-8 4Z" fill="#14101E" />
+    </marker>
+    <style>
+      .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+      .sans { font-family: Inter, Arial, sans-serif; }
+      .flow { stroke-dasharray: 7 8; animation: archFlow 12s linear infinite; }
+      @keyframes archFlow { to { stroke-dashoffset: -150; } }
+      @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="660" rx="24" fill="url(#archBg)" />
+  <rect width="1280" height="660" rx="24" fill="url(#archGrid)" />
+  <rect x="1" y="1" width="1278" height="658" rx="23" fill="none" stroke="#14101E" stroke-opacity=".18" stroke-width="2" />
+
+  <!-- Header logo + title -->
+  <g transform="translate(48 44)">
+    <rect width="43" height="43" rx="12" fill="#14101E" />
+    <circle cx="21.5" cy="20.5" r="12" fill="none" stroke="#7C6FFF" stroke-width="2.5" />
+    <circle cx="21.5" cy="20.5" r="7" fill="none" stroke="#B09BFF" stroke-width="2" />
+    <circle cx="21.5" cy="20.5" r="3" fill="#6EE7FF" />
+    <path d="M11 34 Q21.5 28 32 34" fill="none" stroke="#B09BFF" stroke-width="2" stroke-linecap="round" />
+  </g>
+  <text x="106" y="64" class="mono" fill="#585470" font-size="9" letter-spacing="1.5">SYSTEM AT A GLANCE</text>
+  <text x="106" y="88" class="sans" fill="#14101E" font-size="24" font-weight="750" letter-spacing="-1">A bounded path from creator text to evidence-backed audience insight.</text>
+  <!-- Legend -->
+  <g class="mono" font-size="7" letter-spacing="1">
+    <circle cx="1016" cy="61" r="5" fill="#7C6FFF" stroke="#14101E" />
+    <text x="1029" y="64" fill="#505070">LIVE ANALYSIS</text>
+    <circle cx="1140" cy="61" r="5" fill="#6EE7FF" stroke="#14101E" />
+    <text x="1153" y="64" fill="#505070">LOCAL STATE</text>
+  </g>
+
+  <!-- ── Row 1 label ── -->
+  <text x="48" y="146" class="mono" fill="#585470" font-size="8" letter-spacing="1.4">01 / CREATOR WORKSPACE</text>
+
+  <!-- Row 1 cards -->
+  <g filter="url(#archShadow)">
+    <!-- Browser / Studio -->
+    <g transform="translate(48 162)">
+      <rect width="269" height="120" rx="14" fill="#14101E" stroke="#14101E" stroke-width="2" />
+      <circle cx="28" cy="30" r="10" fill="#7C6FFF" />
+      <text x="47" y="33" class="mono" fill="#A0A0C0" font-size="7" letter-spacing="1">REACT + VITE</text>
+      <text x="21" y="68" class="sans" fill="#F0EEF9" font-size="18" font-weight="750">Studio (browser)</text>
+      <text x="21" y="90" class="sans" fill="#888DA0" font-size="9">Composer · analysis · results</text>
+      <text x="21" y="107" class="sans" fill="#888DA0" font-size="9">Local-first, no account required</text>
+    </g>
+
+    <!-- IndexedDB -->
+    <g transform="translate(338 162)">
+      <rect width="269" height="120" rx="14" fill="#FFFFFF" stroke="#14101E" stroke-width="2" />
+      <circle cx="28" cy="30" r="10" fill="#6EE7FF" stroke="#14101E" />
+      <text x="47" y="33" class="mono" fill="#585470" font-size="7" letter-spacing="1">DEXIE / INDEXEDDB</text>
+      <text x="21" y="68" class="sans" fill="#14101E" font-size="18" font-weight="750">Local persistence</text>
+      <text x="21" y="90" class="sans" fill="#585470" font-size="9">Scripts · projects · results</text>
+      <text x="21" y="107" class="sans" fill="#585470" font-size="9">Stays in your browser, never sent</text>
+    </g>
+
+    <!-- Fixture / Demo -->
+    <g transform="translate(628 162)">
+      <rect width="269" height="120" rx="14" fill="#FFFFFF" stroke="#14101E" stroke-width="2" />
+      <circle cx="28" cy="30" r="10" fill="#B09BFF" stroke="#14101E" />
+      <text x="47" y="33" class="mono" fill="#585470" font-size="7" letter-spacing="1">DEMO MODE</text>
+      <text x="21" y="68" class="sans" fill="#14101E" font-size="18" font-weight="750">Fixture provider</text>
+      <text x="21" y="90" class="sans" fill="#585470" font-size="9">Deterministic sample data</text>
+      <text x="21" y="107" class="sans" fill="#585470" font-size="9">No API key — no network calls</text>
+    </g>
+
+    <!-- Intent review -->
+    <g transform="translate(918 162)">
+      <rect width="313" height="120" rx="14" fill="#EEE8FF" stroke="#14101E" stroke-width="2" />
+      <circle cx="28" cy="30" r="10" fill="#7C6FFF" stroke="#14101E" />
+      <text x="47" y="33" class="mono" fill="#585470" font-size="7" letter-spacing="1">CREATOR CONTROL</text>
+      <text x="21" y="68" class="sans" fill="#14101E" font-size="18" font-weight="750">Intent review</text>
+      <text x="21" y="90" class="sans" fill="#585470" font-size="9">Mark: intended · acceptable · accidental</text>
+      <text x="21" y="107" class="sans" fill="#585470" font-size="9">Creator remains final authority</text>
+    </g>
+  </g>
+
+  <!-- Arrows row 1 → 2 -->
+  <path d="M316 282v24M606 282v24" fill="none" stroke="#14101E" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- Trust boundary bar -->
+  <rect x="48" y="316" width="1181" height="52" rx="12" fill="#EEE8FF" stroke="#14101E" stroke-width="2" />
+  <text x="70" y="337" class="mono" fill="#14101E" font-size="7" letter-spacing="1.2">CREDENTIAL BOUNDARY</text>
+  <text x="70" y="354" class="sans" fill="#14101E" font-size="11" font-weight="700">API keys are Cloudflare Worker secrets only. The browser never receives or stores credentials. No key committed to Git.</text>
+  <path d="M628 282v28" stroke="#14101E" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- ── Row 2 label ── -->
+  <text x="48" y="404" class="mono" fill="#585470" font-size="8" letter-spacing="1.4">02 / EDGE GATEWAY + AI PROVIDERS</text>
+
+  <!-- Row 2 cards -->
+  <g filter="url(#archShadow)">
+    <!-- Cloudflare Worker + Hono -->
+    <g transform="translate(48 420)">
+      <rect width="222" height="163" rx="14" fill="#FFFFFF" stroke="#14101E" stroke-width="2" />
+      <rect width="222" height="42" rx="13" fill="#E4E8FF" />
+      <path d="M0 42h222" stroke="#14101E" stroke-width="2" />
+      <text x="17" y="26" class="mono" fill="#14101E" font-size="7" letter-spacing="1">CLOUDFLARE WORKER · HONO</text>
+      <text x="17" y="76" class="sans" fill="#14101E" font-size="15" font-weight="750">AI gateway</text>
+      <text x="17" y="98" class="sans" fill="#585470" font-size="9">Rate limiting · session signing</text>
+      <text x="17" y="116" class="sans" fill="#585470" font-size="9">CORS · CSP headers</text>
+      <text x="17" y="134" class="sans" fill="#585470" font-size="9">Redacted error envelopes</text>
+      <text x="17" y="152" class="sans" fill="#585470" font-size="9">D1 rate-limit control</text>
+    </g>
+
+    <!-- IBM watsonx.ai -->
+    <g transform="translate(292 420)">
+      <rect width="222" height="163" rx="14" fill="#FFFFFF" stroke="#14101E" stroke-width="2" />
+      <rect width="222" height="42" rx="13" fill="#EEE8FF" />
+      <path d="M0 42h222" stroke="#14101E" stroke-width="2" />
+      <text x="17" y="26" class="mono" fill="#14101E" font-size="7" letter-spacing="1">PRIMARY MODEL</text>
+      <text x="17" y="76" class="sans" fill="#14101E" font-size="15" font-weight="750">IBM watsonx.ai</text>
+      <text x="17" y="98" class="sans" fill="#585470" font-size="9">Llama 3.3 70B Instruct</text>
+      <text x="17" y="116" class="sans" fill="#585470" font-size="9">Bounded sequential analysis</text>
+      <text x="17" y="134" class="sans" fill="#585470" font-size="9">Structured JSON output + Zod</text>
+      <text x="17" y="152" class="sans" fill="#585470" font-size="9">Evidence repair if format drifts</text>
+    </g>
+
+    <!-- Workers AI fallback -->
+    <g transform="translate(536 420)">
+      <rect width="222" height="163" rx="14" fill="#FFFFFF" stroke="#14101E" stroke-width="2" />
+      <rect width="222" height="42" rx="13" fill="#E0F6FF" />
+      <path d="M0 42h222" stroke="#14101E" stroke-width="2" />
+      <text x="17" y="26" class="mono" fill="#14101E" font-size="7" letter-spacing="1">CONTINUITY FALLBACK</text>
+      <text x="17" y="76" class="sans" fill="#14101E" font-size="15" font-weight="750">Workers AI</text>
+      <text x="17" y="98" class="sans" fill="#585470" font-size="9">Llama 3.1 8B Fast</text>
+      <text x="17" y="116" class="sans" fill="#585470" font-size="9">Auto-activates on IBM timeout</text>
+      <text x="17" y="134" class="sans" fill="#585470" font-size="9">or unavailability</text>
+      <text x="17" y="152" class="sans" fill="#585470" font-size="9">No extra config needed</text>
+    </g>
+
+    <!-- D1 control -->
+    <g transform="translate(780 420)">
+      <rect width="222" height="163" rx="14" fill="#FFFFFF" stroke="#14101E" stroke-width="2" />
+      <rect width="222" height="42" rx="13" fill="#FFF0C8" />
+      <path d="M0 42h222" stroke="#14101E" stroke-width="2" />
+      <text x="17" y="26" class="mono" fill="#14101E" font-size="7" letter-spacing="1">CLOUDFLARE D1</text>
+      <text x="17" y="76" class="sans" fill="#14101E" font-size="15" font-weight="750">Rate-limit control</text>
+      <text x="17" y="98" class="sans" fill="#585470" font-size="9">ghost-audience-control DB</text>
+      <text x="17" y="116" class="sans" fill="#585470" font-size="9">Token-bucket per session</text>
+      <text x="17" y="134" class="sans" fill="#585470" font-size="9">Prevents runaway AI calls</text>
+      <text x="17" y="152" class="sans" fill="#585470" font-size="9">Migration: 0001_rate_limits.sql</text>
+    </g>
+
+    <!-- Packages / contracts -->
+    <g transform="translate(1024 420)">
+      <rect width="205" height="163" rx="14" fill="#14101E" stroke="#14101E" stroke-width="2" />
+      <rect width="205" height="42" rx="13" fill="#B09BFF" />
+      <path d="M0 42h205" stroke="#14101E" stroke-width="2" />
+      <text x="17" y="26" class="mono" fill="#14101E" font-size="7" letter-spacing="1">SHARED PACKAGES</text>
+      <text x="17" y="76" class="sans" fill="#F0EEF9" font-size="15" font-weight="750">Workspace libs</text>
+      <text x="17" y="98" class="sans" fill="#8A8A9E" font-size="9">contracts · domain · parser</text>
+      <text x="17" y="116" class="sans" fill="#8A8A9E" font-size="9">test-fixtures · Zod schemas</text>
+      <text x="17" y="134" class="sans" fill="#8A8A9E" font-size="9">Shared runtime contracts</text>
+      <text x="17" y="152" class="sans" fill="#8A8A9E" font-size="9">pnpm workspace</text>
+    </g>
+  </g>
+
+  <!-- Animated flow arrows between gateway and providers -->
+  <path d="M270 502h16M514 502h16M758 502h16M1002 502h16" fill="none" stroke="#14101E" stroke-width="1.5" marker-end="url(#arrow)" class="flow" />
+
+  <!-- Invariants footer bar -->
+  <g transform="translate(48 608)">
+    <rect width="1181" height="32" rx="9" fill="#FFFFFF" stroke="#14101E" stroke-opacity=".2" />
+    <text x="17" y="20" class="mono" fill="#505070" font-size="7" letter-spacing=".8">INVARIANTS</text>
+    <text x="112" y="20" class="sans" fill="#14101E" font-size="9" font-weight="700">No credentials in browser</text>
+    <circle cx="267" cy="16" r="2.5" fill="#7C6FFF" />
+    <text x="282" y="20" class="sans" fill="#14101E" font-size="9" font-weight="700">Future segments absent from analysis</text>
+    <circle cx="498" cy="16" r="2.5" fill="#7C6FFF" />
+    <text x="513" y="20" class="sans" fill="#14101E" font-size="9" font-weight="700">Every finding cites exact evidence</text>
+    <circle cx="710" cy="16" r="2.5" fill="#7C6FFF" />
+    <text x="725" y="20" class="sans" fill="#14101E" font-size="9" font-weight="700">Creator marks intent — AI never rewrites your work</text>
+  </g>
+</svg>
