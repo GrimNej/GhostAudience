@@ -81,4 +81,30 @@ describe("immutable script versions", () => {
     expect(parsed.segments[0]?.text).not.toContain("Paragraph 8");
     expect(parsed.segments[1]?.text).toContain("Paragraph 8");
   });
+
+  it("safely divides a 5,000-word plain-text read into provider-sized sections", async () => {
+    const paragraphs = Array.from({ length: 100 }, (_, paragraphIndex) => {
+      const words = Array.from(
+        { length: 48 },
+        (_, wordIndex) => `word${paragraphIndex + 1}_${wordIndex + 1}`,
+      );
+      return `Paragraph ${paragraphIndex + 1} ${words.join(" ")}`;
+    });
+    const parsed = await parseScript({
+      title: "Five thousand words",
+      fileName: "long-read.txt",
+      text: paragraphs.join("\n\n"),
+      now: "2026-07-22T00:00:00.000Z",
+    });
+
+    expect(parsed.wordCount).toBe(5_000);
+    expect(parsed.segments.length).toBeGreaterThan(5);
+    expect(parsed.segments.length).toBeLessThan(15);
+    for (const segment of parsed.segments) {
+      expect(segment.text.trim().split(/\s+/u).length).toBeLessThanOrEqual(900);
+      expect(new TextEncoder().encode(segment.text).byteLength).toBeLessThanOrEqual(
+        9_000,
+      );
+    }
+  });
 });

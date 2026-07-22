@@ -90,6 +90,7 @@ export interface QuestionRecord extends AudienceQuestion {
 }
 
 export interface QuestionEventRecord {
+  /** Run-scoped persistence key. The domain operation ID remains on `event`. */
   readonly operationId: string;
   readonly runId: string;
   readonly questionId: string;
@@ -99,6 +100,7 @@ export interface QuestionEventRecord {
 }
 
 export interface KnowledgeEventRecord {
+  /** Run-scoped persistence key. The domain operation ID remains on `event`. */
   readonly operationId: string;
   readonly runId: string;
   readonly ordinal: number;

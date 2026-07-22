@@ -112,6 +112,27 @@ describe("AnalysisPage", () => {
     });
   });
 
+  it.each([
+    [
+      "ConstraintError: Key already exists in the object store.",
+      /local save conflict/iu,
+    ],
+    ["QuotaExceededError: Storage is full.", /low on local storage/iu],
+  ])("explains recoverable browser storage failures", (failureMessage, expected) => {
+    setLatestRun({
+      id: "run_test",
+      status: "failed",
+      committedThroughOrdinal: 0,
+      providerMode: "fixture",
+      modelId: "fixture-v1",
+      failureMessage,
+    });
+    renderAnalysisPage();
+
+    expect(screen.getByText(expected)).toBeVisible();
+    expect(screen.getByRole("button", { name: "Continue analysis" })).toBeEnabled();
+  });
+
   it("covers unavailable, live, failed, and active analysis states", async () => {
     projectWorkspace = undefined;
     renderAnalysisPage();

@@ -1,6 +1,6 @@
 export const promptManifest = {
   step: {
-    version: "step-v1.2.0",
+    version: "step-v1.3.0",
   },
   repair: {
     version: "repair-v1.0.0",

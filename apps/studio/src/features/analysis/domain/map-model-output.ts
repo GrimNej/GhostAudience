@@ -25,16 +25,17 @@ export interface MappedStepResult {
   readonly warnings: readonly string[];
 }
 
-function stableKnowledgeOperationId(
-  requestId: string,
-  category: string,
-  entityId: string,
-  suffix = "",
-): string {
-  const safe = `${requestId}_${category}_${entityId}_${suffix}`
-    .replace(/[^a-zA-Z0-9_-]/gu, "_")
-    .slice(0, 118);
-  return `knowledge_${safe}`;
+async function stableMappedId(
+  prefix: "operation" | "fact" | "assumption" | "knowledge",
+  runIdValue: AudienceState["runId"],
+  ordinal: number,
+  position: string,
+  sourceId: string,
+): Promise<string> {
+  const identity = await sha256(
+    `ghost-audience:${prefix}:v1:${runIdValue}:${ordinal}:${position}:${sourceId}`,
+  );
+  return `${prefix}_${identity.slice(0, 32)}`;
 }
 
 export async function mapModelOutput(
@@ -43,41 +44,63 @@ export async function mapModelOutput(
   currentSegment: ScriptSegment,
   expectedTransportSegmentId: string,
 ): Promise<MappedStepResult> {
-  const questionEvents = await Promise.all(
-    output.questionOperations.map((operation) =>
-      mapQuestionOperation(
-        operation,
-        priorState.questions,
-        currentSegment,
-        priorState.runId,
-        expectedTransportSegmentId,
-      ),
-    ),
-  );
-
+  const questionEvents: QuestionEvent[] = [];
+  const knownQuestions: Array<Pick<AudienceQuestion, "id" | "semanticKey">> = [
+    ...priorState.questions,
+  ];
   const knownQuestionIds = new Set(priorState.questions.map((question) => question.id));
-  for (const event of questionEvents) {
+  for (const [index, operation] of output.questionOperations.entries()) {
+    const mappedOperationId = operationId(
+      await stableMappedId(
+        "operation",
+        priorState.runId,
+        currentSegment.ordinal,
+        `${index}:${operation.type}`,
+        operation.operationId,
+      ),
+    );
+    const event = await mapQuestionOperation(
+      operation,
+      knownQuestions,
+      currentSegment,
+      priorState.runId,
+      expectedTransportSegmentId,
+      mappedOperationId,
+    );
     if (event.type !== "QUESTION_OPENED" && !knownQuestionIds.has(event.questionId)) {
       throw new Error(`Model referenced unknown question ${event.questionId}.`);
     }
+    if (event.type === "QUESTION_OPENED") {
+      knownQuestionIds.add(event.question.id);
+      knownQuestions.push(event.question);
+    }
+    questionEvents.push(event);
   }
 
-  const knownFactIds = new Set(priorState.facts.map((fact) => fact.id));
   const knownAssumptionIds = new Set(
     priorState.assumptions.map((assumption) => assumption.id),
   );
   const knowledgeEvents: KnowledgeEvent[] = [];
 
-  for (const fact of output.factsAdded) {
-    if (knownFactIds.has(fact.id)) {
-      throw new Error(`Fact ID collision: ${fact.id}.`);
-    }
-    knownFactIds.add(fact.id);
+  for (const [index, fact] of output.factsAdded.entries()) {
+    const mappedFactId = await stableMappedId(
+      "fact",
+      priorState.runId,
+      currentSegment.ordinal,
+      String(index),
+      fact.id,
+    );
     knowledgeEvents.push({
-      operationId: stableKnowledgeOperationId(output.requestId, "fact-added", fact.id),
+      operationId: await stableMappedId(
+        "knowledge",
+        priorState.runId,
+        currentSegment.ordinal,
+        `fact-added:${index}`,
+        fact.id,
+      ),
       type: "FACT_ADDED",
       fact: {
-        id: fact.id,
+        id: mappedFactId,
         statement: fact.statement.trim(),
         confidence: fact.confidence,
         evidence: fact.evidence.map((span) =>
@@ -89,20 +112,30 @@ export async function mapModelOutput(
     });
   }
 
-  for (const assumption of output.assumptionsAdded) {
-    if (knownAssumptionIds.has(assumption.id)) {
-      throw new Error(`Assumption ID collision: ${assumption.id}.`);
-    }
-    knownAssumptionIds.add(assumption.id);
+  const assumptionAliases = new Map(
+    priorState.assumptions.map((assumption) => [assumption.id, assumption.id]),
+  );
+  for (const [index, assumption] of output.assumptionsAdded.entries()) {
+    const mappedAssumptionId = await stableMappedId(
+      "assumption",
+      priorState.runId,
+      currentSegment.ordinal,
+      String(index),
+      assumption.id,
+    );
+    knownAssumptionIds.add(mappedAssumptionId);
+    assumptionAliases.set(assumption.id, mappedAssumptionId);
     knowledgeEvents.push({
-      operationId: stableKnowledgeOperationId(
-        output.requestId,
-        "assumption-added",
+      operationId: await stableMappedId(
+        "knowledge",
+        priorState.runId,
+        currentSegment.ordinal,
+        `assumption-added:${index}`,
         assumption.id,
       ),
       type: "ASSUMPTION_ADDED",
       assumption: {
-        id: assumption.id,
+        id: mappedAssumptionId,
         statement: assumption.statement.trim(),
         strength: assumption.strength,
         evidence: assumption.evidence.map((span) =>
@@ -114,8 +147,9 @@ export async function mapModelOutput(
     });
   }
 
-  for (const update of output.assumptionUpdates) {
-    if (!knownAssumptionIds.has(update.id)) {
+  for (const [index, update] of output.assumptionUpdates.entries()) {
+    const mappedAssumptionId = assumptionAliases.get(update.id) ?? update.id;
+    if (!knownAssumptionIds.has(mappedAssumptionId)) {
       throw new Error(`Model updated unknown assumption ${update.id}.`);
     }
     const type =
@@ -125,14 +159,15 @@ export async function mapModelOutput(
           ? "ASSUMPTION_REFUTED"
           : "ASSUMPTION_EXPIRED";
     knowledgeEvents.push({
-      operationId: stableKnowledgeOperationId(
-        output.requestId,
-        "assumption-update",
-        update.id,
-        update.status,
+      operationId: await stableMappedId(
+        "knowledge",
+        priorState.runId,
+        currentSegment.ordinal,
+        `assumption-update:${index}:${update.status}`,
+        mappedAssumptionId,
       ),
       type,
-      assumptionId: update.id,
+      assumptionId: mappedAssumptionId,
       evidence: update.evidence.map((span) =>
         repairEvidence(span, currentSegment, expectedTransportSegmentId),
       ),
@@ -163,10 +198,11 @@ export async function mapModelOutput(
 
 async function mapQuestionOperation(
   operation: QuestionOperation,
-  priorQuestions: readonly AudienceQuestion[],
+  priorQuestions: readonly Pick<AudienceQuestion, "id" | "semanticKey">[],
   currentSegment: ScriptSegment,
   runIdValue: AudienceState["runId"],
   expectedTransportSegmentId: string,
+  mappedOperationId: ReturnType<typeof operationId>,
 ): Promise<QuestionEvent> {
   if (operation.type === "open") {
     const semanticKey = normalizeSemanticKey(operation.semanticKey);
@@ -176,7 +212,7 @@ async function mapQuestionOperation(
 
     if (duplicate !== undefined) {
       return {
-        operationId: operationId(operation.operationId),
+        operationId: mappedOperationId,
         type: "QUESTION_REINFORCED",
         questionId: duplicate.id,
         evidence: operation.evidence.map((span) =>
@@ -190,7 +226,7 @@ async function mapQuestionOperation(
       `${runIdValue}:${currentSegment.ordinal}:${semanticKey}`,
     );
     return {
-      operationId: operationId(operation.operationId),
+      operationId: mappedOperationId,
       type: "QUESTION_OPENED",
       question: {
         id: questionId(`question_${stableHash.slice(0, 24)}`),
@@ -211,7 +247,7 @@ async function mapQuestionOperation(
   }
 
   const base = {
-    operationId: operationId(operation.operationId),
+    operationId: mappedOperationId,
     questionId: questionId(operation.questionId),
     rationale: operation.rationale.trim(),
   };

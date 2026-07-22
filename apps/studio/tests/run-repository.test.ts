@@ -163,6 +163,88 @@ describe("RunRepository", () => {
     ).rejects.toThrow(/fence/iu);
   });
 
+  it("scopes persisted operation keys to each run", async () => {
+    const database = new GhostAudienceDatabase(`test-${crypto.randomUUID()}`);
+    databases.push(database);
+    const repository = new RunRepository(database);
+    const now = new Date().toISOString();
+
+    async function commitRun(index: number): Promise<void> {
+      const created = await repository.create({
+        projectId: `project_0000000${index}`,
+        scriptId: `script_0000000${index}`,
+        scriptHash: hash,
+        segmentManifestHash: manifestHash,
+        intentSnapshot: EMPTY_INTENT_CONTRACT,
+        prefixHashes: [hash],
+        providerMode: "fixture",
+        modelId: "fixture-v1",
+        promptVersion: "fixture-v1",
+        now,
+      });
+      await database.runs.update(created.id, { activeFence: 1 });
+      const segment = segmentFixture();
+      await repository.commitStep({
+        runId: created.id,
+        fence: 1,
+        ordinal: 0,
+        requestId: `request_0000000${index}`,
+        idempotencyKey: String(index).repeat(64),
+        providerMode: "fixture",
+        modelId: "fixture-v1",
+        promptVersion: "fixture-v1",
+        rawValidatedResponse: {
+          schemaVersion: "1.0",
+          requestId: `request_0000000${index}`,
+          factsAdded: [],
+          assumptionsAdded: [],
+          assumptionUpdates: [],
+          questionOperations: [],
+          warnings: [],
+        },
+        questionEvents: [
+          {
+            operationId: operationId("operation_shared_0001"),
+            type: "QUESTION_OPENED",
+            question: {
+              id: questionId(`question_0000000${index}`),
+              runId: runId(created.id),
+              semanticKey: `motivation|mira|stops|${index}`,
+              text: "Why does Mira stop?",
+              kind: "motivation",
+              severity: "curiosity",
+              openedAtOrdinal: 0,
+              lastChangedAtOrdinal: 0,
+              evidence: [
+                {
+                  segmentId: segment.id,
+                  startOffset: 0,
+                  endOffset: 11,
+                  quote: "Mira stops.",
+                },
+              ],
+              rationale: "The action is unexplained.",
+              minimalClarification: null,
+            },
+          },
+        ],
+        knowledgeEvents: [],
+        segments: [segment],
+        now,
+      });
+    }
+
+    await commitRun(1);
+    await commitRun(2);
+
+    const records = await database.questionEvents.toArray();
+    expect(records).toHaveLength(2);
+    expect(new Set(records.map((record) => record.operationId)).size).toBe(2);
+    expect(
+      records.every((record) => record.event.operationId === "operation_shared_0001"),
+    ).toBe(true);
+  });
+
   it("records terminal and failed statuses while rejecting a missing run", async () => {
     const database = new GhostAudienceDatabase(`test-${crypto.randomUUID()}`);
     databases.push(database);

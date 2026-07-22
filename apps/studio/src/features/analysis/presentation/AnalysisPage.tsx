@@ -27,6 +27,12 @@ function friendlyFailure(message: string | null): string {
   if (/network|fetch|timeout|timed out/iu.test(message)) {
     return "The connection was interrupted. Your completed sections are safe.";
   }
+  if (/constraint|key already exists|bulkadd|bulkerror/iu.test(message)) {
+    return "A local save conflict interrupted this section. Your completed sections are safe, and continuing will retry it with a fresh event identity.";
+  }
+  if (/quota|storage.*full|disk.*full/iu.test(message)) {
+    return "This browser is low on local storage. Free some browser storage or remove an older project, then continue the audience read.";
+  }
   return message;
 }
 

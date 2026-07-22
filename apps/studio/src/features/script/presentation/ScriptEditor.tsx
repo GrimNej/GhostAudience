@@ -222,6 +222,7 @@ export function ScriptEditor({
           {wordCount === 0 ? null : (
             <span>About {approximateSections} reading sections</span>
           )}
+          <span>Up to {hardWordLimit.toLocaleString()} words</span>
         </div>
       </div>
 

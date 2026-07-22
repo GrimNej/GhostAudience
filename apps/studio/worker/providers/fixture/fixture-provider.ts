@@ -50,6 +50,67 @@ function deterministicOperationId(input: StepAnalysisInput, suffix: string): str
     .slice(0, 120);
 }
 
+function isDemoStep(input: StepAnalysisInput): boolean {
+  if (input.currentOrdinal === 0)
+    return input.currentSegment.text.includes("Not again.");
+  if (input.currentOrdinal === 1)
+    return input.currentSegment.text.includes("She said never to touch that.");
+  if (input.currentOrdinal === 2)
+    return input.currentSegment.text.includes(
+      "Anya brought me here the night the archive burned.",
+    );
+  return false;
+}
+
+function firstGroundedQuote(input: StepAnalysisInput): string {
+  const text = input.currentSegment.text;
+  const firstVisible = text.search(/\S/u);
+  const startOffset = firstVisible < 0 ? 0 : firstVisible;
+  const available = text.slice(startOffset);
+  const maximumLength = Math.min(available.length, 220);
+  const candidate = available.slice(0, maximumLength);
+  const sentenceEnd = candidate.search(/[.!?](?:\s|$)/u);
+  const preferredEnd = sentenceEnd >= 24 ? sentenceEnd + 1 : maximumLength;
+  return candidate.slice(0, preferredEnd).trimEnd() || text.slice(0, 1);
+}
+
+function buildGenericStep(input: StepAnalysisInput): StepAnalysisOutput {
+  const ordinal = input.currentOrdinal;
+  const quote = firstGroundedQuote(input);
+  const sectionNumber = ordinal + 1;
+  return StepAnalysisOutputSchema.parse({
+    schemaVersion: "1.0",
+    requestId: input.requestId,
+    factsAdded: [
+      {
+        id: `fact_fixture_${ordinal}_${input.currentSegment.id.slice(-12)}`,
+        statement: `Section ${sectionNumber} presents this audience-visible point: ${quote}`,
+        confidence: "explicit",
+        evidence: [evidence(input, quote)],
+      },
+    ],
+    assumptionsAdded: [],
+    assumptionUpdates: [],
+    questionOperations: [
+      {
+        operationId: deterministicOperationId(input, `section-${ordinal}-open`),
+        type: "open",
+        semanticKey: `knowledge-gap|section-${ordinal}|meaning-and-context`,
+        text: `What context or explanation would help the audience understand the significance of section ${sectionNumber}?`,
+        kind: "knowledge_gap",
+        severity: "curiosity",
+        evidence: [evidence(input, quote)],
+        rationale:
+          "A first-time audience may understand the words while still wanting their purpose or significance made clearer.",
+        minimalClarification: null,
+      },
+    ],
+    warnings: [
+      "This section used deterministic local preview analysis because live inference was unavailable.",
+    ],
+  });
+}
+
 function buildDemoStep(input: StepAnalysisInput): StepAnalysisOutput {
   const ordinal = input.currentOrdinal;
   if (ordinal === 0) {
@@ -111,6 +172,10 @@ function buildDemoStep(input: StepAnalysisInput): StepAnalysisOutput {
   }
 
   if (ordinal === 2) {
+    const priorVisitAssumption = input.priorAudienceState.assumptions.find(
+      (assumption) =>
+        assumption.statement === "Mira may have been at the house before.",
+    );
     const recognitionId = openQuestionId(input, "motivation|mira|recognizes|house");
     const referenceId = openQuestionId(
       input,
@@ -153,16 +218,19 @@ function buildDemoStep(input: StepAnalysisInput): StepAnalysisOutput {
         },
       ],
       assumptionsAdded: [],
-      assumptionUpdates: [
-        {
-          id: "assumption_mira_prior_visit",
-          status: "confirmed",
-          evidence: [
-            evidence(input, "Anya brought me here the night the archive burned."),
-          ],
-          rationale: "Mira confirms a prior visit.",
-        },
-      ],
+      assumptionUpdates:
+        priorVisitAssumption === undefined
+          ? []
+          : [
+              {
+                id: priorVisitAssumption.id,
+                status: "confirmed",
+                evidence: [
+                  evidence(input, "Anya brought me here the night the archive burned."),
+                ],
+                rationale: "Mira confirms a prior visit.",
+              },
+            ],
       questionOperations: operations,
       warnings: [],
     });
@@ -183,7 +251,7 @@ export class FixtureProvider implements NarrativeModelProvider {
     input: StepAnalysisInput,
   ): Promise<ProviderResult<StepAnalysisOutput>> {
     return {
-      output: buildDemoStep(input),
+      output: isDemoStep(input) ? buildDemoStep(input) : buildGenericStep(input),
       usage: ZERO_USAGE,
     };
   }

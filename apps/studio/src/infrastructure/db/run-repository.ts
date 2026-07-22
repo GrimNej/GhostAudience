@@ -50,6 +50,10 @@ export interface CommitStepInput {
   readonly now: string;
 }
 
+function persistentEventKey(runIdValue: string, operationIdValue: string): string {
+  return `${runIdValue}:${operationIdValue}`;
+}
+
 export class RunRepository {
   public constructor(private readonly db: GhostAudienceDatabase) {}
 
@@ -188,7 +192,7 @@ export class RunRepository {
         };
         const questionRecords: readonly QuestionEventRecord[] =
           input.questionEvents.map((event) => ({
-            operationId: event.operationId,
+            operationId: persistentEventKey(input.runId, event.operationId),
             runId: input.runId,
             questionId:
               event.type === "QUESTION_OPENED" ? event.question.id : event.questionId,
@@ -198,7 +202,7 @@ export class RunRepository {
           }));
         const knowledgeRecords: readonly KnowledgeEventRecord[] =
           input.knowledgeEvents.map((event) => ({
-            operationId: event.operationId,
+            operationId: persistentEventKey(input.runId, event.operationId),
             runId: input.runId,
             ordinal: input.ordinal,
             event,

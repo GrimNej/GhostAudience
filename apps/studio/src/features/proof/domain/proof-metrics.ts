@@ -33,8 +33,8 @@ export function buildProofMetrics(input: {
   readonly questions: readonly AudienceQuestion[];
 }): ProofMetrics {
   const operationIds = [
-    ...input.questionEvents.map((event) => event.operationId),
-    ...input.knowledgeEvents.map((event) => event.operationId),
+    ...input.questionEvents.map((record) => record.event.operationId),
+    ...input.knowledgeEvents.map((record) => record.event.operationId),
   ];
   const evidenceSpanCount = input.questions.reduce(
     (count, question) =>
