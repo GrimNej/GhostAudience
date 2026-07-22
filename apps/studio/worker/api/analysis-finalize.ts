@@ -3,10 +3,10 @@ import {
   FinalizeRunOutputSchema,
 } from "@ghost-audience/contracts";
 import type { Context } from "hono";
+import { reservePrimaryBudgetOrContinuity } from "../budget/continuity-budget";
 import {
   estimateRequestTokens,
   releaseTokenBudget,
-  reserveTokenBudget,
   settleTokenBudget,
   type TokenReservation,
 } from "../budget/token-budget";
@@ -52,15 +52,20 @@ export function analysisFinalizeHandler(provider: NarrativeModelProvider) {
     const timer = setTimeout(() => controller.abort(), 35_000);
     try {
       const config = context.get("runtimeConfig");
-      if (config.providerMode === "live") {
-        tokenReservation = await reserveTokenBudget(
-          context.env.CONTROL_DB,
-          config,
-          estimateRequestTokens(JSON.stringify(input).length, 2_000),
-          now,
-        );
+      const budgetRoute = await reservePrimaryBudgetOrContinuity(
+        context.env.CONTROL_DB,
+        config,
+        estimateRequestTokens(JSON.stringify(input).length, 2_000),
+        now,
+        provider.finalizeRunWithContinuity !== undefined,
+      );
+      tokenReservation = budgetRoute.tokenReservation;
+      const result = budgetRoute.useContinuityModel
+        ? await provider.finalizeRunWithContinuity?.(input, controller.signal)
+        : await provider.finalizeRun(input, controller.signal);
+      if (result === undefined) {
+        throw new Error("No continuity model is configured for finalization.");
       }
-      const result = await provider.finalizeRun(input, controller.signal);
       const output = FinalizeRunOutputSchema.parse(result.output);
       if (tokenReservation !== null) {
         await settleTokenBudget(

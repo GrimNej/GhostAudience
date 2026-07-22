@@ -1,5 +1,6 @@
 import type { FinalizeRunInput, StepAnalysisInput } from "@ghost-audience/contracts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { reservePrimaryBudgetOrContinuity } from "../budget/continuity-budget";
 import type { LiveRuntimeConfig } from "../env";
 import { ApiError } from "../errors";
 import { cloudflareFallbackModelId } from "../providers/cloudflare/cloudflare-ai-client";
@@ -206,6 +207,43 @@ describe("WatsonxProvider continuity", () => {
     expect(result.output.warnings).toEqual([]);
     expect(result.usage.totalTokens).toBe(200);
     expect(run).not.toHaveBeenCalled();
+  });
+
+  it("uses Workers AI directly when the primary token budget is unavailable", async () => {
+    const run = vi.fn().mockResolvedValue({
+      response: JSON.parse(backupResponse()) as unknown,
+      usage: { prompt_tokens: 120, completion_tokens: 80, total_tokens: 200 },
+    });
+    const { WatsonxProvider } = await import("../providers/watsonx/watsonx-provider");
+
+    const result = await new WatsonxProvider(config, {
+      run,
+    } as unknown as Ai).analyzeStepWithContinuity(input, new AbortController().signal);
+
+    expect(result.output.questionOperations).toHaveLength(1);
+    expect(result.output.warnings).toContain(
+      "IBM watsonx.ai was temporarily unavailable, so this section continued on the backup audience model.",
+    );
+    expect(watsonxChat).not.toHaveBeenCalled();
+    expect(run).toHaveBeenCalledOnce();
+  });
+
+  it("routes an exhausted primary reservation to continuity without reserving tokens", async () => {
+    const database = {
+      prepare: vi.fn(() => ({
+        bind: vi.fn(() => ({ first: vi.fn().mockResolvedValue(null) })),
+      })),
+    } as unknown as D1Database;
+
+    await expect(
+      reservePrimaryBudgetOrContinuity(database, config, 5_000, 1_700_000_000, true),
+    ).resolves.toEqual({
+      tokenReservation: null,
+      useContinuityModel: true,
+    });
+    await expect(
+      reservePrimaryBudgetOrContinuity(database, config, 5_000, 1_700_000_000, false),
+    ).rejects.toMatchObject({ code: "TOKEN_BUDGET_EXHAUSTED" });
   });
 
   it("repairs an invalid primary response and combines token usage", async () => {

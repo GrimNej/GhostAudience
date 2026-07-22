@@ -3,10 +3,10 @@ import {
   StepAnalysisOutputSchema,
 } from "@ghost-audience/contracts";
 import type { Context } from "hono";
+import { reservePrimaryBudgetOrContinuity } from "../budget/continuity-budget";
 import {
   estimateRequestTokens,
   releaseTokenBudget,
-  reserveTokenBudget,
   settleTokenBudget,
   type TokenReservation,
 } from "../budget/token-budget";
@@ -71,17 +71,26 @@ export function analysisStepHandler(provider: NarrativeModelProvider) {
     const timer = setTimeout(() => controller.abort(), 75_000);
 
     try {
-      if (context.get("runtimeConfig").providerMode === "live") {
-        const estimated = estimateRequestTokens(JSON.stringify(input).length, 3_500);
-        tokenReservation = await reserveTokenBudget(
-          context.env.CONTROL_DB,
-          context.get("runtimeConfig"),
-          estimated,
-          nowSeconds,
+      const budgetRoute = await reservePrimaryBudgetOrContinuity(
+        context.env.CONTROL_DB,
+        context.get("runtimeConfig"),
+        estimateRequestTokens(JSON.stringify(input).length, 3_500),
+        nowSeconds,
+        provider.analyzeStepWithContinuity !== undefined,
+      );
+      tokenReservation = budgetRoute.tokenReservation;
+
+      const result = budgetRoute.useContinuityModel
+        ? await provider.analyzeStepWithContinuity?.(input, controller.signal)
+        : await provider.analyzeStep(input, controller.signal);
+      if (result === undefined) {
+        throw new ApiError(
+          "TOKEN_BUDGET_EXHAUSTED",
+          429,
+          "No continuity model is configured for this audience read.",
+          false,
         );
       }
-
-      const result = await provider.analyzeStep(input, controller.signal);
       const output = StepAnalysisOutputSchema.parse(result.output);
       if (tokenReservation !== null) {
         await settleTokenBudget(

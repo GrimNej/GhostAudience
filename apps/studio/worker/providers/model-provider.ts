@@ -38,5 +38,13 @@ export interface NarrativeModelProvider {
     input: FinalizeRunInput,
     signal: AbortSignal,
   ): Promise<ProviderResult<FinalizeRunOutput>>;
+  analyzeStepWithContinuity?(
+    input: StepAnalysisInput,
+    signal: AbortSignal,
+  ): Promise<ProviderResult<StepAnalysisOutput>>;
+  finalizeRunWithContinuity?(
+    input: FinalizeRunInput,
+    signal: AbortSignal,
+  ): Promise<ProviderResult<FinalizeRunOutput>>;
   capabilities(signal: AbortSignal): Promise<ModelCapabilities>;
 }

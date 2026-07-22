@@ -165,6 +165,29 @@ export class WatsonxProvider implements NarrativeModelProvider {
     input: StepAnalysisInput,
     signal: AbortSignal,
   ): Promise<ProviderResult<StepAnalysisOutput>> {
+    return this.analyzeStepUsing(input, signal, false);
+  }
+
+  public async analyzeStepWithContinuity(
+    input: StepAnalysisInput,
+    signal: AbortSignal,
+  ): Promise<ProviderResult<StepAnalysisOutput>> {
+    if (this.backupAi === undefined) {
+      throw new ApiError(
+        "TOKEN_BUDGET_EXHAUSTED",
+        429,
+        "The primary model budget is exhausted and no continuity model is configured.",
+        false,
+      );
+    }
+    return this.analyzeStepUsing(input, signal, true);
+  }
+
+  private async analyzeStepUsing(
+    input: StepAnalysisInput,
+    signal: AbortSignal,
+    preferBackupModel: boolean,
+  ): Promise<ProviderResult<StepAnalysisOutput>> {
     const first = await this.chat(
       {
         messages: [
@@ -176,6 +199,7 @@ export class WatsonxProvider implements NarrativeModelProvider {
         timeLimitMilliseconds: 40_000,
       },
       signal,
+      preferBackupModel,
     );
 
     try {
@@ -237,6 +261,29 @@ export class WatsonxProvider implements NarrativeModelProvider {
     input: FinalizeRunInput,
     signal: AbortSignal,
   ): Promise<ProviderResult<FinalizeRunOutput>> {
+    return this.finalizeRunUsing(input, signal, false);
+  }
+
+  public async finalizeRunWithContinuity(
+    input: FinalizeRunInput,
+    signal: AbortSignal,
+  ): Promise<ProviderResult<FinalizeRunOutput>> {
+    if (this.backupAi === undefined) {
+      throw new ApiError(
+        "TOKEN_BUDGET_EXHAUSTED",
+        429,
+        "The primary model budget is exhausted and no continuity model is configured.",
+        false,
+      );
+    }
+    return this.finalizeRunUsing(input, signal, true);
+  }
+
+  private async finalizeRunUsing(
+    input: FinalizeRunInput,
+    signal: AbortSignal,
+    preferBackupModel: boolean,
+  ): Promise<ProviderResult<FinalizeRunOutput>> {
     const result = await this.chat(
       {
         messages: [
@@ -248,6 +295,7 @@ export class WatsonxProvider implements NarrativeModelProvider {
         timeLimitMilliseconds: 30_000,
       },
       signal,
+      preferBackupModel,
     );
     try {
       return {
