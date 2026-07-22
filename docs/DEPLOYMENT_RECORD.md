@@ -2,11 +2,11 @@
 
 ## Current Production Release
 
-- Date verified: 2026-07-18
+- Date verified: 2026-07-22
 - Worker: `ghost-audience`
 - Custom domain: `https://audience.grimnej.com`
 - Retained Workers development URL: `https://ghost-audience.ginejneupane123.workers.dev`
-- Cloudflare Worker version: `76151317-610d-452b-a3b2-3e5bfae3cc4b`
+- Cloudflare Worker version: `3cc22e46-b4a0-431a-8d79-77fd931a9807`
 - Provider mode: live with automatic continuity
 - Primary model: IBM watsonx.ai `meta-llama/llama-3-3-70b-instruct`
 - Continuity model: Cloudflare Workers AI `@cf/meta/llama-3.1-8b-instruct-fast`
@@ -35,8 +35,12 @@
 - A fresh browser imported the owner's exact 504-word Iron Crag narrative, completed both live sections with HTTP 200 responses, and opened Results automatically.
 - The verified report contained 6 questions, 4 clarity risks, 2 clear signals, exact evidence, working question details, and refresh persistence.
 - The post-release browser console had no application errors. The only warning was the automation context declining persistent-storage permission.
+- An exact 5,000-word production project completed 10 ordered sections after resuming from a real provider-format failure and crossing the watsonx safety ceiling.
+- The final three capacity-test requests returned HTTP 200 through automatic Workers AI continuity. Results contained 16 questions and 10 grounded understanding signals and survived a full reload.
+- No DNS record was modified or deleted during the reliability deployment.
 - GitHub Actions passed CI run `29654775644`, Security run `29654775634`, and Submission Gate run `29654775713` for release correction commit `beda893`.
 - The hosted Submission Gate reached the preview Worker without Cloudflare credentials and passed the complete browser matrix using local fixture bindings.
+- Reliability head `b6e9ef6` passed CI run `29904638974`, Security run `29904639008`, and Submission Gate run `29904638672` after the long-input fixes and audited dependency pins.
 
 ## Source Commits In This Release
 
@@ -47,3 +51,8 @@
 - `7f23c55` - deliver a resilient AI audience read.
 - `e4c74af` - record the verified production release.
 - `beda893` - keep the hosted browser gate on local bindings.
+- `d90035e` - make long audience reads collision safe.
+- `76c75b4` - bound evidence in provider recovery.
+- `37342d1` - continue reads past the primary model budget.
+- `fe38eb0` - cover token budget continuity.
+- `b6e9ef6` - patch audited transitive dependencies.

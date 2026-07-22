@@ -16,11 +16,13 @@ The product now follows one clear promise: add any substantial text, run one aud
 - Kept IBM watsonx.ai Llama 3.3 70B Instruct as the primary model.
 - Added Cloudflare Workers AI Llama 3.1 8B Fast as a bounded continuity model when IBM is unavailable or exceeds the interactive response window.
 - Added model-question salvage, exact-evidence repair, and content-aware audience questions so format drift cannot produce an empty report.
+- Made browser persistence collision-safe across repeated projects and model responses.
+- Added arbitrary-content preview recovery, bounded evidence for punctuation-free input, and automatic Workers AI continuity at the watsonx safety ceiling.
 - Preserved the `audience.grimnej.com` custom domain without modifying or deleting existing DNS records.
-- Passed 72 TypeScript unit and integration tests, including 44 Studio tests.
+- Passed 97 TypeScript unit and integration tests, including 68 Studio tests.
 - Passed 16 browser tests across Chromium, Firefox, WebKit, and mobile Chromium.
-- Passed the Studio coverage gate at 90.95% statements, 80.21% branches, 90.41% functions, and 94.17% lines.
-- Passed the hosted GitHub Actions CI, Security, and Submission Gate workflows for release correction commit `beda893`.
+- Passed the Studio coverage gate at 90.13% statements, 80.53% branches, 88.23% functions, and 92.64% lines.
+- Passed the hosted GitHub Actions CI, Security, and Submission Gate workflows for reliability head `b6e9ef6`.
 
 ## Live Acceptance Test
 
@@ -34,11 +36,19 @@ The exact 504-word Iron Crag narrative supplied by the owner was imported throug
 - Refreshing the page preserved the completed report.
 - The browser console contained zero application errors.
 
+An exact 5,000-word capacity project was also verified on the public application after the reliability release.
+
+- The project was divided into 10 ordered reading sections.
+- A real invalid-response failure was repaired and the same project resumed without losing completed work.
+- Seven sections committed before the watsonx safety ceiling, then the remaining three completed automatically through Workers AI continuity with HTTP 200 responses.
+- Results contained 16 meaningful questions and 10 grounded understanding signals.
+- Reloading Results preserved the complete report with zero current console errors.
+
 ## Operational Notes
 
 - Runtime credentials exist only as Cloudflare Worker secrets and are not stored in Git.
 - The local machine currently runs Node.js 24.14.0 while the repository requests Node.js 24.18.0 or later. Local checks pass with a warning and hosted CI uses the pinned compatible runtime.
-- Production Worker version: `76151317-610d-452b-a3b2-3e5bfae3cc4b`.
+- Production Worker version: `3cc22e46-b4a0-431a-8d79-77fd931a9807`.
 
 ## Next Owner Task
 

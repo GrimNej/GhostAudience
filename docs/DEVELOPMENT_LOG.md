@@ -46,6 +46,18 @@
 - Verified the exact 504-word Iron Crag narrative on the public custom domain with two HTTP 200 section responses, 6 questions, 4 clarity risks, evidence details, and refresh persistence.
 - Raised the Studio test count to 44 while retaining all coverage thresholds.
 
+## 2026-07-22: Long Input And Recovery Hardening
+
+- Diagnosed the IndexedDB `ConstraintError` as a global-key collision caused by reusable model-generated operation IDs, not by the 5,000-word input itself.
+- Canonicalized all model IDs at the trust boundary and scoped persisted event keys to their run without requiring an IndexedDB migration.
+- Added sequential duplicate-question handling and canonical assumption aliases for multi-operation model responses.
+- Generalized fixture analysis to arbitrary content and bounded recovery evidence for long punctuation-free passages.
+- Added automatic Workers AI routing when the watsonx token safety ceiling prevents a primary reservation.
+- Added capacity, collision, recovery, storage-message, provider-fallback, and token-budget regression tests.
+- Pinned patched transitive `fast-uri` and `sharp` releases after the hosted dependency audit reported newly published high-severity advisories; `pnpm audit` now reports no known vulnerabilities.
+- Completed the exact 5,000-word production recovery across 10 sections, producing 16 questions and 10 grounded understanding signals with refresh persistence.
+- Deployed Worker version `3cc22e46-b4a0-431a-8d79-77fd931a9807` without changing any DNS record.
+
 ## Remaining Owner-Controlled Work
 
 - Add genuine IBM Bob evidence only after it exists. The repository deliberately contains no fabricated Bob artifacts.
