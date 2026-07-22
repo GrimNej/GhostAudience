@@ -213,6 +213,30 @@ describe("normalizeStepOutput", () => {
     });
   });
 
+  it("bounds exact fallback evidence for long text without punctuation", () => {
+    const longText = Array.from(
+      { length: 80 },
+      (_, index) => `Section${index + 1} explains a practical community proposal`,
+    ).join(" ");
+    const longInput: StepAnalysisInput = {
+      ...input,
+      currentSegment: {
+        ...input.currentSegment,
+        text: longText,
+      },
+    };
+
+    const recovered = buildSafeFallbackStepOutput(longInput);
+
+    expect(validateStepOutput(longInput, recovered)).toEqual(recovered);
+    for (const operation of recovered.questionOperations) {
+      for (const span of operation.evidence) {
+        expect(span.quote.length).toBeLessThanOrEqual(460);
+        expect(longText.slice(span.startOffset, span.endOffset)).toBe(span.quote);
+      }
+    }
+  });
+
   it("strips extras and repairs uniquely matchable evidence offsets", () => {
     const normalized = normalizeStepOutput(input, {
       schemaVersion: "1.0",

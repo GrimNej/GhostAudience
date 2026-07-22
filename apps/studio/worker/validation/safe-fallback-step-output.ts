@@ -58,15 +58,28 @@ function sentenceEvidenceRanges(text: string): readonly EvidenceRange[] {
   const ranges: EvidenceRange[] = [];
   for (const match of text.matchAll(/[^.!?]+[.!?]+|[^.!?]+$/gu)) {
     const raw = match[0];
-    const meaningfulStart = raw.search(/[^\s"'“”]/u);
-    if (meaningfulStart === -1) continue;
-    const quote = raw.slice(meaningfulStart).trimEnd();
-    const startOffset = (match.index ?? 0) + meaningfulStart;
-    ranges.push({
-      startOffset,
-      endOffset: startOffset + quote.length,
-      quote,
-    });
+    let cursor = raw.search(/[^\s"'“”]/u);
+    if (cursor === -1) continue;
+
+    while (cursor < raw.length) {
+      while (/\s/u.test(raw[cursor] ?? "")) cursor += 1;
+      if (cursor >= raw.length) break;
+
+      const maximumEnd = Math.min(raw.length, cursor + maximumQuoteLength);
+      const whitespaceBoundary =
+        maximumEnd < raw.length ? raw.lastIndexOf(" ", maximumEnd) : -1;
+      const end = whitespaceBoundary > cursor ? whitespaceBoundary : maximumEnd;
+      const quote = raw.slice(cursor, end).trimEnd();
+      if (quote.length > 0) {
+        const startOffset = (match.index ?? 0) + cursor;
+        ranges.push({
+          startOffset,
+          endOffset: startOffset + quote.length,
+          quote,
+        });
+      }
+      cursor = Math.max(end, cursor + 1);
+    }
   }
   return ranges;
 }
